@@ -34,11 +34,11 @@ export const CATEGORY_ICONS = {
 };
 
 export const CATEGORY_COLORS = {
-  Alimentação: '#34d399',
-  Transporte: '#60a5fa',
-  Saúde: '#f472b6',
-  Lazer: '#fbbf24',
-  Casa: '#a78bfa',
-  Trabalho: '#38bdf8',
-  Outros: '#94a3b8',
+  Alimentação: '#22c55e',
+  Transporte: '#38bdf8',
+  Saúde: '#f97316',
+  Lazer: '#f59e0b',
+  Casa: '#a3a3a3',
+  Trabalho: '#e5e7eb',
+  Outros: '#71717a',
 };

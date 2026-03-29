@@ -9,7 +9,12 @@ export function updateResponsiveAppView() {
     return;
   }
 
-  if (!state.currentUser) {
+  const isLoggedIn = Boolean(state.currentUser);
+
+  document.body.classList.toggle('logged-in', isLoggedIn);
+  document.body.classList.toggle('logged-out', !isLoggedIn);
+
+  if (!isLoggedIn) {
     loginScreen.style.display = 'flex';
     mobileApp.style.display = 'none';
     desktopApp.style.display = 'none';

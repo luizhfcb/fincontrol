@@ -1,20 +1,18 @@
-# FinControl refatorado
+# FinControl UI refresh
 
-## O que foi reorganizado
+## O que mudou nesta versão
 
-- `index.html` ficou focado só na estrutura da interface.
-- `css/main.css` concentra todo o estilo visual.
-- `js/` foi separado por responsabilidade:
-  - `config/` para Firebase
-  - `core/` para constantes, estado global e utilitários
-  - `services/` para autenticação, tema, áudio e persistência
-  - `ui/` para renderização, modal, navegação, feedback e layout
-- `manifest.json` e `sw.js` foram mantidos, mas ajustados para caminhos relativos e cache dos arquivos estáticos principais.
+- Tela de login redesenhada, com visual mais forte e apresentação do produto.
+- Tema escuro convertido para base `black / grey`, sem o roxo dominante.
+- Gráfico de categorias trocado de barras para um gráfico redondo tipo donut.
+- Bloco de transações recentes agora agrupado por categoria.
+- Categorias do modal também aparecem no fluxo de áudio.
+- Erro de login do Firebase agora mostra o código retornado no toast e no console.
 
 ## Estrutura
 
 ```text
-fincontrol-refatorado/
+fincontrol-ui-refresh/
 ├── css/
 │   └── main.css
 ├── js/
@@ -45,6 +43,11 @@ fincontrol-refatorado/
 └── sw.js
 ```
 
-## Observação
+## Arquivos principais alterados
 
-A interface foi mantida visualmente próxima do layout original. A mudança principal foi estrutural, para facilitar manutenção e evolução do projeto.
+- `index.html`
+- `css/main.css`
+- `js/core/constants.js`
+- `js/services/auth.js`
+- `js/ui/categories.js`
+- `js/ui/render.js`

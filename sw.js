@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fincontrol-static-v2';
+const CACHE_NAME = 'fincontrol-static-v3';
 const GOOGLE_HOSTS = ['firebase', 'gstatic', 'googleapis', 'google.com'];
 
 const CORE_ASSETS = [
@@ -50,9 +50,33 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  if (request.mode === 'navigate' || request.destination === 'document') {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          const clonedResponse = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(new URL('./index.html', self.location).toString(), clonedResponse));
+          return networkResponse;
+        })
+        .catch(() => caches.match(new URL('./index.html', self.location).toString())),
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       if (cachedResponse) {
+        fetch(request)
+          .then((networkResponse) => {
+            if (!networkResponse || networkResponse.status !== 200 || request.url.startsWith('chrome-extension://')) {
+              return;
+            }
+
+            const clonedResponse = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clonedResponse));
+          })
+          .catch(() => {});
+
         return cachedResponse;
       }
 
@@ -65,8 +89,7 @@ self.addEventListener('fetch', (event) => {
           const clonedResponse = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clonedResponse));
           return networkResponse;
-        })
-        .catch(() => cachedResponse);
+        });
     }),
   );
 });

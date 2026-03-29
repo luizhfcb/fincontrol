@@ -11,12 +11,9 @@ export function refreshUI() {
     .filter((transaction) => transaction.type === 'income')
     .reduce((total, transaction) => total + transaction.val, 0);
 
-  const expense = monthlyTransactions
-    .filter((transaction) => transaction.type === 'expense')
-    .reduce((total, transaction) => total + transaction.val, 0);
-
-  const balance = income - expense;
   const expenseTransactions = monthlyTransactions.filter((transaction) => transaction.type === 'expense');
+  const expense = expenseTransactions.reduce((total, transaction) => total + transaction.val, 0);
+  const balance = income - expense;
   const activeDays = new Set(monthlyTransactions.map((transaction) => new Date(transaction.date).toDateString()));
   const dailyAverage = activeDays.size ? expense / activeDays.size : 0;
   const highestExpense = [...expenseTransactions].sort((left, right) => right.val - left.val)[0];
@@ -27,15 +24,15 @@ export function refreshUI() {
   });
 
   const sortedCategories = Object.entries(categoryMap).sort((left, right) => right[1] - left[1]);
-  const maxBarValue = sortedCategories[0]?.[1] || 1;
 
-  const balanceClassName = balance >= 0 ? 'purple' : 'red';
   ['mBalance', 'dBalance'].forEach((id) => {
     const element = document.getElementById(id);
-    if (element) {
-      element.textContent = formatCurrency(Math.abs(balance));
-      element.className = `big-val ${balanceClassName}`;
+    if (!element) {
+      return;
     }
+
+    element.textContent = formatCurrency(Math.abs(balance));
+    element.className = `big-val ${balance >= 0 ? 'positive' : 'negative'}`;
   });
 
   setText('mIncome', formatCurrency(income));
@@ -65,86 +62,167 @@ export function refreshUI() {
   setText('dBig2', highestExpense ? formatCurrency(highestExpense.val) : '—');
   setText('dBigSub', highestExpense ? `${highestExpense.cat} — ${highestExpense.desc}` : '—');
 
-  renderMobileTransactions(monthlyTransactions);
-  renderDesktopTransactions(monthlyTransactions);
-  renderCharts(sortedCategories, maxBarValue);
+  renderGroupedTransactions('mTxList', monthlyTransactions);
+  renderGroupedTransactions('dTxList', monthlyTransactions);
+  renderDonutCharts(sortedCategories, expense);
 }
 
-function renderMobileTransactions(transactions) {
-  const container = document.getElementById('mTxList');
+function renderGroupedTransactions(containerId, transactions) {
+  const container = document.getElementById(containerId);
   if (!container) {
     return;
   }
 
   const recentTransactions = [...transactions]
     .sort((left, right) => new Date(right.date) - new Date(left.date))
-    .slice(0, 20);
+    .slice(0, 24);
 
-  container.innerHTML = recentTransactions.length
-    ? recentTransactions.map((transaction) => `
-      <div class="tx-item">
-        <div class="tx-ico ${transaction.type}">${CATEGORY_ICONS[transaction.cat] || '📦'}</div>
-        <div class="tx-info">
-          <div class="tx-name">${transaction.desc}</div>
-          <div class="tx-meta">${transaction.cat} · ${new Date(transaction.date).toLocaleDateString('pt-BR')}</div>
+  if (!recentTransactions.length) {
+    container.innerHTML = '<div class="empty">Nenhum lançamento neste mês</div>';
+    return;
+  }
+
+  const grouped = new Map();
+
+  recentTransactions.forEach((transaction) => {
+    const key = transaction.cat || 'Outros';
+    const existing = grouped.get(key) || {
+      category: key,
+      latestDate: transaction.date,
+      transactions: [],
+      total: 0,
+    };
+
+    existing.transactions.push(transaction);
+    existing.total += transaction.type === 'income' ? transaction.val : -transaction.val;
+    grouped.set(key, existing);
+  });
+
+  const groupedTransactions = [...grouped.values()].sort(
+    (left, right) => new Date(right.latestDate) - new Date(left.latestDate),
+  );
+
+  container.innerHTML = groupedTransactions.map((group) => renderGroupSection(group)).join('');
+}
+
+function renderGroupSection(group) {
+  const totalClass = group.total >= 0 ? 'positive' : 'negative';
+  const totalPrefix = group.total >= 0 ? '+' : '-';
+
+  return `
+    <section class="group-section">
+      <div class="group-head">
+        <div class="group-title-wrap">
+          <div class="group-icon" style="color:${CATEGORY_COLORS[group.category] || 'var(--text)'}">
+            ${CATEGORY_ICONS[group.category] || '📦'}
+          </div>
+          <div>
+            <div class="group-title">${escapeHtml(group.category)}</div>
+            <div class="group-meta">${group.transactions.length} ${group.transactions.length === 1 ? 'lançamento' : 'lançamentos'}</div>
+          </div>
         </div>
-        <div class="tx-right">
-          <div class="tx-amt ${transaction.type}">${transaction.type === 'income' ? '+' : '-'} ${formatCurrency(transaction.val)}</div>
-          <button class="tdel" onclick="delTx('${transaction.id}')">✕</button>
-        </div>
+        <div class="group-total ${totalClass}">${totalPrefix} ${formatCurrency(Math.abs(group.total))}</div>
       </div>
-    `).join('')
-    : '<div class="empty">Nenhum lançamento neste mês</div>';
+      <div class="group-list">
+        ${group.transactions.map((transaction) => renderTransactionItem(transaction)).join('')}
+      </div>
+    </section>
+  `;
 }
 
-function renderDesktopTransactions(transactions) {
-  const container = document.getElementById('dTxList');
-  if (!container) {
-    return;
-  }
-
-  const recentTransactions = [...transactions]
-    .sort((left, right) => new Date(right.date) - new Date(left.date))
-    .slice(0, 20);
-
-  container.innerHTML = recentTransactions.length
-    ? recentTransactions.map((transaction) => `
-      <tr>
-        <td style="width:44px"><div class="d-tx-ico ${transaction.type}">${CATEGORY_ICONS[transaction.cat] || '📦'}</div></td>
-        <td>
-          <div class="d-tx-name">${transaction.desc}</div>
-          <div class="d-tx-sub">${transaction.cat} · ${new Date(transaction.date).toLocaleDateString('pt-BR')}</div>
-        </td>
-        <td class="d-tx-amt" style="color:${transaction.type === 'income' ? 'var(--green)' : 'var(--red)'}">
+function renderTransactionItem(transaction) {
+  return `
+    <div class="tx-item">
+      <div class="tx-ico ${transaction.type}">${CATEGORY_ICONS[transaction.cat] || '📦'}</div>
+      <div class="tx-info">
+        <div class="tx-name">${escapeHtml(transaction.desc)}</div>
+        <div class="tx-meta">${new Date(transaction.date).toLocaleDateString('pt-BR')} · ${transaction.type === 'income' ? 'Entrada' : 'Saída'}</div>
+      </div>
+      <div class="tx-right">
+        <div class="tx-amt ${transaction.type === 'income' ? 'positive' : 'negative'}">
           ${transaction.type === 'income' ? '+' : '-'} ${formatCurrency(transaction.val)}
-        </td>
-        <td class="d-tx-del" style="width:30px;text-align:right">
-          <button onclick="delTx('${transaction.id}')">✕</button>
-        </td>
-      </tr>
-    `).join('')
-    : '<tr><td colspan="4"><div class="empty">Nenhum lançamento</div></td></tr>';
+        </div>
+        <button class="tdel" onclick="delTx('${transaction.id}')">✕</button>
+      </div>
+    </div>
+  `;
 }
 
-function renderCharts(sortedCategories, maxBarValue) {
-  const bars = sortedCategories.length
-    ? sortedCategories.map(([category, value]) => `
-      <div class="bar-row">
-        <div class="bar-lbl">${CATEGORY_ICONS[category] || ''} ${category}</div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:${Math.round((value / maxBarValue) * 100)}%;background:${CATEGORY_COLORS[category]}"></div>
-        </div>
-        <div class="bar-v" style="color:${CATEGORY_COLORS[category]}">${formatCurrency(value)}</div>
-      </div>
-    `).join('')
-    : '<div class="empty">Sem gastos neste mês</div>';
-
+function renderDonutCharts(sortedCategories, totalExpense) {
+  const markup = buildDonutMarkup(sortedCategories, totalExpense);
   const mobileChart = document.getElementById('mBarChart');
   const desktopChart = document.getElementById('dBarChart');
+
   if (mobileChart) {
-    mobileChart.innerHTML = bars;
+    mobileChart.innerHTML = markup;
   }
+
   if (desktopChart) {
-    desktopChart.innerHTML = bars;
+    desktopChart.innerHTML = markup;
   }
+}
+
+function buildDonutMarkup(sortedCategories, totalExpense) {
+  if (!sortedCategories.length || !totalExpense) {
+    return '<div class="empty">Sem gastos neste mês</div>';
+  }
+
+  let current = 0;
+  const chartStops = sortedCategories.map(([category, value]) => {
+    const start = current;
+    const percentage = (value / totalExpense) * 100;
+    current += percentage;
+    return `${CATEGORY_COLORS[category] || '#71717a'} ${start.toFixed(2)}% ${current.toFixed(2)}%`;
+  });
+
+  const largestCategory = sortedCategories[0];
+  const largestShare = Math.round((largestCategory[1] / totalExpense) * 100);
+
+  return `
+    <div class="chart-layout">
+      <div class="donut-shell">
+        <div class="donut-chart" style="background:conic-gradient(${chartStops.join(', ')})">
+          <div class="donut-hole">
+            <span>Total gasto</span>
+            <strong>${formatCurrency(totalExpense)}</strong>
+            <small>${sortedCategories.length} categorias</small>
+          </div>
+        </div>
+      </div>
+      <div class="donut-side">
+        <div class="chart-highlight">
+          <span>Categoria dominante</span>
+          <strong>${escapeHtml(largestCategory[0])}</strong>
+          <p>${largestShare}% das despesas do período estão concentradas em <strong>${escapeHtml(largestCategory[0])}</strong>.</p>
+        </div>
+        <div class="donut-legend">
+          ${sortedCategories.map(([category, value]) => renderLegendItem(category, value, totalExpense)).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderLegendItem(category, value, totalExpense) {
+  const percentage = Math.round((value / totalExpense) * 100);
+
+  return `
+    <div class="legend-item">
+      <span class="legend-dot" style="background:${CATEGORY_COLORS[category] || '#71717a'}"></span>
+      <div>
+        <div class="legend-name">${escapeHtml(category)}</div>
+        <div class="legend-meta">${percentage}% do total</div>
+      </div>
+      <div class="legend-value">${formatCurrency(value)}</div>
+    </div>
+  `;
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }

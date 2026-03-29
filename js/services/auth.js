@@ -17,7 +17,8 @@ export async function loginGoogle() {
   try {
     await signInWithPopup(auth, googleProvider);
   } catch (error) {
-    showToast('Erro ao entrar.', true);
+    console.error('Firebase login error:', error);
+    showToast(error?.code ? `Erro: ${error.code}` : 'Erro ao entrar.', true);
   }
 }
 

@@ -35,6 +35,18 @@ document.addEventListener('click', (event) => {
   }
 });
 
+const isLocalEnvironment = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(() => {});
+  if (isLocalEnvironment) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      registrations.forEach((registration) => registration.unregister());
+    });
+
+    if (window.caches) {
+      caches.keys().then((keys) => keys.forEach((key) => caches.delete(key)));
+    }
+  } else {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
 }
