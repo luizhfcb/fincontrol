@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FinControl">
+<link rel="manifest" href="./manifest.json">
+<link rel="stylesheet" href="./css/main.css">
+<title>FinControl</title>
+</head>
+<body>
+<div id="app-loading"><div class="spin">💰</div><p>Carregando…</p></div>
+
+<div id="login-screen">
+  <div class="login-logo">💰</div>
+  <div class="login-title">Fin<em>Control</em></div>
+  <div class="login-sub">Controle os gastos da família com segurança na nuvem</div>
+  <button class="login-btn" onclick="loginGoogle()">
+    <img src="https://www.google.com/favicon.ico" alt="G"> Entrar com Google
+  </button>
+  <div class="login-note">Cada pessoa vê apenas seus próprios dados. Gratuito e seguro.</div>
+</div>
+
+<!-- ═══ MOBILE ═══ -->
+<div id="mobile-app">
+  <div class="m-topbar">
+    <div class="m-topbar-inner">
+      <span class="sync-dot" id="mSyncDot"></span>
+      <div class="m-app-name">💰 Fin<em>Control</em></div>
+      <div class="m-topbar-right">
+        <button class="icon-btn" id="mThemeBtn" onclick="toggleTheme()">🌙</button>
+        <div class="avatar-btn" id="mAvatar" onclick="doLogout()">?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-hero">
+    <div class="m-saldo-card">
+      <label>Saldo Total</label>
+      <div class="big-val purple" id="mBalance">R$ 0,00</div>
+    </div>
+    <div class="m-grid2">
+      <div class="m-mini"><label>Entradas</label><div class="val green" id="mIncome">R$ 0,00</div></div>
+      <div class="m-mini"><label>Saídas</label><div class="val red" id="mExpense">R$ 0,00</div></div>
+    </div>
+  </div>
+
+  <div class="m-scroller">
+    <!-- HOME -->
+    <div class="m-page active" id="mp-home">
+      <div style="height:10px"></div>
+      <div class="month-nav-row">
+        <button class="mnbtn" onclick="changeMonth(-1)">‹</button>
+        <span id="monthLabel">—</span>
+        <button class="mnbtn" onclick="changeMonth(1)">›</button>
+      </div>
+      <div class="sec-title">Estatísticas <button class="sec-link" onclick="goMPage('chart')">Ver gráficos →</button></div>
+      <div class="stats-grid" onclick="goMPage('chart')">
+        <div class="stat-card"><div class="stat-icon si-purple">📅</div><div class="stat-info"><label>Dias Ativos</label><div class="sn" id="mDays">0</div></div></div>
+        <div class="stat-card"><div class="stat-icon si-green">📈</div><div class="stat-info"><label>Média Diária</label><div class="sn" id="mAvg">R$0</div></div></div>
+        <div class="stat-card"><div class="stat-icon si-yellow">📋</div><div class="stat-info"><label>Registros</label><div class="sn" id="mCount">0</div></div></div>
+        <div class="stat-card highlight"><div class="stat-icon si-red">👑</div><div class="stat-info"><label>Maior Gasto do Mês</label><div class="sn" id="mBig">—</div><div class="stat-sub" id="mBigSub">—</div></div></div>
+      </div>
+      <div class="sec-title">Transações Recentes</div>
+      <div class="m-card"><div id="mTxList"><div class="empty">Nenhum lançamento neste mês</div></div></div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="m-page" id="mp-chart">
+      <div style="height:10px"></div>
+      <div class="sec-title">Gastos por Categoria</div>
+      <div class="m-card" style="padding:14px" id="mBarChart"><div class="empty">Sem gastos neste mês</div></div>
+      <div class="sec-title">Detalhes</div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon si-purple">📅</div><div class="stat-info"><label>Dias Ativos</label><div class="sn" id="mDays2">0</div></div></div>
+        <div class="stat-card"><div class="stat-icon si-green">📈</div><div class="stat-info"><label>Média Diária</label><div class="sn" id="mAvg2">R$0</div></div></div>
+        <div class="stat-card"><div class="stat-icon si-yellow">📋</div><div class="stat-info"><label>Registros</label><div class="sn" id="mCount2">0</div></div></div>
+        <div class="stat-card highlight"><div class="stat-icon si-red">👑</div><div class="stat-info"><label>Maior Gasto</label><div class="sn" id="mBig2">—</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <div class="fab-wrap" id="fabWrap">
+    <div class="fab-menu" id="fabMenu">
+      <div class="fab-item"><span class="fab-label">Adicionar Entrada</span><button class="fab-action fa-green" onclick="openModal('income')">💰</button></div>
+      <div class="fab-item"><span class="fab-label">Adicionar Gasto</span><button class="fab-action fa-red" onclick="openModal('expense')">💸</button></div>
+      <div class="fab-item"><span class="fab-label">Gravar Áudio</span><button class="fab-action fa-purple" onclick="openModal('audio')">🎙️</button></div>
+    </div>
+    <button class="fab" id="fabBtn" onclick="toggleFab()">+</button>
+  </div>
+
+  <div class="m-bottomnav">
+    <button class="nbtn on" id="mn-home" onclick="goMPage('home')"><span class="ni">🏠</span>Início</button>
+    <button class="nbtn" id="mn-chart" onclick="goMPage('chart')"><span class="ni">📊</span>Gráficos</button>
+  </div>
+</div>
+
+<!-- ═══ DESKTOP ═══ -->
+<div id="desktop-app">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">💰 Fin<em>Control</em></div>
+      <div class="sidebar-user" id="dUserName">—</div>
+    </div>
+    <div class="sidebar-nav">
+      <button class="snav-item on" id="dn-home" onclick="goDPage('home')"><span class="ni">🏠</span>Início</button>
+      <button class="snav-item" id="dn-chart" onclick="goDPage('chart')"><span class="ni">📊</span>Gráficos</button>
+    </div>
+    <div class="sidebar-actions">
+      <span class="snav-label">Nova Transação</span>
+      <button class="sbtn income" onclick="openModal('income')">💰 Adicionar Entrada</button>
+      <button class="sbtn expense" onclick="openModal('expense')">💸 Adicionar Gasto</button>
+      <button class="sbtn audio" onclick="openModal('audio')">🎙️ Gravar Áudio</button>
+    </div>
+    <div class="sidebar-bottom">
+      <button class="logout-link" onclick="doLogout()">Sair da conta</button>
+      <button class="theme-toggle" id="dThemeBtn" onclick="toggleTheme()">🌙</button>
+    </div>
+  </div>
+
+  <div class="d-main">
+    <div class="d-topbar">
+      <h1>Visão geral das suas finanças</h1>
+      <div class="d-topbar-right">
+        <div class="sync-indicator"><span class="sync-dot" id="dSyncDot"></span><span id="dSyncLabel">Sincronizado</span></div>
+        <div class="d-month-nav">
+          <button onclick="changeMonth(-1)">‹</button>
+          <span id="dMonthLabel">—</span>
+          <button onclick="changeMonth(1)">›</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="dp-home">
+      <div class="d-hero">
+        <div class="d-hero-main"><label>Saldo Atual</label><div class="big-val purple" id="dBalance">R$ 0,00</div></div>
+        <div class="d-mini"><label>Receitas do Mês</label><div class="val green" id="dIncome">R$ 0,00</div></div>
+        <div class="d-mini"><label>Despesas do Mês</label><div class="val red" id="dExpense">R$ 0,00</div></div>
+      </div>
+      <div class="d-panels">
+        <div class="d-panel">
+          <h3>Estatísticas</h3>
+          <div class="d-stats-grid">
+            <div class="d-stat"><div class="stat-icon si-purple">📅</div><div class="d-stat-info"><label>Dias Ativos</label><div class="sn" id="dDays">0</div></div></div>
+            <div class="d-stat"><div class="stat-icon si-green">📈</div><div class="d-stat-info"><label>Média Diária</label><div class="sn" id="dAvg">R$0</div></div></div>
+            <div class="d-stat"><div class="stat-icon si-yellow">📋</div><div class="d-stat-info"><label>Registros</label><div class="sn" id="dCount">0</div></div></div>
+            <div class="d-stat highlight"><div class="stat-icon si-red">👑</div><div class="d-stat-info"><label>Maior Gasto do Mês</label><div class="sn" id="dBig">—</div><div class="stat-sub" id="dBigSub">—</div></div></div>
+          </div>
+        </div>
+        <div class="d-panel">
+          <h3>Transações Recentes</h3>
+          <table class="d-tx-table"><tbody id="dTxList"><tr><td colspan="4"><div class="empty">Nenhum lançamento</div></td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div id="dp-chart" style="display:none">
+      <div class="d-panels">
+        <div class="d-panel full"><h3>Gastos por Categoria</h3><div id="dBarChart"><div class="empty">Sem gastos neste mês</div></div></div>
+      </div>
+      <div class="d-panels">
+        <div class="d-panel">
+          <h3>Estatísticas Detalhadas</h3>
+          <div class="d-stats-grid">
+            <div class="d-stat"><div class="stat-icon si-purple">📅</div><div class="d-stat-info"><label>Dias Ativos</label><div class="sn" id="dDays2">0</div></div></div>
+            <div class="d-stat"><div class="stat-icon si-green">📈</div><div class="d-stat-info"><label>Média Diária</label><div class="sn" id="dAvg2">R$0</div></div></div>
+            <div class="d-stat"><div class="stat-icon si-yellow">📋</div><div class="d-stat-info"><label>Registros</label><div class="sn" id="dCount2">0</div></div></div>
+            <div class="d-stat highlight"><div class="stat-icon si-red">👑</div><div class="d-stat-info"><label>Maior Gasto</label><div class="sn" id="dBig2">—</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nova Transação</div>
+    <div class="modal-mode">
+      <button class="mmBtn on income" id="mmIncome" onclick="setModalType('income')">💰 Entrada</button>
+      <button class="mmBtn expense" id="mmExpense" onclick="setModalType('expense')">💸 Gasto</button>
+      <button class="mmBtn audio" id="mmAudio" onclick="setModalType('audio')">🎙️ Áudio</button>
+    </div>
+    <div id="modal-text">
+      <div class="finput-row">
+        <input class="finput" id="mDesc" type="text" placeholder="Ex: Almoço, Salário, Uber…" autocomplete="off"/>
+        <input class="finput amt" id="mVal" type="number" inputmode="decimal" placeholder="R$"/>
+      </div>
+      <div class="cats" id="mCatRow"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+        <button class="btn-confirm income" id="mConfirmBtn" onclick="confirmTx()">+ Confirmar Entrada</button>
+      </div>
+    </div>
+    <div id="modal-audio" style="display:none">
+      <div class="audio-center">
+        <div class="mic-outer" id="micBtn" onclick="handleMic()">🎙️</div>
+        <div class="mic-hint" id="micHint">Toque para gravar</div>
+        <div class="mic-timer" id="micTimer"></div>
+      </div>
+      <div class="transcribed" id="transcribed"></div>
+      <div id="audio-confirm-area" style="display:none;margin-top:10px">
+        <div class="finput-row">
+          <input class="finput" id="mDescAudio" type="text" placeholder="Descrição"/>
+          <input class="finput amt" id="mValAudio" type="number" inputmode="decimal" placeholder="R$"/>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+          <button class="btn-confirm expense" onclick="confirmTxAudio('expense')">− Gasto</button>
+          <button class="btn-confirm income" onclick="confirmTxAudio('income')">+ Entrada</button>
+        </div>
+      </div>
+      <div id="audio-cancel-row" style="margin-top:10px">
+        <button class="btn-cancel" style="width:100%" onclick="closeModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>
