@@ -170,6 +170,7 @@ body.logged-out #desktop-app{display:none!important}
 .group-section[open]{box-shadow:var(--shadow-soft)}
 .group-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid transparent;background:rgba(255,255,255,.03);cursor:pointer;list-style:none}
 .group-head::-webkit-details-marker{display:none}
+.group-head::marker{content:"";font-size:0}
 .group-section[open] .group-head{border-bottom-color:var(--border)}
 .group-title-wrap{display:flex;align-items:center;gap:12px;min-width:0}
 .group-icon{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:18px;background:var(--accent-bg);border:1px solid var(--border);flex-shrink:0}

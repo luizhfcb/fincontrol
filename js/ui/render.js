@@ -122,10 +122,7 @@ function renderGroupSection(group) {
             <div class="group-meta">${group.transactions.length} ${group.transactions.length === 1 ? 'lançamento' : 'lançamentos'}</div>
           </div>
         </div>
-        <div class="group-head-right">
-          <div class="group-total ${totalClass}">${totalPrefix} ${formatCurrency(Math.abs(group.total))}</div>
-          <span class="group-chevron" aria-hidden="true">⌄</span>
-        </div>
+        <div class="group-total ${totalClass}">${totalPrefix} ${formatCurrency(Math.abs(group.total))}</div>
       </summary>
       <div class="group-list">
         ${group.transactions.map((transaction) => renderTransactionItem(transaction)).join('')}
