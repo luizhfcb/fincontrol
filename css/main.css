@@ -324,13 +324,30 @@ button,input{font:inherit}
 }
 
 @media(max-width:767px){
-  #login-screen{padding:18px}
-  .login-shell{grid-template-columns:1fr;gap:16px}
-  .login-hero{padding:24px;border-radius:24px;min-height:auto}
-  .login-highlights{grid-template-columns:1fr}
-  .hero-preview-card{max-width:none}
-  .login-panel{border-radius:24px}
-  .login-panel-inner{max-width:none;padding:8px}
+  body{overflow-x:hidden}
+  #login-screen{padding:16px;align-items:flex-start}
+  .login-shell{grid-template-columns:1fr;gap:14px;width:100%;max-width:100%}
+  .login-panel{order:-1;border-radius:24px;padding:14px}
+  .login-panel-inner{max-width:none;padding:8px 4px}
+  .login-logo{width:64px;height:64px;border-radius:20px;font-size:32px;margin-bottom:14px}
+  .login-panel h2{font-size:26px}
+  .login-panel p{font-size:14px;line-height:1.6;margin-bottom:18px}
+  .login-btn{padding:16px 18px;font-size:16px;border-radius:16px}
+  .login-trust-list{gap:10px;margin-top:18px;padding-top:18px}
+  .login-note{margin-top:18px}
+  .login-hero{padding:22px;border-radius:24px;min-height:auto}
+  .login-badge{margin-bottom:16px;padding:9px 14px;font-size:11px}
+  .login-title{font-size:clamp(42px,14vw,60px);margin-bottom:14px}
+  .login-sub{font-size:16px;line-height:1.55;margin-bottom:18px}
+  .login-highlights{grid-template-columns:1fr;gap:12px;margin-bottom:18px}
+  .hero-stat-card{min-height:auto;padding:16px;border-radius:20px}
+  .hero-stat-card:nth-child(3){display:none}
+  .hero-preview-card{max-width:none;padding:18px;border-radius:24px}
+  .hero-preview-top{margin-bottom:18px}
+  .hero-preview-balance strong{font-size:30px;margin-bottom:18px}
+  .hero-preview-grid{gap:10px}
+  .hero-preview-grid div{padding:14px;border-radius:16px}
+  .hero-preview-grid strong{font-size:18px}
   .chart-layout{grid-template-columns:1fr}
   .donut-chart{width:204px;height:204px;margin:0 auto}
   .group-head{align-items:flex-start;flex-direction:column}
