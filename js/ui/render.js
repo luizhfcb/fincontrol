@@ -95,6 +95,7 @@ function renderGroupedTransactions(containerId, transactions) {
 
     existing.transactions.push(transaction);
     existing.total += transaction.type === 'income' ? transaction.val : -transaction.val;
+    existing.latestDate = new Date(transaction.date) > new Date(existing.latestDate) ? transaction.date : existing.latestDate;
     grouped.set(key, existing);
   });
 
@@ -110,8 +111,8 @@ function renderGroupSection(group) {
   const totalPrefix = group.total >= 0 ? '+' : '-';
 
   return `
-    <section class="group-section">
-      <div class="group-head">
+    <details class="group-section" open>
+      <summary class="group-head">
         <div class="group-title-wrap">
           <div class="group-icon" style="color:${CATEGORY_COLORS[group.category] || 'var(--text)'}">
             ${CATEGORY_ICONS[group.category] || '📦'}
@@ -121,12 +122,15 @@ function renderGroupSection(group) {
             <div class="group-meta">${group.transactions.length} ${group.transactions.length === 1 ? 'lançamento' : 'lançamentos'}</div>
           </div>
         </div>
-        <div class="group-total ${totalClass}">${totalPrefix} ${formatCurrency(Math.abs(group.total))}</div>
-      </div>
+        <div class="group-head-right">
+          <div class="group-total ${totalClass}">${totalPrefix} ${formatCurrency(Math.abs(group.total))}</div>
+          <span class="group-chevron" aria-hidden="true">⌄</span>
+        </div>
+      </summary>
       <div class="group-list">
         ${group.transactions.map((transaction) => renderTransactionItem(transaction)).join('')}
       </div>
-    </section>
+    </details>
   `;
 }
 
@@ -136,7 +140,7 @@ function renderTransactionItem(transaction) {
       <div class="tx-ico ${transaction.type}">${CATEGORY_ICONS[transaction.cat] || '📦'}</div>
       <div class="tx-info">
         <div class="tx-name">${escapeHtml(transaction.desc)}</div>
-        <div class="tx-meta">${new Date(transaction.date).toLocaleDateString('pt-BR')} · ${transaction.type === 'income' ? 'Entrada' : 'Saída'}</div>
+        <div class="tx-meta">${formatDateTime(transaction.date)} · ${transaction.type === 'income' ? 'Entrada' : 'Saída'}</div>
       </div>
       <div class="tx-right">
         <div class="tx-amt ${transaction.type === 'income' ? 'positive' : 'negative'}">
@@ -216,6 +220,17 @@ function renderLegendItem(category, value, totalExpense) {
       <div class="legend-value">${formatCurrency(value)}</div>
     </div>
   `;
+}
+
+function formatDateTime(value) {
+  const date = new Date(value);
+  return date.toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).replace(',', ' ·');
 }
 
 function escapeHtml(value) {
