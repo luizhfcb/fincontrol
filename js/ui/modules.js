@@ -2,38 +2,13 @@ import { state } from '../core/state.js';
 import { formatCurrency } from '../core/utils.js';
 
 const STORAGE_KEY = 'fincontrol_modules_v1';
-const uid = () => (globalThis.crypto?.randomUUID?.() || `id_${Date.now()}_${Math.random().toString(16).slice(2)}`);
 
 const defaultData = {
-  categories: [
-    { name: 'Moradia', type: 'Desp' },
-    { name: 'Alimentação', type: 'Desp' },
-    { name: 'Transporte', type: 'Desp' },
-    { name: 'Saúde', type: 'Desp' },
-    { name: 'Lazer', type: 'Desp' },
-    { name: 'Educação', type: 'Desp' },
-    { name: 'Vestuário', type: 'Desp' },
-    { name: 'Salário', type: 'Rec' },
-  ],
-  limits: [
-    { category: 'Alimentação', limit: 500 },
-    { category: 'Lazer', limit: 200 },
-    { category: 'Transporte', limit: 300 },
-  ],
-  subscriptions: [
-    { id: uid(), name: 'Netflix', value: 39.9, day: 15, plan: 'Plano família' },
-    { id: uid(), name: 'Spotify', value: 21.9, day: 18, plan: 'Plano individual' },
-  ],
-  stockItems: [
-    { id: uid(), name: 'Detergente', category: 'Limpeza', qty: 1, min: 2, price: 15, dueIn: -1 },
-    { id: uid(), name: 'Sabão em Pó', category: 'Limpeza', qty: 0, min: 1, price: 28, dueIn: 29 },
-    { id: uid(), name: 'Shampoo', category: 'Higiene', qty: 3, min: 1, price: 20, dueIn: 8 },
-  ],
-  bills: [
-    { id: uid(), name: 'Internet', category: 'Moradia', day: 5, value: 100, paid: false },
-    { id: uid(), name: 'Aluguel', category: 'Moradia', day: 10, value: 1200, paid: false },
-    { id: uid(), name: 'Conta de Luz', category: 'Moradia', day: 20, value: 150, paid: false },
-  ],
+  categories: [],
+  limits: [],
+  subscriptions: [],
+  stockItems: [],
+  bills: [],
 };
 
 export function initModules() {
