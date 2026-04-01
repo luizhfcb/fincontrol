@@ -1,4 +1,4 @@
-import { CATEGORY_COLORS, CATEGORY_ICONS } from '../core/constants.js';
+import { CATEGORY_COLORS, CATEGORY_ICONS, MONTHS } from '../core/constants.js';
 import { state } from '../core/state.js';
 import { formatCompactCurrency, formatCurrency, setText } from '../core/utils.js';
 import { renderModules } from './modules.js';
@@ -20,6 +20,14 @@ export function refreshUI() {
   const activeDays = new Set(monthlyTransactions.map((transaction) => new Date(transaction.date).toDateString()));
   const dailyAverage = activeDays.size ? expense / activeDays.size : 0;
   const highestExpense = [...expenseTransactions].sort((left, right) => right.val - left.val)[0];
+  const prevMonthDate = new Date(state.currentYear, state.currentMonth - 1, 1);
+  const prevMonthTransactions = state.transactions.filter((transaction) => (
+    transaction.month === prevMonthDate.getMonth() && transaction.year === prevMonthDate.getFullYear()
+  ));
+  const prevIncome = prevMonthTransactions.filter((transaction) => transaction.type === 'income').reduce((total, transaction) => total + transaction.val, 0);
+  const prevExpense = prevMonthTransactions.filter((transaction) => transaction.type === 'expense').reduce((total, transaction) => total + transaction.val, 0);
+  const prevBalance = prevIncome - prevExpense;
+  const balanceDelta = prevBalance === 0 ? 0 : Math.round(((balance - prevBalance) / Math.abs(prevBalance)) * 100);
 
   const categoryMap = {};
   expenseTransactions.forEach((transaction) => {
@@ -67,12 +75,43 @@ export function refreshUI() {
   setText('dBig2', highestExpense ? formatCurrency(highestExpense.val) : '—');
   setText('dBigSub', highestExpense ? `${highestExpense.cat} — ${highestExpense.desc}` : '—');
 
-  renderGroupedTransactions('mTxList', monthlyTransactions);
+  setText('mMonthSync', `${MONTHS[state.currentMonth]} ${state.currentYear} • Sincronizado`);
+  setText('mPeriodLabel', getMonthPeriodLabel(state.currentYear, state.currentMonth));
+  setText('mBalanceDelta', `${balanceDelta >= 0 ? '+' : ''}${balanceDelta}%`);
+  renderMobileSpotlight('mTxList', highestExpense, expense);
+  renderGroupedTransactions('mRecentTxList', monthlyTransactions);
   renderGroupedTransactions('dTxList', monthlyTransactions);
   renderDonutCharts(sortedCategories, expense);
   renderSixMonthChart('mSixMonthChart', state.transactions);
   renderSixMonthChart('dSixMonthChart', state.transactions);
   renderModules();
+}
+
+function renderMobileSpotlight(containerId, highestExpense, totalExpense) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  if (!highestExpense) {
+    container.innerHTML = '<div class="empty">Nenhum lançamento neste mês</div>';
+    return;
+  }
+  const percent = Math.max(18, Math.min(100, Math.round((highestExpense.val / Math.max(totalExpense, 1)) * 100)));
+  container.innerHTML = `
+    <div class="m-top-expense">
+      <div>
+        <small>Maior transação</small>
+        <strong>${formatCurrency(highestExpense.val)}</strong>
+      </div>
+      <span>${escapeHtml(highestExpense.desc)}</span>
+    </div>
+    <div class="m-top-expense-bar"><i style="width:${percent}%"></i></div>
+  `;
+}
+
+function getMonthPeriodLabel(year, month) {
+  const start = new Date(year, month, 1);
+  const end = new Date(year, month + 1, 0);
+  const format = (date) => date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '');
+  return `${format(start)} — ${format(end)}`;
 }
 
 function renderSixMonthChart(containerId, allTransactions) {
@@ -179,7 +218,7 @@ function renderGroupSection(group) {
   const totalPrefix = group.total >= 0 ? '+' : '-';
 
   return `
-    <details class="group-section" open>
+    <details class="group-section">
       <summary class="group-head">
         <div class="group-title-wrap">
           <div class="group-icon" style="color:${CATEGORY_COLORS[group.category] || 'var(--text)'}">
