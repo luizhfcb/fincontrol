@@ -1,26 +1,26 @@
 [data-theme="dark"]{
-  --bg:#050505;
-  --bg2:#0b0b0b;
-  --bg3:#121212;
-  --card:#171717;
-  --card2:#1f1f1f;
-  --surface:#0f0f0f;
-  --border:rgba(255,255,255,0.08);
-  --border2:rgba(255,255,255,0.14);
-  --text:#f5f5f5;
-  --text2:rgba(255,255,255,0.64);
-  --text3:rgba(255,255,255,0.36);
-  --accent:#d4d4d4;
-  --accent-strong:#ffffff;
-  --accent-bg:rgba(255,255,255,0.05);
-  --green:#22c55e;
-  --green-bg:rgba(34,197,94,0.13);
-  --red:#ef4444;
-  --red-bg:rgba(239,68,68,0.12);
+  --bg:#131313;
+  --bg2:#1c1c1c;
+  --bg3:#201f1f;
+  --card:#201f1f;
+  --card2:#2a2a2a;
+  --surface:#353534;
+  --border:rgba(255,255,255,0.06);
+  --border2:rgba(255,255,255,0.10);
+  --text:#e5e2e1;
+  --text2:rgba(229,226,225,0.64);
+  --text3:rgba(229,226,225,0.36);
+  --accent:#92ccff;
+  --accent-strong:#3498db;
+  --accent-bg:rgba(146,204,255,0.10);
+  --green:#4ae183;
+  --green-bg:rgba(74,225,131,0.13);
+  --red:#ffb4ab;
+  --red-bg:rgba(255,180,171,0.12);
   --amber:#f59e0b;
   --amber-bg:rgba(245,158,11,0.14);
-  --shadow:0 20px 60px rgba(0,0,0,0.45);
-  --shadow-soft:0 8px 28px rgba(0,0,0,0.26);
+  --shadow:0 20px 60px rgba(0,0,0,0.55);
+  --shadow-soft:0 -8px 32px rgba(52,152,219,0.06);
 }
 
 [data-theme="light"]{
@@ -51,14 +51,8 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{min-height:100%;width:100%;background:var(--bg);overflow-x:hidden;transition:background .25s,color .25s}
 body{overflow-y:auto}
-body{color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:
-  radial-gradient(circle at top left, rgba(255,255,255,.04), transparent 26%),
-  radial-gradient(circle at top right, rgba(255,255,255,.03), transparent 22%),
-  var(--bg)}
-[data-theme="light"] body{background:
-  radial-gradient(circle at top left, rgba(37,99,235,.10), transparent 28%),
-  radial-gradient(circle at top right, rgba(16,185,129,.08), transparent 24%),
-  var(--bg)}
+body{color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg)}
+[data-theme="light"] body{background:var(--bg)}
 button,input{font:inherit}
 
 #app-loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999}
@@ -311,13 +305,33 @@ body.logged-out #desktop-app{display:none!important}
 .d-month-nav{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 12px}
 .d-month-nav button{background:none;border:none;color:var(--text);font-size:18px;cursor:pointer;padding:0 4px;line-height:1}
 .sync-indicator{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
-.d-hero{border-radius:26px;padding:24px;display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:16px;margin-bottom:18px}
-.d-hero-main .big-val{font-size:38px}
-.d-mini{border-radius:20px;padding:18px 18px}
+.d-hero-metrics { display:grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.m-grid-metrics { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px; margin-bottom: 20px;}
+.d-metric-card, .m-metric-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+  padding: 20px; display: flex; flex-direction: column; gap: 6px; position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.d-metric-card:hover { transform: translateY(-3px); border-color: var(--border2); box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+.metric-icon { width: 48px; height: 48px; border-radius: 14px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom: 8px;}
+.si-amber { background: rgba(245,158,11,0.15); color: #f59e0b; }
+.si-neutral { background: rgba(148,163,184,0.15); color: #94a3b8; }
+.si-green { background: rgba(16,185,129,0.15); color: #10b981; }
+.si-red { background: rgba(239,68,68,0.15); color: #ef4444; }
+
+.d-metric-card label, .m-metric-card label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text2); letter-spacing: 0.05em; opacity: 0.8; }
+.d-metric-card .val, .m-metric-card .val { font-size: 28px; font-weight: 900; letter-spacing: -0.04em; }
+.d-metric-card small, .m-metric-card small { font-size: 11px; color: var(--text3); font-weight: 600; opacity: 0.6; }
+
+.d-panels-chart { display: grid; grid-template-columns: 1fr 1.5fr; gap: 18px; margin-bottom: 18px; }
+.panel-head-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.list-btn { background: var(--bg2); color: var(--text); border: 1px solid var(--border); padding: 6px 14px; border-radius: 99px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+.list-btn:hover { background: var(--border); }
+.panel-icon-title { font-size:16px; font-weight:900; color:var(--text); margin-bottom:14px; display: flex; align-items:center; gap: 8px; }
+
 .d-panels{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
-.d-panel{border-radius:24px;padding:20px}
+.d-panel{border-radius:24px;padding:22px; background:var(--card); border: 1px solid var(--border);}
 .d-panel.full{grid-column:span 2}
-.d-panel h3{font-size:15px;font-weight:900;margin-bottom:14px;color:var(--text);letter-spacing:-.02em}
 .grouped-list.desktop .group-list{padding-bottom:12px}
 .grouped-list.desktop .group-section{border-radius:20px}
 .d-module-page{padding-bottom:8px}
@@ -399,9 +413,9 @@ body.logged-out #desktop-app{display:none!important}
 }
 
 @media(max-width:960px){
-  .d-panels{grid-template-columns:1fr}
+  .d-panels, .d-panels-chart{grid-template-columns:1fr}
   .d-panel.full{grid-column:span 1}
-  .d-hero{grid-template-columns:1fr}
+  .d-hero-metrics{grid-template-columns:1fr 1fr}
   .d-topbar{flex-direction:column;align-items:flex-start}
   .module-grid.two,.module-grid.three,.stock-grid{grid-template-columns:1fr}
 }

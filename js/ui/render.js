@@ -15,6 +15,8 @@ export function refreshUI() {
   const expenseTransactions = monthlyTransactions.filter((transaction) => transaction.type === 'expense');
   const expense = expenseTransactions.reduce((total, transaction) => total + transaction.val, 0);
   const balance = income - expense;
+  const stockAlerts = (state.stock || []).filter((item) => item.qty <= (item.min || 0)).length;
+
   const activeDays = new Set(monthlyTransactions.map((transaction) => new Date(transaction.date).toDateString()));
   const dailyAverage = activeDays.size ? expense / activeDays.size : 0;
   const highestExpense = [...expenseTransactions].sort((left, right) => right.val - left.val)[0];
@@ -40,6 +42,8 @@ export function refreshUI() {
   setText('dIncome', formatCurrency(income));
   setText('mExpense', formatCurrency(expense));
   setText('dExpense', formatCurrency(expense));
+  setText('mStockAlerts', stockAlerts);
+  setText('dStockAlerts', stockAlerts);
 
   setText('mDays', activeDays.size);
   setText('mDays2', activeDays.size);
@@ -66,7 +70,69 @@ export function refreshUI() {
   renderGroupedTransactions('mTxList', monthlyTransactions);
   renderGroupedTransactions('dTxList', monthlyTransactions);
   renderDonutCharts(sortedCategories, expense);
+  renderSixMonthChart('mSixMonthChart', state.transactions);
+  renderSixMonthChart('dSixMonthChart', state.transactions);
   renderModules();
+}
+
+function renderSixMonthChart(containerId, allTransactions) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  const monthsMap = {};
+  for(let i=5; i>=0; i--) {
+     const d = new Date(state.currentYear, state.currentMonth - i, 1);
+     const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}`;
+     const label = d.toLocaleString('pt-BR', { month: 'short' }).substring(0,3);
+     monthsMap[key] = { label, income: 0, expense: 0 };
+  }
+
+  allTransactions.forEach(tx => {
+     const txDate = new Date(tx.date);
+     const key = `${txDate.getFullYear()}-${String(txDate.getMonth()+1).padStart(2, '0')}`;
+     if(monthsMap[key]) {
+        if(tx.type === 'income') monthsMap[key].income += tx.val;
+        else monthsMap[key].expense += tx.val;
+     }
+  });
+
+  const data = Object.values(monthsMap);
+  let maxVal = 0;
+  data.forEach(d => {
+     if(d.income > maxVal) maxVal = d.income;
+     if(d.expense > maxVal) maxVal = d.expense;
+  });
+  if(maxVal === 0) maxVal = 1;
+
+  const barsHTML = data.map(d => {
+     const incPct = (d.income / maxVal) * 100;
+     const expPct = (d.expense / maxVal) * 100;
+     const formattedInc = d.income > 0 ? formatCompactCurrency(d.income) : '';
+     const formattedExp = d.expense > 0 ? formatCompactCurrency(d.expense) : '';
+     return `
+      <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:1">
+         <div style="font-size:10px; color:var(--text3); height:12px; font-weight:bold">${formattedInc}</div>
+         <div style="height:120px; width:100%; display:flex; gap:4px; align-items:flex-end; justify-content:center">
+           <div style="height:${incPct}%; width:16px; background:var(--green); border-radius:4px 4px 0 0; transition:height 0.3s"></div>
+           <div style="height:${expPct}%; width:16px; background:var(--red); border-radius:4px 4px 0 0; transition:height 0.3s"></div>
+         </div>
+         <div style="font-size:10px; color:var(--text3); height:12px; font-weight:bold">${formattedExp}</div>
+         <div style="font-size:12px; font-weight:bold; color:var(--text2); text-transform:capitalize; margin-top:8px">${d.label}</div>
+      </div>
+     `;
+  }).join('');
+
+  container.innerHTML = `
+    <div style="padding:24px; background:var(--card); border-radius:24px; border:1px solid var(--border)">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+        ${barsHTML}
+      </div>
+      <div style="display:flex; justify-content:center; gap:20px; margin-top:20px; font-size:13px; font-weight:bold; color:var(--text2)">
+        <div style="display:flex; align-items:center; gap:6px"><span style="width:12px; height:12px; border-radius:3px; background:var(--green)"></span> Receitas</div>
+        <div style="display:flex; align-items:center; gap:6px"><span style="width:12px; height:12px; border-radius:3px; background:var(--red)"></span> Despesas</div>
+      </div>
+    </div>
+  `;
 }
 
 function renderGroupedTransactions(containerId, transactions) {

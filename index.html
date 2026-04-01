@@ -93,13 +93,31 @@
   </div>
 
   <div class="m-hero">
-    <div class="m-saldo-card">
-      <label>Saldo Total</label>
-      <div class="big-val positive" id="mBalance">R$ 0,00</div>
-    </div>
-    <div class="m-grid2">
-      <div class="m-mini"><label>Entradas</label><div class="val green" id="mIncome">R$ 0,00</div></div>
-      <div class="m-mini"><label>Saídas</label><div class="val red" id="mExpense">R$ 0,00</div></div>
+    <div class="m-grid-metrics">
+      <div class="m-metric-card">
+        <div class="metric-icon si-amber">💰</div>
+        <label>Receita Total</label>
+        <div class="val green" id="mIncome">R$ 0,00</div>
+        <small>Período atual</small>
+      </div>
+      <div class="m-metric-card">
+        <div class="metric-icon si-neutral">🛒</div>
+        <label>Despesas Totais</label>
+        <div class="val red" id="mExpense">R$ 0,00</div>
+        <small>Período atual</small>
+      </div>
+      <div class="m-metric-card">
+        <div class="metric-icon si-green">💎</div>
+        <label>Saldo Líquido</label>
+        <div class="val positive" id="mBalance">R$ 0,00</div>
+        <small>Receita - Despesas</small>
+      </div>
+      <div class="m-metric-card">
+        <div class="metric-icon si-red">⚠️</div>
+        <label>Alertas Estoque</label>
+        <div class="val amber" id="mStockAlerts">0</div>
+        <small>Itens para repor</small>
+      </div>
     </div>
   </div>
 
@@ -111,28 +129,17 @@
         <span id="monthLabel">—</span>
         <button class="mnbtn" onclick="changeMonth(1)">›</button>
       </div>
-      <div class="sec-title">Visão do mês <button class="sec-link" onclick="goMPage('chart')">Ver gráfico →</button></div>
-      <div class="stats-grid" onclick="goMPage('chart')">
-        <div class="stat-card"><div class="stat-icon si-neutral">📅</div><div class="stat-info"><label>Dias Ativos</label><div class="sn" id="mDays">0</div></div></div>
-        <div class="stat-card"><div class="stat-icon si-green">📈</div><div class="stat-info"><label>Média Diária</label><div class="sn" id="mAvg">R$0</div></div></div>
-        <div class="stat-card"><div class="stat-icon si-amber">📋</div><div class="stat-info"><label>Registros</label><div class="sn" id="mCount">0</div></div></div>
-        <div class="stat-card highlight"><div class="stat-icon si-red">👑</div><div class="stat-info"><label>Maior Gasto do Mês</label><div class="sn" id="mBig">—</div><div class="stat-sub" id="mBigSub">—</div></div></div>
-      </div>
-      <div class="sec-title">Transações por categoria</div>
-      <div class="m-card grouped-list" id="mTxList"><div class="empty">Nenhum lançamento neste mês</div></div>
-    </div>
-
-    <div class="m-page" id="mp-chart">
-      <div style="height:10px"></div>
-      <div class="sec-title">Despesas por Categoria</div>
+      <div class="sec-title">Gastos por Categoria</div>
       <div class="m-card chart-card" id="mBarChart"><div class="empty">Sem gastos neste mês</div></div>
-      <div class="sec-title">Detalhes</div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-icon si-neutral">📅</div><div class="stat-info"><label>Dias Ativos</label><div class="sn" id="mDays2">0</div></div></div>
-        <div class="stat-card"><div class="stat-icon si-green">📈</div><div class="stat-info"><label>Média Diária</label><div class="sn" id="mAvg2">R$0</div></div></div>
-        <div class="stat-card"><div class="stat-icon si-amber">📋</div><div class="stat-info"><label>Registros</label><div class="sn" id="mCount2">0</div></div></div>
-        <div class="stat-card highlight"><div class="stat-icon si-red">👑</div><div class="stat-info"><label>Maior Gasto</label><div class="sn" id="mBig2">—</div></div></div>
-      </div>
+
+      <div class="sec-title">Receitas vs Despesas – 6 Meses</div>
+      <div class="m-card bar-chart-wrap" id="mSixMonthChart"><div class="empty">Carregando histórico...</div></div>
+
+      <div class="sec-title">Últimas Transações</div>
+      <div class="m-card grouped-list" id="mTxList"><div class="empty">Nenhum lançamento neste mês</div></div>
+
+      <div class="sec-title">Limites — Situação <button class="sec-link" onclick="goMPage('modules')">Ver todos</button></div>
+      <div class="m-card" id="mLimitsMini"><div class="empty">Nenhum limite</div></div>
     </div>
 
     <div class="m-page" id="mp-modules">
@@ -151,11 +158,10 @@
     <button class="fab" id="fabBtn" onclick="toggleFab()">+</button>
   </div>
 
-  <div class="m-bottomnav">
+  <nav class="m-bottomnav bg-surface-container/80 backdrop-blur-xl rounded-t-2xl shadow-nav">
     <button class="nbtn on" id="mn-home" onclick="goMPage('home')"><span class="ni">🏠</span>Início</button>
-    <button class="nbtn" id="mn-chart" onclick="goMPage('chart')"><span class="ni">🥯</span>Gráfico</button>
     <button class="nbtn" id="mn-modules" onclick="goMPage('modules')"><span class="ni">🧩</span>Módulos</button>
-  </div>
+  </nav>
 </div>
 
 <div id="desktop-app">
@@ -166,7 +172,6 @@
     </div>
     <div class="sidebar-nav">
       <button class="snav-item on" id="dn-home" onclick="goDPage('home')"><span class="ni">🏠</span>Início</button>
-      <button class="snav-item" id="dn-chart" onclick="goDPage('chart')"><span class="ni">🥯</span>Gráfico</button>
       <button class="snav-item" id="dn-limits" onclick="goDPage('limits')"><span class="ni">🏷️</span>Limites & Categorias</button>
       <button class="snav-item" id="dn-subscriptions" onclick="goDPage('subscriptions')"><span class="ni">📱</span>Assinaturas</button>
       <button class="snav-item" id="dn-stock" onclick="goDPage('stock')"><span class="ni">📦</span>Estoque Doméstico</button>
@@ -201,41 +206,55 @@
     </div>
 
     <div id="dp-home" class="d-page">
-      <div class="d-hero">
-        <div class="d-hero-main"><label>Saldo Atual</label><div class="big-val positive" id="dBalance">R$ 0,00</div></div>
-        <div class="d-mini"><label>Receitas do Mês</label><div class="val green" id="dIncome">R$ 0,00</div></div>
-        <div class="d-mini"><label>Despesas do Mês</label><div class="val red" id="dExpense">R$ 0,00</div></div>
+      <div class="d-hero-metrics">
+        <div class="d-metric-card">
+          <div class="metric-icon si-amber">💰</div>
+          <label>Receita Total</label>
+          <div class="val green" id="dIncome">R$ 0,00</div>
+          <small>Período atual</small>
+        </div>
+        <div class="d-metric-card">
+          <div class="metric-icon si-neutral">🛒</div>
+          <label>Despesas Totais</label>
+          <div class="val red" id="dExpense">R$ 0,00</div>
+          <small>Período atual</small>
+        </div>
+        <div class="d-metric-card">
+          <div class="metric-icon si-green">💎</div>
+          <label>Saldo Líquido</label>
+          <div class="val positive" id="dBalance">R$ 0,00</div>
+          <small>Receitas - Despesas</small>
+        </div>
+        <div class="d-metric-card">
+          <div class="metric-icon si-red">⚠️</div>
+          <label>Alertas Estoque</label>
+          <div class="val amber" id="dStockAlerts">0</div>
+          <small>Itens para repor</small>
+        </div>
       </div>
-      <div class="d-panels">
+
+      <div class="d-panels-chart">
         <div class="d-panel">
-          <h3>Indicadores</h3>
-          <div class="d-stats-grid">
-            <div class="d-stat"><div class="stat-icon si-neutral">📅</div><div class="d-stat-info"><label>Dias Ativos</label><div class="sn" id="dDays">0</div></div></div>
-            <div class="d-stat"><div class="stat-icon si-green">📈</div><div class="d-stat-info"><label>Média Diária</label><div class="sn" id="dAvg">R$0</div></div></div>
-            <div class="d-stat"><div class="stat-icon si-amber">📋</div><div class="d-stat-info"><label>Registros</label><div class="sn" id="dCount">0</div></div></div>
-            <div class="d-stat highlight"><div class="stat-icon si-red">👑</div><div class="d-stat-info"><label>Maior Gasto do Mês</label><div class="sn" id="dBig">—</div><div class="stat-sub" id="dBigSub">—</div></div></div>
-          </div>
+          <h3 class="panel-icon-title">🛒 Gastos por Categoria</h3>
+          <div class="chart-card d-donut" id="dBarChart"><div class="empty">Sem gastos neste mês</div></div>
         </div>
         <div class="d-panel">
-          <h3>Transações por categoria</h3>
+          <h3 class="panel-icon-title">📊 Receitas vs Despesas – 6 Meses</h3>
+          <div class="bar-chart-wrap" id="dSixMonthChart"><div class="empty">Carregando histórico...</div></div>
+        </div>
+      </div>
+
+      <div class="d-panels">
+        <div class="d-panel">
+          <h3 class="panel-icon-title">🕒 Últimas Transações</h3>
           <div class="grouped-list desktop" id="dTxList"><div class="empty">Nenhum lançamento</div></div>
         </div>
-      </div>
-    </div>
-
-    <div id="dp-chart" class="d-page" style="display:none">
-      <div class="d-panels">
-        <div class="d-panel full"><h3>Despesas por Categoria</h3><div class="chart-card" id="dBarChart"><div class="empty">Sem gastos neste mês</div></div></div>
-      </div>
-      <div class="d-panels">
         <div class="d-panel">
-          <h3>Estatísticas Detalhadas</h3>
-          <div class="d-stats-grid">
-            <div class="d-stat"><div class="stat-icon si-neutral">📅</div><div class="d-stat-info"><label>Dias Ativos</label><div class="sn" id="dDays2">0</div></div></div>
-            <div class="d-stat"><div class="stat-icon si-green">📈</div><div class="d-stat-info"><label>Média Diária</label><div class="sn" id="dAvg2">R$0</div></div></div>
-            <div class="d-stat"><div class="stat-icon si-amber">📋</div><div class="d-stat-info"><label>Registros</label><div class="sn" id="dCount2">0</div></div></div>
-            <div class="d-stat highlight"><div class="stat-icon si-red">👑</div><div class="d-stat-info"><label>Maior Gasto</label><div class="sn" id="dBig2">—</div></div></div>
+          <div class="panel-head-flex">
+            <h3 class="panel-icon-title">🏷️ Limites – Situação</h3>
+            <button class="list-btn" onclick="goDPage('limits')">Ver todos</button>
           </div>
+          <div class="limits-mini-list" id="dLimitsMini"><div class="empty">Nenhum limite configurado</div></div>
         </div>
       </div>
     </div>
@@ -289,6 +308,20 @@
       <div id="audio-cancel-row" style="margin-top:10px">
         <button class="btn-cancel" style="width:100%" onclick="closeModal()">Cancelar</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="genericFormModal" style="display:none" onclick="if(event.target===this) this.style.display='none'">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="gfmTitle">Formulário</div>
+    <div id="gfmBody" style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
+      <!-- inputs appended here -->
+    </div>
+    <div class="modal-actions" style="margin-top:24px;">
+      <button class="btn-cancel" onclick="document.getElementById('genericFormModal').style.display='none'">Cancelar</button>
+      <button class="btn-confirm" id="gfmConfirm" style="background:var(--accent-strong); color:white;">Continuar</button>
     </div>
   </div>
 </div>
