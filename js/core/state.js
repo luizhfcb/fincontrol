@@ -7,4 +7,5 @@ export const state = {
   unsubscribe: null,
   currentUser: null,
   modalType: 'income',
+  modules: null,
 };

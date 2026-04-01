@@ -1,6 +1,7 @@
 import { MONTHS } from '../core/constants.js';
 import { state } from '../core/state.js';
 import { setText } from '../core/utils.js';
+import { renderModules } from './modules.js';
 import { refreshUI } from './render.js';
 
 export function toggleFab() {
@@ -23,14 +24,9 @@ export function goMobilePage(name) {
 }
 
 export function goDesktopPage(name) {
-  const home = document.getElementById('dp-home');
-  const chart = document.getElementById('dp-chart');
-  if (home) {
-    home.style.display = name === 'home' ? 'block' : 'none';
-  }
-  if (chart) {
-    chart.style.display = name === 'chart' ? 'block' : 'none';
-  }
+  document.querySelectorAll('.d-page').forEach((page) => {
+    page.style.display = page.id === `dp-${name}` ? 'block' : 'none';
+  });
 
   document.querySelectorAll('.snav-item').forEach((button) => button.classList.remove('on'));
   document.getElementById(`dn-${name}`)?.classList.add('on');
@@ -53,4 +49,5 @@ export function changeMonth(delta) {
   setText('monthLabel', label);
   setText('dMonthLabel', label);
   refreshUI();
+  renderModules();
 }
