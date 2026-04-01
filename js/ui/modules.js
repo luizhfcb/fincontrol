@@ -4,35 +4,11 @@ import { formatCurrency } from '../core/utils.js';
 const STORAGE_KEY = 'fincontrol_modules_v1';
 
 const defaultData = {
-  categories: [
-    { name: 'Moradia', type: 'Desp' },
-    { name: 'Alimentação', type: 'Desp' },
-    { name: 'Transporte', type: 'Desp' },
-    { name: 'Saúde', type: 'Desp' },
-    { name: 'Lazer', type: 'Desp' },
-    { name: 'Educação', type: 'Desp' },
-    { name: 'Vestuário', type: 'Desp' },
-    { name: 'Salário', type: 'Rec' },
-  ],
-  limits: [
-    { category: 'Alimentação', limit: 500 },
-    { category: 'Lazer', limit: 200 },
-    { category: 'Transporte', limit: 300 },
-  ],
-  subscriptions: [
-    { id: crypto.randomUUID(), name: 'Netflix', value: 39.9, day: 15, plan: 'Plano família' },
-    { id: crypto.randomUUID(), name: 'Spotify', value: 21.9, day: 18, plan: 'Plano individual' },
-  ],
-  stockItems: [
-    { id: crypto.randomUUID(), name: 'Detergente', category: 'Limpeza', qty: 1, min: 2, price: 15, dueIn: -1 },
-    { id: crypto.randomUUID(), name: 'Sabão em Pó', category: 'Limpeza', qty: 0, min: 1, price: 28, dueIn: 29 },
-    { id: crypto.randomUUID(), name: 'Shampoo', category: 'Higiene', qty: 3, min: 1, price: 20, dueIn: 8 },
-  ],
-  bills: [
-    { id: crypto.randomUUID(), name: 'Internet', category: 'Moradia', day: 5, value: 100, paid: false },
-    { id: crypto.randomUUID(), name: 'Aluguel', category: 'Moradia', day: 10, value: 1200, paid: false },
-    { id: crypto.randomUUID(), name: 'Conta de Luz', category: 'Moradia', day: 20, value: 150, paid: false },
-  ],
+  categories: [],
+  limits: [],
+  subscriptions: [],
+  stockItems: [],
+  bills: [],
 };
 
 export function initModules() {
@@ -45,22 +21,34 @@ export function initModules() {
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return structuredClone(defaultData);
-    return { ...structuredClone(defaultData), ...JSON.parse(raw) };
+    if (!raw) return cloneDefaults();
+    const parsed = JSON.parse(raw);
+    return {
+      ...cloneDefaults(),
+      ...parsed,
+      categories: parsed.categories || cloneDefaults().categories,
+      limits: parsed.limits || cloneDefaults().limits,
+      subscriptions: parsed.subscriptions || cloneDefaults().subscriptions,
+      stockItems: parsed.stockItems || cloneDefaults().stockItems,
+      bills: parsed.bills || cloneDefaults().bills,
+    };
   } catch {
-    return structuredClone(defaultData);
+    return cloneDefaults();
   }
 }
+const cloneDefaults = () => JSON.parse(JSON.stringify(defaultData));
 
 function persist() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.modules));
 }
 
 export function renderModules() {
+  if (!state.modules) return;
   renderLimits();
   renderSubscriptions();
   renderStock();
   renderBills();
+  renderMobileModules();
 }
 
 function expensesByCategory() {
@@ -155,6 +143,36 @@ function renderBills() {
     <table class="bill-table"><thead><tr><th>Conta</th><th>Categoria</th><th>Vencimento</th><th>Valor</th><th>Pago?</th></tr></thead>
     <tbody>${state.modules.bills.map((b) => `<tr><td>${b.name}</td><td>${b.category}</td><td>Dia ${b.day}</td><td>${formatCurrency(b.value)}</td><td><input type="checkbox" ${b.paid ? 'checked' : ''} onchange="toggleBillPaid('${b.id}', this.checked)"></td></tr>`).join('')}</tbody></table>
   </div>`;
+}
+
+function renderMobileModules() {
+  const el = document.getElementById('mModules');
+  if (!el) return;
+  const totalMonth = state.modules.subscriptions.reduce((sum, s) => sum + s.value, 0);
+  const alerts = state.modules.stockItems.filter((i) => i.qty <= i.min).length;
+  const totalBills = state.modules.bills.reduce((sum, b) => sum + b.value, 0);
+  const paidBills = state.modules.bills.filter((b) => b.paid).reduce((sum, b) => sum + b.value, 0);
+
+  el.innerHTML = `
+    <div class="list-wrap">
+      <div class="module-card">
+        <h3>🏷️ Limites & Categorias</h3>
+        <p class="tx-meta">${state.modules.categories.length} categorias e ${state.modules.limits.length} limites configurados.</p>
+      </div>
+      <div class="module-card">
+        <h3>📱 Assinaturas</h3>
+        <p class="tx-meta">${state.modules.subscriptions.length} assinaturas · ${formatCurrency(totalMonth)}/mês.</p>
+      </div>
+      <div class="module-card">
+        <h3>📦 Estoque</h3>
+        <p class="tx-meta">${alerts} alerta(s) de reposição em ${state.modules.stockItems.length} item(ns).</p>
+      </div>
+      <div class="module-card">
+        <h3>🗓️ Contas a pagar</h3>
+        <p class="tx-meta">Pago ${formatCurrency(paidBills)} de ${formatCurrency(totalBills)} no mês.</p>
+      </div>
+    </div>
+  `;
 }
 
 export function toggleBillPaid(id, paid) {
