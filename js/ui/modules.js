@@ -1,9 +1,11 @@
 import { state } from '../core/state.js';
 import { formatCurrency } from '../core/utils.js';
 import { showToast } from './feedback.js';
-import { addDoc, collection, db, doc, onSnapshot, query, setDoc, where } from '../config/firebase.js';
+import { db, doc, onSnapshot, setDoc } from '../config/firebase.js';
 
 const STORAGE_KEY = 'fincontrol_modules_v1';
+const MODULES_DOC_TYPE = 'modules_state';
+const MODULES_COLLECTION = 'transactions';
 
 const defaultData = {
   categories: [],
@@ -24,27 +26,28 @@ export function initModules() {
     state.unsubscribeModules();
   }
 
-  const modulesQuery = query(collection(db, 'modules'), where('uid', '==', state.currentUser.uid));
-
-  state.unsubscribeModules = onSnapshot(modulesQuery, async (snapshot) => {
-    if (snapshot.empty) {
+  const docRef = doc(db, MODULES_COLLECTION, `${state.currentUser.uid}_modules`);
+  state.unsubscribeModules = onSnapshot(docRef, async (snapshot) => {
+    if (!snapshot.exists()) {
       state.modules = loadData();
-      const created = await addDoc(collection(db, 'modules'), { uid: state.currentUser.uid, ...state.modules });
-      state.modulesDocId = created.id;
+      await setDoc(docRef, {
+        uid: state.currentUser.uid,
+        _docType: MODULES_DOC_TYPE,
+        ...state.modules,
+      });
+      state.modulesDocId = `${state.currentUser.uid}_modules`;
       persistLocal();
       renderModules();
       return;
     }
-    const modulesDoc = snapshot.docs[0];
-    state.modulesDocId = modulesDoc.id;
-    const data = modulesDoc.data();
-    state.modules = { ...cloneDefaults(), ...data };
+    state.modulesDocId = snapshot.id;
+    state.modules = { ...cloneDefaults(), ...snapshot.data() };
     persistLocal();
     renderModules();
   }, () => {
     state.modules = loadData();
     renderModules();
-    showToast('Falha ao sincronizar módulos. Usando dados locais.', true);
+    showToast('Erro ao conectar módulos na nuvem.', true);
   });
 }
 
@@ -75,13 +78,14 @@ function persistLocal() {
 async function persist() {
   persistLocal();
   if (!state.currentUser) return;
+  const modulesDocId = `${state.currentUser.uid}_modules`;
   try {
-    if (state.modulesDocId) {
-      await setDoc(doc(db, 'modules', state.modulesDocId), { uid: state.currentUser.uid, ...state.modules });
-      return;
-    }
-    const created = await addDoc(collection(db, 'modules'), { uid: state.currentUser.uid, ...state.modules });
-    state.modulesDocId = created.id;
+    await setDoc(doc(db, MODULES_COLLECTION, modulesDocId), {
+      uid: state.currentUser.uid,
+      _docType: MODULES_DOC_TYPE,
+      ...state.modules,
+    });
+    state.modulesDocId = modulesDocId;
   } catch {
     showToast('Erro ao salvar módulos na nuvem.', true);
   }
