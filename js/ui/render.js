@@ -1,6 +1,7 @@
 import { CATEGORY_COLORS, CATEGORY_ICONS } from '../core/constants.js';
 import { state } from '../core/state.js';
 import { formatCompactCurrency, formatCurrency, setText } from '../core/utils.js';
+import { renderModules } from './modules.js';
 
 export function refreshUI() {
   const monthlyTransactions = state.transactions.filter(
@@ -65,6 +66,7 @@ export function refreshUI() {
   renderGroupedTransactions('mTxList', monthlyTransactions);
   renderGroupedTransactions('dTxList', monthlyTransactions);
   renderDonutCharts(sortedCategories, expense);
+  renderModules();
 }
 
 function renderGroupedTransactions(containerId, transactions) {

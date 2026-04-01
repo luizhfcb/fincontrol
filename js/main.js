@@ -4,6 +4,7 @@ import { initTheme, toggleTheme } from './services/theme.js';
 import { removeTransaction } from './services/transactions.js';
 import { pickCategory } from './ui/categories.js';
 import { updateResponsiveAppView } from './ui/layout.js';
+import { initModules, toggleBillPaid } from './ui/modules.js';
 import { closeModal, closeModalOutside, confirmTx, confirmTxAudio, openModal, setModalType } from './ui/modal.js';
 import { changeMonth, closeFab, goDesktopPage, goMobilePage, toggleFab } from './ui/navigation.js';
 
@@ -23,8 +24,10 @@ window.toggleFab = toggleFab;
 window.goMPage = goMobilePage;
 window.goDPage = goDesktopPage;
 window.changeMonth = changeMonth;
+window.toggleBillPaid = toggleBillPaid;
 
 initTheme();
+initModules();
 initAuth();
 
 window.addEventListener('resize', updateResponsiveAppView);
