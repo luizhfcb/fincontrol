@@ -31,7 +31,9 @@ export function startListening() {
   state.unsubscribe = onSnapshot(
     transactionQuery,
     (snapshot) => {
-      state.transactions = snapshot.docs.map((snapshotDoc) => ({ id: snapshotDoc.id, ...snapshotDoc.data() }));
+      state.transactions = snapshot.docs
+        .map((snapshotDoc) => ({ id: snapshotDoc.id, ...snapshotDoc.data() }))
+        .filter((item) => item.type === 'income' || item.type === 'expense');
       setSyncStatus('ok');
       refreshUI();
     },
