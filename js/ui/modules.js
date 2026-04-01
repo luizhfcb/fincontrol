@@ -2,6 +2,7 @@ import { state } from '../core/state.js';
 import { formatCurrency } from '../core/utils.js';
 import { showToast } from './feedback.js';
 import { addDoc, collection, db, deleteDoc, doc, onSnapshot, setDoc } from '../config/firebase.js';
+import { escapeHtml } from './render.js';
 
 const STORAGE_KEY = 'fincontrol_modules_v1';
 const MODULES_DOC_TYPE = 'modules_state';
@@ -124,7 +125,7 @@ function renderLimits() {
   const miniHtml = limits.map((item) => {
       const spent = spentMap[item.category] || 0;
       const pct = Math.min(100, Math.round((spent / item.limit) * 100));
-      return `<div class="limit-row" style="margin-bottom:8px; border:none; padding:4px 0;"><div><strong style="font-size:13px">${item.category}</strong><small style="font-size:10px">${pct}% usado</small></div><div class="progress"><i style="width:${pct}%"></i></div></div>`;
+      return `<div class="limit-row" style="margin-bottom:8px; border:none; padding:4px 0;"><div><strong style="font-size:13px">${escapeHtml(item.category)}</strong><small style="font-size:10px">${pct}% usado</small></div><div class="progress"><i style="width:${pct}%"></i></div></div>`;
   }).join('') || '<div class="empty">Nenhum limite configurado</div>';
 
   if (dMini) dMini.innerHTML = miniHtml;
@@ -143,7 +144,7 @@ function renderLimits() {
     <div class="module-grid two">
       <div class="module-card">
         <h3>🏷️ Categorias</h3>
-        <div class="chip-wrap">${state.modules.categories.map((c) => `<span class="chip">${c.name} <small>${c.type}</small></span>`).join('')}</div>
+        <div class="chip-wrap">${state.modules.categories.map((c) => `<span class="chip">${escapeHtml(c.name)} <small>${escapeHtml(c.type)}</small></span>`).join('')}</div>
       </div>
       <div class="module-card">
         <h3>🎯 Limites por categoria</h3>
@@ -151,7 +152,7 @@ function renderLimits() {
           ${limits.map((item) => {
             const spent = spentMap[item.category] || 0;
             const pct = Math.min(100, Math.round((spent / item.limit) * 100));
-            return `<div class="limit-row"><div><strong>${item.category}</strong><small>Gasto: ${formatCurrency(spent)} / ${formatCurrency(item.limit)}</small></div><div style="display:flex; align-items:center; gap:12px;"><span>${pct}%</span><button onclick="editLimit('${item.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">✏️</button><button onclick="removeLimit('${item.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">🗑</button></div><div class="progress"><i style="width:${pct}%"></i></div></div>`;
+            return `<div class="limit-row"><div><strong>${escapeHtml(item.category)}</strong><small>Gasto: ${formatCurrency(spent)} / ${formatCurrency(item.limit)}</small></div><div style="display:flex; align-items:center; gap:12px;"><span>${pct}%</span><button onclick="editLimit('${item.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">✏️</button><button onclick="removeLimit('${item.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">🗑</button></div><div class="progress"><i style="width:${pct}%"></i></div></div>`;
           }).join('')}
         </div>
       </div>
@@ -181,7 +182,7 @@ function renderSubscriptions() {
   <div class="module-card">
     <h3>🎬 Minhas Assinaturas</h3>
     <div class="list-wrap">
-      ${state.modules.subscriptions.map((s) => `<div class="sub-row"><div><strong>${s.name}</strong><small>${s.plan}</small></div><div style="text-align:right"><strong>${formatCurrency(s.value)}/mês</strong><small>Desconto dia ${s.day} <button onclick="editSubscription('${s.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer; margin-left:6px">✏️</button><button onclick="removeSubscription('${s.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer; margin-left:6px">🗑</button></small></div></div>`).join('')}
+      ${state.modules.subscriptions.map((s) => `<div class="sub-row"><div><strong>${escapeHtml(s.name)}</strong><small>${escapeHtml(s.plan)}</small></div><div style="text-align:right"><strong>${formatCurrency(s.value)}/mês</strong><small>Desconto dia ${s.day} <button onclick="editSubscription('${s.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer; margin-left:6px">✏️</button><button onclick="removeSubscription('${s.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer; margin-left:6px">🗑</button></small></div></div>`).join('')}
     </div>
   </div>`;
 }
@@ -197,10 +198,10 @@ function renderStock() {
     <button class="list-btn" onclick="addStockItem()">+ Item</button>
   </div>
   <div class="module-grid two">
-    <div class="module-card"><h3>🚨 Alertas de reposição</h3><div class="list-wrap">${alerts.map((a) => `<div class="notice ${a.qty === 0 ? 'danger' : 'warn'}">${a.name} — estoque ${a.qty === 0 ? 'zerado' : 'baixo'}</div>`).join('') || '<div class="notice ok">Sem alertas no momento</div>'}</div></div>
-    <div class="module-card"><h3>📅 Próximas reposições</h3><div class="list-wrap">${state.modules.stockItems.map((i) => `<div class="sub-row"><div><strong>${i.name}</strong><small>${i.dueIn < 0 ? 'Vencido' : `Em ${i.dueIn} dias`}</small></div><strong>${formatCurrency(i.price)}</strong></div>`).join('')}</div></div>
+    <div class="module-card"><h3>🚨 Alertas de reposição</h3><div class="list-wrap">${alerts.map((a) => `<div class="notice ${a.qty === 0 ? 'danger' : 'warn'}">${escapeHtml(a.name)} — estoque ${a.qty === 0 ? 'zerado' : 'baixo'}</div>`).join('') || '<div class="notice ok">Sem alertas no momento</div>'}</div></div>
+    <div class="module-card"><h3>📅 Próximas reposições</h3><div class="list-wrap">${state.modules.stockItems.map((i) => `<div class="sub-row"><div><strong>${escapeHtml(i.name)}</strong><small>${i.dueIn < 0 ? 'Vencido' : `Em ${i.dueIn} dias`}</small></div><strong>${formatCurrency(i.price)}</strong></div>`).join('')}</div></div>
   </div>
-  <div class="module-card"><h3>📦 Itens do estoque</h3><div class="stock-grid">${state.modules.stockItems.map((i) => `<div class="stock-item"><div style="display:flex; justify-content:space-between"><strong>${i.name}</strong> <button onclick="removeStockItem('${i.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">🗑</button></div><small>${i.category}</small><div class="progress"><i style="width:${Math.min(100, (i.qty / Math.max(1, i.min)) * 100)}%"></i></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px"><p style="margin:0">${i.qty} un. (mín ${i.min})</p><div><button onclick="changeStockQty('${i.id}', -1)" style="padding:2px 6px; border-radius:4px">-</button> <button onclick="changeStockQty('${i.id}', 1)" style="padding:2px 6px; border-radius:4px">+</button></div></div></div>`).join('')}</div></div>`;
+  <div class="module-card"><h3>📦 Itens do estoque</h3><div class="stock-grid">${state.modules.stockItems.map((i) => `<div class="stock-item"><div style="display:flex; justify-content:space-between"><strong>${escapeHtml(i.name)}</strong> <button onclick="removeStockItem('${i.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">🗑</button></div><small>${escapeHtml(i.category)}</small><div class="progress"><i style="width:${Math.min(100, (i.qty / Math.max(1, i.min)) * 100)}%"></i></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px"><p style="margin:0">${i.qty} un. (mín ${i.min})</p><div><button onclick="changeStockQty('${i.id}', -1)" style="padding:2px 6px; border-radius:4px">-</button> <button onclick="changeStockQty('${i.id}', 1)" style="padding:2px 6px; border-radius:4px">+</button></div></div></div>`).join('')}</div></div>`;
 }
 
 function renderBills() {
@@ -217,7 +218,7 @@ function renderBills() {
   <div class="module-card">
     <div class="bill-summary"><span class="ok">✓ Pago: ${formatCurrency(paid)}</span><span class="danger">✗ Pendente: ${formatCurrency(total - paid)}</span><span>Total: ${formatCurrency(total)}</span></div>
     <table class="bill-table" style="width:100%"><thead><tr><th>Conta</th><th>Categoria</th><th>Vencimento</th><th>Valor</th><th>Pago?</th><th></th></tr></thead>
-    <tbody>${state.modules.bills.map((b) => `<tr><td>${b.name}</td><td>${b.category}</td><td>Dia ${b.day}</td><td>${formatCurrency(b.value)}</td><td><input type="checkbox" ${b.paid ? 'checked' : ''} onchange="toggleBillPaid('${b.id}', this.checked)"></td><td><button onclick="editBill('${b.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">✏️</button><button onclick="removeBill('${b.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">🗑</button></td></tr>`).join('')}</tbody></table>
+    <tbody>${state.modules.bills.map((b) => `<tr><td>${escapeHtml(b.name)}</td><td>${escapeHtml(b.category)}</td><td>Dia ${b.day}</td><td>${formatCurrency(b.value)}</td><td><input type="checkbox" ${b.paid ? 'checked' : ''} onchange="toggleBillPaid('${b.id}', this.checked)"></td><td><button onclick="editBill('${b.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">✏️</button><button onclick="removeBill('${b.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">🗑</button></td></tr>`).join('')}</tbody></table>
   </div>`;
 }
 
@@ -240,7 +241,7 @@ function renderMobileModules() {
       ${state.modules.limits.map((item) => {
         const spent = spentMap[item.category] || 0;
         const pct = Math.min(100, Math.round((spent / item.limit) * 100));
-        return `<div class="limit-row"><div><strong>${item.category}</strong><small>${formatCurrency(spent)} de ${formatCurrency(item.limit)}</small></div><div style="display:flex;align-items:center;gap:8px"><span>${pct}%</span><button onclick="editLimit('${item.id}')" class="mini-action">✏️</button><button onclick="removeLimit('${item.id}')" class="mini-action">🗑</button></div><div class="progress"><i style="width:${pct}%"></i></div></div>`;
+        return `<div class="limit-row"><div><strong>${escapeHtml(item.category)}</strong><small>${formatCurrency(spent)} de ${formatCurrency(item.limit)}</small></div><div style="display:flex;align-items:center;gap:8px"><span>${pct}%</span><button onclick="editLimit('${item.id}')" class="mini-action">✏️</button><button onclick="removeLimit('${item.id}')" class="mini-action">🗑</button></div><div class="progress"><i style="width:${pct}%"></i></div></div>`;
       }).join('') || '<div class="empty">Nenhum limite configurado</div>'}
     </div>`;
 
@@ -248,21 +249,21 @@ function renderMobileModules() {
     <button class="list-btn" style="margin-bottom:10px" onclick="addSubscription()">+ Nova assinatura</button>
     <div class="notice ok" style="margin-bottom:10px">${state.modules.subscriptions.length} assinatura(s) · ${formatCurrency(totalMonth)}/mês</div>
     <div class="list-wrap">
-      ${state.modules.subscriptions.map((s) => `<div class="sub-row"><div><strong>${s.name}</strong><small>${s.plan}</small></div><div style="text-align:right"><strong>${formatCurrency(s.value)}</strong><small>Dia ${s.day} <button onclick="editSubscription('${s.id}')" class="mini-action">✏️</button><button onclick="removeSubscription('${s.id}')" class="mini-action">🗑</button></small></div></div>`).join('') || '<div class="empty">Nenhuma assinatura</div>'}
+      ${state.modules.subscriptions.map((s) => `<div class="sub-row"><div><strong>${escapeHtml(s.name)}</strong><small>${escapeHtml(s.plan)}</small></div><div style="text-align:right"><strong>${formatCurrency(s.value)}</strong><small>Dia ${s.day} <button onclick="editSubscription('${s.id}')" class="mini-action">✏️</button><button onclick="removeSubscription('${s.id}')" class="mini-action">🗑</button></small></div></div>`).join('') || '<div class="empty">Nenhuma assinatura</div>'}
     </div>`;
 
   billsEl.innerHTML = `
     <button class="list-btn" style="margin-bottom:10px" onclick="addBill()">+ Nova conta</button>
     <div class="notice warn" style="margin-bottom:10px">Pago ${formatCurrency(paidBills)} de ${formatCurrency(totalBills)}</div>
     <div class="list-wrap">
-      ${state.modules.bills.map((b) => `<div class="sub-row"><div><strong>${b.name}</strong><small>Vence dia ${b.day}</small></div><div style="display:flex;align-items:center;gap:8px"><input type="checkbox" ${b.paid ? 'checked' : ''} onchange="toggleBillPaid('${b.id}', this.checked)"><button onclick="editBill('${b.id}')" class="mini-action">✏️</button><button onclick="removeBill('${b.id}')" class="mini-action">🗑</button></div></div>`).join('') || '<div class="empty">Sem contas cadastradas</div>'}
+      ${state.modules.bills.map((b) => `<div class="sub-row"><div><strong>${escapeHtml(b.name)}</strong><small>Vence dia ${b.day}</small></div><div style="display:flex;align-items:center;gap:8px"><input type="checkbox" ${b.paid ? 'checked' : ''} onchange="toggleBillPaid('${b.id}', this.checked)"><button onclick="editBill('${b.id}')" class="mini-action">✏️</button><button onclick="removeBill('${b.id}')" class="mini-action">🗑</button></div></div>`).join('') || '<div class="empty">Sem contas cadastradas</div>'}
     </div>`;
 
   stockEl.innerHTML = `
     <button class="list-btn" style="margin-bottom:10px" onclick="addStockItem()">+ Novo item</button>
     <div class="notice ${alerts ? 'warn' : 'ok'}" style="margin-bottom:10px">${alerts} alerta(s) em ${state.modules.stockItems.length} item(ns)</div>
     <div class="list-wrap">
-      ${state.modules.stockItems.map((i) => `<div class="sub-row"><div><strong>${i.name}</strong><small>${i.qty} un. (mín ${i.min})</small></div><div style="display:flex;align-items:center;gap:6px"><button onclick="changeStockQty('${i.id}', -1)" class="mini-action">-</button><button onclick="changeStockQty('${i.id}', 1)" class="mini-action">+</button><button onclick="removeStockItem('${i.id}')" class="mini-action">🗑</button></div></div>`).join('') || '<div class="empty">Sem itens no estoque</div>'}
+      ${state.modules.stockItems.map((i) => `<div class="sub-row"><div><strong>${escapeHtml(i.name)}</strong><small>${i.qty} un. (mín ${i.min})</small></div><div style="display:flex;align-items:center;gap:6px"><button onclick="changeStockQty('${i.id}', -1)" class="mini-action">-</button><button onclick="changeStockQty('${i.id}', 1)" class="mini-action">+</button><button onclick="removeStockItem('${i.id}')" class="mini-action">🗑</button></div></div>`).join('') || '<div class="empty">Sem itens no estoque</div>'}
     </div>`;
 }
 

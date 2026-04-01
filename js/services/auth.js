@@ -28,6 +28,8 @@ export async function doLogout() {
     return;
   }
 
+  localStorage.removeItem('fincontrol_modules_v1');
+
   if (state.unsubscribe) {
     state.unsubscribe();
     state.unsubscribe = null;
