@@ -79,6 +79,7 @@ export function refreshUI() {
   setText('mPeriodLabel', getMonthPeriodLabel(state.currentYear, state.currentMonth));
   setText('mBalanceDelta', `${balanceDelta >= 0 ? '+' : ''}${balanceDelta}%`);
   renderMobileSpotlight('mTxList', highestExpense, expense);
+  renderGroupedTransactions('mRecentTxList', monthlyTransactions);
   renderGroupedTransactions('dTxList', monthlyTransactions);
   renderDonutCharts(sortedCategories, expense);
   renderSixMonthChart('mSixMonthChart', state.transactions);
@@ -217,7 +218,7 @@ function renderGroupSection(group) {
   const totalPrefix = group.total >= 0 ? '+' : '-';
 
   return `
-    <details class="group-section" open>
+    <details class="group-section">
       <summary class="group-head">
         <div class="group-title-wrap">
           <div class="group-icon" style="color:${CATEGORY_COLORS[group.category] || 'var(--text)'}">

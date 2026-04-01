@@ -1,7 +1,7 @@
 import { state } from '../core/state.js';
 import { formatCurrency } from '../core/utils.js';
 import { showToast } from './feedback.js';
-import { db, doc, onSnapshot, setDoc } from '../config/firebase.js';
+import { addDoc, collection, db, doc, onSnapshot, query, setDoc, where } from '../config/firebase.js';
 
 const STORAGE_KEY = 'fincontrol_modules_v1';
 
@@ -24,17 +24,21 @@ export function initModules() {
     state.unsubscribeModules();
   }
 
-  const modulesDocRef = doc(db, 'modules', state.currentUser.uid);
+  const modulesQuery = query(collection(db, 'modules'), where('uid', '==', state.currentUser.uid));
 
-  state.unsubscribeModules = onSnapshot(modulesDocRef, async (snapshot) => {
-    if (!snapshot.exists()) {
+  state.unsubscribeModules = onSnapshot(modulesQuery, async (snapshot) => {
+    if (snapshot.empty) {
       state.modules = loadData();
-      await setDoc(modulesDocRef, state.modules);
+      const created = await addDoc(collection(db, 'modules'), { uid: state.currentUser.uid, ...state.modules });
+      state.modulesDocId = created.id;
       persistLocal();
       renderModules();
       return;
     }
-    state.modules = { ...cloneDefaults(), ...snapshot.data() };
+    const modulesDoc = snapshot.docs[0];
+    state.modulesDocId = modulesDoc.id;
+    const data = modulesDoc.data();
+    state.modules = { ...cloneDefaults(), ...data };
     persistLocal();
     renderModules();
   }, () => {
@@ -72,7 +76,12 @@ async function persist() {
   persistLocal();
   if (!state.currentUser) return;
   try {
-    await setDoc(doc(db, 'modules', state.currentUser.uid), state.modules);
+    if (state.modulesDocId) {
+      await setDoc(doc(db, 'modules', state.modulesDocId), { uid: state.currentUser.uid, ...state.modules });
+      return;
+    }
+    const created = await addDoc(collection(db, 'modules'), { uid: state.currentUser.uid, ...state.modules });
+    state.modulesDocId = created.id;
   } catch {
     showToast('Erro ao salvar módulos na nuvem.', true);
   }

@@ -6,6 +6,7 @@ export const state = {
   isRecording: false,
   unsubscribe: null,
   unsubscribeModules: null,
+  modulesDocId: null,
   currentUser: null,
   modalType: 'income',
   modules: null,
