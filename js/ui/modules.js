@@ -1,5 +1,6 @@
 import { state } from '../core/state.js';
 import { formatCurrency } from '../core/utils.js';
+import { showToast } from './feedback.js';
 
 const STORAGE_KEY = 'fincontrol_modules_v1';
 
@@ -171,33 +172,48 @@ function renderBills() {
 }
 
 function renderMobileModules() {
-  const el = document.getElementById('mModules');
-  if (!el) return;
+  const limitsEl = document.getElementById('mLimitsPage');
+  const subscriptionsEl = document.getElementById('mSubscriptionsPage');
+  const billsEl = document.getElementById('mBillsPage');
+  const stockEl = document.getElementById('mStockPage');
+  if (!limitsEl || !subscriptionsEl || !billsEl || !stockEl) return;
+
   const totalMonth = state.modules.subscriptions.reduce((sum, s) => sum + s.value, 0);
   const alerts = state.modules.stockItems.filter((i) => i.qty <= i.min).length;
   const totalBills = state.modules.bills.reduce((sum, b) => sum + b.value, 0);
   const paidBills = state.modules.bills.filter((b) => b.paid).reduce((sum, b) => sum + b.value, 0);
+  const spentMap = expensesByCategory();
 
-  el.innerHTML = `
+  limitsEl.innerHTML = `
+    <button class="list-btn" style="margin-bottom:10px" onclick="addLimit()">+ Novo limite</button>
     <div class="list-wrap">
-      <div class="module-card">
-        <h3>🏷️ Limites & Categorias</h3>
-        <p class="tx-meta">${state.modules.categories.length} categorias e ${state.modules.limits.length} limites configurados.</p>
-      </div>
-      <div class="module-card">
-        <h3>📱 Assinaturas</h3>
-        <p class="tx-meta">${state.modules.subscriptions.length} assinaturas · ${formatCurrency(totalMonth)}/mês.</p>
-      </div>
-      <div class="module-card">
-        <h3>📦 Estoque</h3>
-        <p class="tx-meta">${alerts} alerta(s) de reposição em ${state.modules.stockItems.length} item(ns).</p>
-      </div>
-      <div class="module-card">
-        <h3>🗓️ Contas a pagar</h3>
-        <p class="tx-meta">Pago ${formatCurrency(paidBills)} de ${formatCurrency(totalBills)} no mês.</p>
-      </div>
-    </div>
-  `;
+      ${state.modules.limits.map((item) => {
+        const spent = spentMap[item.category] || 0;
+        const pct = Math.min(100, Math.round((spent / item.limit) * 100));
+        return `<div class="limit-row"><div><strong>${item.category}</strong><small>${formatCurrency(spent)} de ${formatCurrency(item.limit)}</small></div><div style="display:flex;align-items:center;gap:8px"><span>${pct}%</span><button onclick="removeLimit('${item.id}')" class="mini-action">🗑</button></div><div class="progress"><i style="width:${pct}%"></i></div></div>`;
+      }).join('') || '<div class="empty">Nenhum limite configurado</div>'}
+    </div>`;
+
+  subscriptionsEl.innerHTML = `
+    <button class="list-btn" style="margin-bottom:10px" onclick="addSubscription()">+ Nova assinatura</button>
+    <div class="notice ok" style="margin-bottom:10px">${state.modules.subscriptions.length} assinatura(s) · ${formatCurrency(totalMonth)}/mês</div>
+    <div class="list-wrap">
+      ${state.modules.subscriptions.map((s) => `<div class="sub-row"><div><strong>${s.name}</strong><small>${s.plan}</small></div><div style="text-align:right"><strong>${formatCurrency(s.value)}</strong><small>Dia ${s.day} <button onclick="removeSubscription('${s.id}')" class="mini-action">🗑</button></small></div></div>`).join('') || '<div class="empty">Nenhuma assinatura</div>'}
+    </div>`;
+
+  billsEl.innerHTML = `
+    <button class="list-btn" style="margin-bottom:10px" onclick="addBill()">+ Nova conta</button>
+    <div class="notice warn" style="margin-bottom:10px">Pago ${formatCurrency(paidBills)} de ${formatCurrency(totalBills)}</div>
+    <div class="list-wrap">
+      ${state.modules.bills.map((b) => `<div class="sub-row"><div><strong>${b.name}</strong><small>Vence dia ${b.day}</small></div><div style="display:flex;align-items:center;gap:8px"><input type="checkbox" ${b.paid ? 'checked' : ''} onchange="toggleBillPaid('${b.id}', this.checked)"><button onclick="removeBill('${b.id}')" class="mini-action">🗑</button></div></div>`).join('') || '<div class="empty">Sem contas cadastradas</div>'}
+    </div>`;
+
+  stockEl.innerHTML = `
+    <button class="list-btn" style="margin-bottom:10px" onclick="addStockItem()">+ Novo item</button>
+    <div class="notice ${alerts ? 'warn' : 'ok'}" style="margin-bottom:10px">${alerts} alerta(s) em ${state.modules.stockItems.length} item(ns)</div>
+    <div class="list-wrap">
+      ${state.modules.stockItems.map((i) => `<div class="sub-row"><div><strong>${i.name}</strong><small>${i.qty} un. (mín ${i.min})</small></div><div style="display:flex;align-items:center;gap:6px"><button onclick="changeStockQty('${i.id}', -1)" class="mini-action">-</button><button onclick="changeStockQty('${i.id}', 1)" class="mini-action">+</button><button onclick="removeStockItem('${i.id}')" class="mini-action">🗑</button></div></div>`).join('') || '<div class="empty">Sem itens no estoque</div>'}
+    </div>`;
 }
 
 export function toggleBillPaid(id, paid) {
@@ -209,43 +225,85 @@ export function toggleBillPaid(id, paid) {
 }
 
 export function addSubscription() {
-  const name = prompt("Nome da assinatura:");
-  if (!name) return;
-  const plan = prompt("Plano (ex: Premium):");
-  const value = parseFloat(prompt("Valor mensal (R$):"));
-  const day = parseInt(prompt("Dia do vencimento:"));
-  if (isNaN(value) || isNaN(day)) return alert('Valores inválidos');
-  
-  state.modules.subscriptions.push({ id: Date.now().toString(), name, plan, value, day });
-  persist();
-  renderModules();
+  openModuleForm({
+    title: 'Nova assinatura',
+    fields: [
+      { name: 'name', label: 'Nome da assinatura', placeholder: 'Ex: Netflix', required: true },
+      { name: 'plan', label: 'Plano', placeholder: 'Ex: Premium' },
+      { name: 'value', label: 'Valor mensal (R$)', type: 'number', required: true },
+      { name: 'day', label: 'Dia do vencimento', type: 'number', required: true },
+    ],
+    confirmLabel: 'Salvar assinatura',
+    onSubmit: ({ name, plan, value, day }) => {
+      const monthlyValue = parseFloat(value);
+      const dueDay = parseInt(day, 10);
+      if (Number.isNaN(monthlyValue) || Number.isNaN(dueDay)) {
+        showToast('Preencha valor e vencimento corretamente.', true);
+        return false;
+      }
+      state.modules.subscriptions.push({ id: Date.now().toString(), name: name.trim(), plan: (plan || 'Plano Padrão').trim(), value: monthlyValue, day: dueDay });
+      return true;
+    },
+    successMessage: 'Assinatura adicionada.',
+  });
 }
 
 export function removeSubscription(id) {
-  if (!confirm("Remover esta assinatura?")) return;
-  state.modules.subscriptions = state.modules.subscriptions.filter(s => s.id !== id);
-  persist();
-  renderModules();
+  openConfirmDialog({
+    title: 'Remover assinatura',
+    message: 'Tem certeza que deseja remover esta assinatura?',
+    confirmLabel: 'Remover',
+    onConfirm: () => {
+      state.modules.subscriptions = state.modules.subscriptions.filter((s) => s.id !== id);
+      return true;
+    },
+    successMessage: 'Assinatura removida.',
+  });
 }
 
 export function addStockItem() {
-  const name = prompt("Nome do produto:");
-  if (!name) return;
-  const category = prompt("Categoria:");
-  const qty = parseInt(prompt("Quantidade atual:"));
-  const min = parseInt(prompt("Quantidade mínima para alerta:"));
-  if (isNaN(qty) || isNaN(min)) return alert('Valores numéricos inválidos');
-  
-  state.modules.stockItems.push({ id: Date.now().toString(), name, category, qty, min, price: 0, dueIn: 0 });
-  persist();
-  renderModules();
+  openModuleForm({
+    title: 'Novo item de estoque',
+    fields: [
+      { name: 'name', label: 'Nome do produto', placeholder: 'Ex: Papel higiênico', required: true },
+      { name: 'category', label: 'Categoria', placeholder: 'Ex: Limpeza', required: true },
+      { name: 'qty', label: 'Quantidade atual', type: 'number', required: true },
+      { name: 'min', label: 'Quantidade mínima', type: 'number', required: true },
+    ],
+    confirmLabel: 'Adicionar item',
+    onSubmit: ({ name, category, qty, min }) => {
+      const currentQty = parseInt(qty, 10);
+      const minimumQty = parseInt(min, 10);
+      if (Number.isNaN(currentQty) || Number.isNaN(minimumQty)) {
+        showToast('Quantidade e mínimo precisam ser números.', true);
+        return false;
+      }
+      state.modules.stockItems.push({
+        id: Date.now().toString(),
+        name: name.trim(),
+        category: category.trim(),
+        qty: currentQty,
+        min: minimumQty,
+        price: 0,
+        dueIn: 0,
+      });
+      return true;
+    },
+    successMessage: 'Item adicionado no estoque.',
+  });
 }
 
 export function removeStockItem(id) {
-  if (!confirm("Remover do estoque?")) return;
-  state.modules.stockItems = state.modules.stockItems.filter(s => s.id !== id);
-  persist();
-  renderModules();
+  openConfirmDialog({
+    title: 'Remover item',
+    message: 'Tem certeza que deseja remover este item do estoque?',
+    confirmLabel: 'Remover',
+    onConfirm: () => {
+      state.modules.stockItems = state.modules.stockItems.filter((s) => s.id !== id);
+      return true;
+    },
+    successMessage: 'Item removido do estoque.',
+  });
 }
 
 export function changeStockQty(id, delta) {
@@ -260,41 +318,142 @@ export function changeStockQty(id, delta) {
 }
 
 export function addLimit() {
-  const category = prompt("Categoria (ex: Alimentação):");
-  if (!category) return;
-  const limit = parseFloat(prompt("Valor do Limite (R$):"));
-  if (isNaN(limit)) return alert('Valor numérico inválido');
-  
-  state.modules.limits.push({ id: Date.now().toString(), category, limit });
-  if (!state.modules.categories.find(c => c.name === category)) {
-      state.modules.categories.push({ id: Date.now().toString(), name: category, type: 'expense' });
-  }
-  persist();
-  renderModules();
+  openModuleForm({
+    title: 'Novo limite por categoria',
+    fields: [
+      { name: 'category', label: 'Categoria', placeholder: 'Ex: Alimentação', required: true },
+      { name: 'limit', label: 'Valor do limite (R$)', type: 'number', required: true },
+    ],
+    confirmLabel: 'Salvar limite',
+    onSubmit: ({ category, limit }) => {
+      const parsedLimit = parseFloat(limit);
+      if (Number.isNaN(parsedLimit)) {
+        showToast('Informe um valor numérico válido.', true);
+        return false;
+      }
+      state.modules.limits.push({ id: Date.now().toString(), category: category.trim(), limit: parsedLimit });
+      if (!state.modules.categories.find((c) => c.name === category.trim())) {
+        state.modules.categories.push({ id: Date.now().toString(), name: category.trim(), type: 'expense' });
+      }
+      return true;
+    },
+    successMessage: 'Limite adicionado.',
+  });
 }
 
 export function removeLimit(id) {
-  if (!confirm("Remover limite?")) return;
-  state.modules.limits = state.modules.limits.filter(l => l.id !== id);
-  persist();
-  renderModules();
+  openConfirmDialog({
+    title: 'Remover limite',
+    message: 'Deseja remover este limite de categoria?',
+    confirmLabel: 'Remover',
+    onConfirm: () => {
+      state.modules.limits = state.modules.limits.filter((l) => l.id !== id);
+      return true;
+    },
+    successMessage: 'Limite removido.',
+  });
 }
 
 export function addBill() {
-  const name = prompt("Nome da conta:");
-  if (!name) return;
-  const value = parseFloat(prompt("Valor (R$):"));
-  const day = parseInt(prompt("Dia do vencimento:"));
-  if (isNaN(value) || isNaN(day)) return alert('Valores inválidos');
-  
-  state.modules.bills.push({ id: Date.now().toString(), name, category: 'Despesa Fixa', value, day, paid: false });
-  persist();
-  renderModules();
+  openModuleForm({
+    title: 'Nova conta a pagar',
+    fields: [
+      { name: 'name', label: 'Nome da conta', placeholder: 'Ex: Internet', required: true },
+      { name: 'value', label: 'Valor (R$)', type: 'number', required: true },
+      { name: 'day', label: 'Dia do vencimento', type: 'number', required: true },
+    ],
+    confirmLabel: 'Salvar conta',
+    onSubmit: ({ name, value, day }) => {
+      const parsedValue = parseFloat(value);
+      const dueDay = parseInt(day, 10);
+      if (Number.isNaN(parsedValue) || Number.isNaN(dueDay)) {
+        showToast('Informe valor e vencimento válidos.', true);
+        return false;
+      }
+      state.modules.bills.push({ id: Date.now().toString(), name: name.trim(), category: 'Despesa Fixa', value: parsedValue, day: dueDay, paid: false });
+      return true;
+    },
+    successMessage: 'Conta adicionada.',
+  });
 }
 
 export function removeBill(id) {
-  if (!confirm("Remover esta conta?")) return;
-  state.modules.bills = state.modules.bills.filter(b => b.id !== id);
-  persist();
-  renderModules();
+  openConfirmDialog({
+    title: 'Remover conta',
+    message: 'Deseja remover esta conta?',
+    confirmLabel: 'Remover',
+    onConfirm: () => {
+      state.modules.bills = state.modules.bills.filter((b) => b.id !== id);
+      return true;
+    },
+    successMessage: 'Conta removida.',
+  });
+}
+
+function openModuleForm({ title, fields, onSubmit, confirmLabel = 'Salvar', successMessage = 'Salvo com sucesso.' }) {
+  const modal = document.getElementById('genericFormModal');
+  const titleEl = document.getElementById('gfmTitle');
+  const body = document.getElementById('gfmBody');
+  const confirm = document.getElementById('gfmConfirm');
+  if (!modal || !titleEl || !body || !confirm) return;
+
+  titleEl.textContent = title;
+  body.innerHTML = fields.map((field) => `
+    <div>
+      <label class="gfm-label" for="gfm-${field.name}">${field.label}</label>
+      <input
+        class="finput"
+        id="gfm-${field.name}"
+        data-name="${field.name}"
+        type="${field.type || 'text'}"
+        placeholder="${field.placeholder || ''}"
+        ${field.required ? 'required' : ''}
+      />
+    </div>
+  `).join('');
+  confirm.textContent = confirmLabel;
+
+  confirm.onclick = () => {
+    const values = {};
+    for (const field of fields) {
+      const input = body.querySelector(`[data-name="${field.name}"]`);
+      values[field.name] = input?.value?.trim() || '';
+      if (field.required && !values[field.name]) {
+        showToast(`Preencha o campo "${field.label}".`, true);
+        input?.focus();
+        return;
+      }
+    }
+
+    const saved = onSubmit(values);
+    if (!saved) return;
+    persist();
+    renderModules();
+    modal.style.display = 'none';
+    showToast(successMessage);
+  };
+
+  modal.style.display = 'flex';
+}
+
+function openConfirmDialog({ title, message, confirmLabel = 'Confirmar', onConfirm, successMessage = 'Concluído.' }) {
+  const modal = document.getElementById('genericFormModal');
+  const titleEl = document.getElementById('gfmTitle');
+  const body = document.getElementById('gfmBody');
+  const confirm = document.getElementById('gfmConfirm');
+  if (!modal || !titleEl || !body || !confirm) return;
+
+  titleEl.textContent = title;
+  body.innerHTML = `<p class="gfm-message">${message}</p>`;
+  confirm.textContent = confirmLabel;
+  confirm.onclick = () => {
+    const removed = onConfirm();
+    if (!removed) return;
+    persist();
+    renderModules();
+    modal.style.display = 'none';
+    showToast(successMessage);
+  };
+
+  modal.style.display = 'flex';
 }

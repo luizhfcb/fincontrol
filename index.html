@@ -83,69 +83,73 @@
 <div id="mobile-app">
   <div class="m-topbar">
     <div class="m-topbar-inner">
-      <span class="sync-dot" id="mSyncDot"></span>
-      <div class="m-app-name">💰 Fin<em>Control</em></div>
+      <div class="m-profile-mini">
+        <div class="avatar-btn" id="mAvatar" onclick="doLogout()">?</div>
+        <div class="m-profile-copy">
+          <strong>Insights</strong>
+          <span><span class="sync-dot" id="mSyncDot"></span><em id="mMonthSync">Março 2026 • Sincronizado</em></span>
+        </div>
+      </div>
       <div class="m-topbar-right">
         <button class="icon-btn" id="mThemeBtn" onclick="toggleTheme()">🌙</button>
-        <div class="avatar-btn" id="mAvatar" onclick="doLogout()">?</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="m-hero">
-    <div class="m-grid-metrics">
-      <div class="m-metric-card">
-        <div class="metric-icon si-amber">💰</div>
-        <label>Receita Total</label>
-        <div class="val green" id="mIncome">R$ 0,00</div>
-        <small>Período atual</small>
-      </div>
-      <div class="m-metric-card">
-        <div class="metric-icon si-neutral">🛒</div>
-        <label>Despesas Totais</label>
-        <div class="val red" id="mExpense">R$ 0,00</div>
-        <small>Período atual</small>
-      </div>
-      <div class="m-metric-card">
-        <div class="metric-icon si-green">💎</div>
-        <label>Saldo Líquido</label>
-        <div class="val positive" id="mBalance">R$ 0,00</div>
-        <small>Receita - Despesas</small>
-      </div>
-      <div class="m-metric-card">
-        <div class="metric-icon si-red">⚠️</div>
-        <label>Alertas Estoque</label>
-        <div class="val amber" id="mStockAlerts">0</div>
-        <small>Itens para repor</small>
       </div>
     </div>
   </div>
 
   <div class="m-scroller">
     <div class="m-page active" id="mp-home">
-      <div style="height:10px"></div>
-      <div class="month-nav-row">
-        <button class="mnbtn" onclick="changeMonth(-1)">‹</button>
-        <span id="monthLabel">—</span>
-        <button class="mnbtn" onclick="changeMonth(1)">›</button>
+      <div class="m-balance-hero">
+        <label>SALDO TOTAL</label>
+        <div class="m-period-switch">
+          <button class="mnbtn" onclick="changeMonth(-1)">‹</button>
+          <span id="monthLabel">—</span>
+          <button class="mnbtn" onclick="changeMonth(1)">›</button>
+        </div>
+        <div class="m-balance-row">
+          <div class="big-val positive" id="mBalance">R$ 0,00</div>
+          <span class="m-badge" id="mBalanceDelta">+0%</span>
+        </div>
+        <p id="mPeriodLabel">—</p>
       </div>
       <div class="sec-title">Gastos por Categoria</div>
       <div class="m-card chart-card" id="mBarChart"><div class="empty">Sem gastos neste mês</div></div>
 
-      <div class="sec-title">Receitas vs Despesas – 6 Meses</div>
-      <div class="m-card bar-chart-wrap" id="mSixMonthChart"><div class="empty">Carregando histórico...</div></div>
-
-      <div class="sec-title">Últimas Transações</div>
+      <div class="sec-title">Maior transação</div>
       <div class="m-card grouped-list" id="mTxList"><div class="empty">Nenhum lançamento neste mês</div></div>
 
-      <div class="sec-title">Limites — Situação <button class="sec-link" onclick="goMPage('modules')">Ver todos</button></div>
+      <div class="m-mobile-stats">
+        <div class="m-stat-mini"><span>Dias ativos</span><strong id="mDays">0</strong></div>
+        <div class="m-stat-mini"><span>Média diária</span><strong id="mAvg">R$0</strong></div>
+        <div class="m-stat-mini"><span>Registros</span><strong id="mCount">0</strong></div>
+        <div class="m-stat-mini highlight"><span>Maior gasto</span><strong id="mBig">R$0</strong></div>
+      </div>
+
+      <div class="sec-title">Limites — Situação <button class="sec-link" onclick="goMPage('subscriptions')">Ver todos</button></div>
       <div class="m-card" id="mLimitsMini"><div class="empty">Nenhum limite</div></div>
     </div>
 
-    <div class="m-page" id="mp-modules">
+    <div class="m-page" id="mp-limits">
       <div style="height:10px"></div>
-      <div class="sec-title">Módulos avançados</div>
-      <div class="m-card" id="mModules"></div>
+      <div class="sec-title">Limites & Categorias</div>
+      <div class="m-card" id="mLimitsPage"></div>
+    </div>
+
+    <div class="m-page" id="mp-subscriptions">
+      <div style="height:10px"></div>
+      <div class="sec-title">Assinaturas</div>
+      <div class="m-card" id="mSubscriptionsPage"></div>
+    </div>
+
+    <div class="m-page" id="mp-bills">
+      <div style="height:10px"></div>
+      <div class="sec-title">Planos / Contas</div>
+      <div class="m-card" id="mBillsPage"></div>
+    </div>
+
+    <div class="m-page" id="mp-stock">
+      <div style="height:10px"></div>
+      <div class="sec-title">Estoque</div>
+      <div class="m-card" id="mStockPage"></div>
     </div>
   </div>
 
@@ -160,7 +164,10 @@
 
   <nav class="m-bottomnav bg-surface-container/80 backdrop-blur-xl rounded-t-2xl shadow-nav">
     <button class="nbtn on" id="mn-home" onclick="goMPage('home')"><span class="ni">🏠</span>Início</button>
-    <button class="nbtn" id="mn-modules" onclick="goMPage('modules')"><span class="ni">🧩</span>Módulos</button>
+    <button class="nbtn" id="mn-subscriptions" onclick="goMPage('subscriptions')"><span class="ni">📊</span>Insights</button>
+    <button class="nbtn" id="mn-limits" onclick="goMPage('limits')"><span class="ni">🏷️</span>Limites</button>
+    <button class="nbtn" id="mn-bills" onclick="goMPage('bills')"><span class="ni">🗂️</span>Planos</button>
+    <button class="nbtn" id="mn-stock" onclick="goMPage('stock')"><span class="ni">🧰</span>Estoque</button>
   </nav>
 </div>
 
@@ -171,7 +178,7 @@
       <div class="sidebar-user" id="dUserName">—</div>
     </div>
     <div class="sidebar-nav">
-      <button class="snav-item on" id="dn-home" onclick="goDPage('home')"><span class="ni">🏠</span>Início</button>
+      <button class="snav-item on" id="dn-home" onclick="goDPage('home')"><span class="ni">📈</span>Gráfico</button>
       <button class="snav-item" id="dn-limits" onclick="goDPage('limits')"><span class="ni">🏷️</span>Limites & Categorias</button>
       <button class="snav-item" id="dn-subscriptions" onclick="goDPage('subscriptions')"><span class="ni">📱</span>Assinaturas</button>
       <button class="snav-item" id="dn-stock" onclick="goDPage('stock')"><span class="ni">📦</span>Estoque Doméstico</button>
