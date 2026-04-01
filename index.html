@@ -134,6 +134,12 @@
         <div class="stat-card highlight"><div class="stat-icon si-red">👑</div><div class="stat-info"><label>Maior Gasto</label><div class="sn" id="mBig2">—</div></div></div>
       </div>
     </div>
+
+    <div class="m-page" id="mp-modules">
+      <div style="height:10px"></div>
+      <div class="sec-title">Módulos avançados</div>
+      <div class="m-card" id="mModules"></div>
+    </div>
   </div>
 
   <div class="fab-wrap" id="fabWrap">
@@ -148,6 +154,7 @@
   <div class="m-bottomnav">
     <button class="nbtn on" id="mn-home" onclick="goMPage('home')"><span class="ni">🏠</span>Início</button>
     <button class="nbtn" id="mn-chart" onclick="goMPage('chart')"><span class="ni">🥯</span>Gráfico</button>
+    <button class="nbtn" id="mn-modules" onclick="goMPage('modules')"><span class="ni">🧩</span>Módulos</button>
   </div>
 </div>
 
@@ -160,6 +167,10 @@
     <div class="sidebar-nav">
       <button class="snav-item on" id="dn-home" onclick="goDPage('home')"><span class="ni">🏠</span>Início</button>
       <button class="snav-item" id="dn-chart" onclick="goDPage('chart')"><span class="ni">🥯</span>Gráfico</button>
+      <button class="snav-item" id="dn-limits" onclick="goDPage('limits')"><span class="ni">🏷️</span>Limites & Categorias</button>
+      <button class="snav-item" id="dn-subscriptions" onclick="goDPage('subscriptions')"><span class="ni">📱</span>Assinaturas</button>
+      <button class="snav-item" id="dn-stock" onclick="goDPage('stock')"><span class="ni">📦</span>Estoque Doméstico</button>
+      <button class="snav-item" id="dn-bills" onclick="goDPage('bills')"><span class="ni">🗓️</span>Contas a Pagar</button>
     </div>
     <div class="sidebar-actions">
       <span class="snav-label">Nova Transação</span>
@@ -189,7 +200,7 @@
       </div>
     </div>
 
-    <div id="dp-home">
+    <div id="dp-home" class="d-page">
       <div class="d-hero">
         <div class="d-hero-main"><label>Saldo Atual</label><div class="big-val positive" id="dBalance">R$ 0,00</div></div>
         <div class="d-mini"><label>Receitas do Mês</label><div class="val green" id="dIncome">R$ 0,00</div></div>
@@ -212,7 +223,7 @@
       </div>
     </div>
 
-    <div id="dp-chart" style="display:none">
+    <div id="dp-chart" class="d-page" style="display:none">
       <div class="d-panels">
         <div class="d-panel full"><h3>Despesas por Categoria</h3><div class="chart-card" id="dBarChart"><div class="empty">Sem gastos neste mês</div></div></div>
       </div>
@@ -228,6 +239,11 @@
         </div>
       </div>
     </div>
+
+    <div id="dp-limits" class="d-page d-module-page" style="display:none"></div>
+    <div id="dp-subscriptions" class="d-page d-module-page" style="display:none"></div>
+    <div id="dp-stock" class="d-page d-module-page" style="display:none"></div>
+    <div id="dp-bills" class="d-page d-module-page" style="display:none"></div>
   </div>
 </div>
 

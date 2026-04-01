@@ -11,6 +11,7 @@ import { setText } from '../core/utils.js';
 import { showToast } from '../ui/feedback.js';
 import { updateResponsiveAppView } from '../ui/layout.js';
 import { buildCategories } from '../ui/categories.js';
+import { initModules } from '../ui/modules.js';
 import { startListening } from './transactions.js';
 
 export async function loginGoogle() {
@@ -67,6 +68,7 @@ export function initAuth() {
 
       updateResponsiveAppView();
       buildCategories();
+      initModules();
       startListening();
       return;
     }
