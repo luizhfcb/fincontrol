@@ -266,14 +266,19 @@ function renderMobileModules() {
     </div>`;
 }
 
-export function toggleBillPaid(id, paid) {
+export async function toggleBillPaid(id, paid) {
   const bill = state.modules.bills.find((b) => b.id === id);
   if (!bill) return;
   bill.paid = paid;
-  if (paid) {
-    postBillExpense(bill);
-  } else {
-    removeBillExpense(bill);
+  try {
+    if (paid) {
+      await postBillExpense(bill);
+    } else {
+      await removeBillExpense(bill);
+    }
+  } catch (error) {
+    showToast('Erro ao sincronizar pagamento com gastos.', true);
+    console.error(error);
   }
   persist();
   renderModules();
@@ -617,6 +622,9 @@ async function postModuleExpense({ ref, desc, value, category }) {
       year: state.currentYear,
       moduleRef: ref,
     });
+  } catch (error) {
+    showToast('Não foi possível lançar gasto automático.', true);
+    console.error(error);
   } finally {
     pendingModuleRefs.delete(ref);
   }
@@ -648,7 +656,7 @@ function processDueSubscriptions() {
 
 function postBillExpense(bill) {
   const ref = `bill:${bill.id}:${getPeriodKey()}`;
-  postModuleExpense({
+  return postModuleExpense({
     ref,
     desc: `Conta paga: ${bill.name}`,
     value: bill.value,
@@ -658,5 +666,5 @@ function postBillExpense(bill) {
 
 function removeBillExpense(bill) {
   const ref = `bill:${bill.id}:${getPeriodKey()}`;
-  removeModuleExpense(ref);
+  return removeModuleExpense(ref);
 }
