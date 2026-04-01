@@ -100,6 +100,11 @@
     <div class="m-page active" id="mp-home">
       <div class="m-balance-hero">
         <label>SALDO TOTAL</label>
+        <div class="m-period-switch">
+          <button class="mnbtn" onclick="changeMonth(-1)">‹</button>
+          <span id="monthLabel">—</span>
+          <button class="mnbtn" onclick="changeMonth(1)">›</button>
+        </div>
         <div class="m-balance-row">
           <div class="big-val positive" id="mBalance">R$ 0,00</div>
           <span class="m-badge" id="mBalanceDelta">+0%</span>
@@ -119,14 +124,32 @@
         <div class="m-stat-mini highlight"><span>Maior gasto</span><strong id="mBig">R$0</strong></div>
       </div>
 
-      <div class="sec-title">Limites — Situação <button class="sec-link" onclick="goMPage('modules')">Ver todos</button></div>
+      <div class="sec-title">Limites — Situação <button class="sec-link" onclick="goMPage('subscriptions')">Ver todos</button></div>
       <div class="m-card" id="mLimitsMini"><div class="empty">Nenhum limite</div></div>
     </div>
 
-    <div class="m-page" id="mp-modules">
+    <div class="m-page" id="mp-limits">
       <div style="height:10px"></div>
-      <div class="sec-title">Módulos avançados</div>
-      <div class="m-card" id="mModules"></div>
+      <div class="sec-title">Limites & Categorias</div>
+      <div class="m-card" id="mLimitsPage"></div>
+    </div>
+
+    <div class="m-page" id="mp-subscriptions">
+      <div style="height:10px"></div>
+      <div class="sec-title">Assinaturas</div>
+      <div class="m-card" id="mSubscriptionsPage"></div>
+    </div>
+
+    <div class="m-page" id="mp-bills">
+      <div style="height:10px"></div>
+      <div class="sec-title">Planos / Contas</div>
+      <div class="m-card" id="mBillsPage"></div>
+    </div>
+
+    <div class="m-page" id="mp-stock">
+      <div style="height:10px"></div>
+      <div class="sec-title">Estoque</div>
+      <div class="m-card" id="mStockPage"></div>
     </div>
   </div>
 
@@ -141,7 +164,10 @@
 
   <nav class="m-bottomnav bg-surface-container/80 backdrop-blur-xl rounded-t-2xl shadow-nav">
     <button class="nbtn on" id="mn-home" onclick="goMPage('home')"><span class="ni">🏠</span>Início</button>
-    <button class="nbtn" id="mn-modules" onclick="goMPage('modules')"><span class="ni">📊</span>Insights</button>
+    <button class="nbtn" id="mn-subscriptions" onclick="goMPage('subscriptions')"><span class="ni">📊</span>Insights</button>
+    <button class="nbtn" id="mn-limits" onclick="goMPage('limits')"><span class="ni">🏷️</span>Limites</button>
+    <button class="nbtn" id="mn-bills" onclick="goMPage('bills')"><span class="ni">🗂️</span>Planos</button>
+    <button class="nbtn" id="mn-stock" onclick="goMPage('stock')"><span class="ni">🧰</span>Estoque</button>
   </nav>
 </div>
 

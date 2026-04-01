@@ -172,33 +172,48 @@ function renderBills() {
 }
 
 function renderMobileModules() {
-  const el = document.getElementById('mModules');
-  if (!el) return;
+  const limitsEl = document.getElementById('mLimitsPage');
+  const subscriptionsEl = document.getElementById('mSubscriptionsPage');
+  const billsEl = document.getElementById('mBillsPage');
+  const stockEl = document.getElementById('mStockPage');
+  if (!limitsEl || !subscriptionsEl || !billsEl || !stockEl) return;
+
   const totalMonth = state.modules.subscriptions.reduce((sum, s) => sum + s.value, 0);
   const alerts = state.modules.stockItems.filter((i) => i.qty <= i.min).length;
   const totalBills = state.modules.bills.reduce((sum, b) => sum + b.value, 0);
   const paidBills = state.modules.bills.filter((b) => b.paid).reduce((sum, b) => sum + b.value, 0);
+  const spentMap = expensesByCategory();
 
-  el.innerHTML = `
+  limitsEl.innerHTML = `
+    <button class="list-btn" style="margin-bottom:10px" onclick="addLimit()">+ Novo limite</button>
     <div class="list-wrap">
-      <div class="module-card">
-        <h3>🏷️ Limites & Categorias</h3>
-        <p class="tx-meta">${state.modules.categories.length} categorias e ${state.modules.limits.length} limites configurados.</p>
-      </div>
-      <div class="module-card">
-        <h3>📱 Assinaturas</h3>
-        <p class="tx-meta">${state.modules.subscriptions.length} assinaturas · ${formatCurrency(totalMonth)}/mês.</p>
-      </div>
-      <div class="module-card">
-        <h3>📦 Estoque</h3>
-        <p class="tx-meta">${alerts} alerta(s) de reposição em ${state.modules.stockItems.length} item(ns).</p>
-      </div>
-      <div class="module-card">
-        <h3>🗓️ Contas a pagar</h3>
-        <p class="tx-meta">Pago ${formatCurrency(paidBills)} de ${formatCurrency(totalBills)} no mês.</p>
-      </div>
-    </div>
-  `;
+      ${state.modules.limits.map((item) => {
+        const spent = spentMap[item.category] || 0;
+        const pct = Math.min(100, Math.round((spent / item.limit) * 100));
+        return `<div class="limit-row"><div><strong>${item.category}</strong><small>${formatCurrency(spent)} de ${formatCurrency(item.limit)}</small></div><div style="display:flex;align-items:center;gap:8px"><span>${pct}%</span><button onclick="removeLimit('${item.id}')" class="mini-action">🗑</button></div><div class="progress"><i style="width:${pct}%"></i></div></div>`;
+      }).join('') || '<div class="empty">Nenhum limite configurado</div>'}
+    </div>`;
+
+  subscriptionsEl.innerHTML = `
+    <button class="list-btn" style="margin-bottom:10px" onclick="addSubscription()">+ Nova assinatura</button>
+    <div class="notice ok" style="margin-bottom:10px">${state.modules.subscriptions.length} assinatura(s) · ${formatCurrency(totalMonth)}/mês</div>
+    <div class="list-wrap">
+      ${state.modules.subscriptions.map((s) => `<div class="sub-row"><div><strong>${s.name}</strong><small>${s.plan}</small></div><div style="text-align:right"><strong>${formatCurrency(s.value)}</strong><small>Dia ${s.day} <button onclick="removeSubscription('${s.id}')" class="mini-action">🗑</button></small></div></div>`).join('') || '<div class="empty">Nenhuma assinatura</div>'}
+    </div>`;
+
+  billsEl.innerHTML = `
+    <button class="list-btn" style="margin-bottom:10px" onclick="addBill()">+ Nova conta</button>
+    <div class="notice warn" style="margin-bottom:10px">Pago ${formatCurrency(paidBills)} de ${formatCurrency(totalBills)}</div>
+    <div class="list-wrap">
+      ${state.modules.bills.map((b) => `<div class="sub-row"><div><strong>${b.name}</strong><small>Vence dia ${b.day}</small></div><div style="display:flex;align-items:center;gap:8px"><input type="checkbox" ${b.paid ? 'checked' : ''} onchange="toggleBillPaid('${b.id}', this.checked)"><button onclick="removeBill('${b.id}')" class="mini-action">🗑</button></div></div>`).join('') || '<div class="empty">Sem contas cadastradas</div>'}
+    </div>`;
+
+  stockEl.innerHTML = `
+    <button class="list-btn" style="margin-bottom:10px" onclick="addStockItem()">+ Novo item</button>
+    <div class="notice ${alerts ? 'warn' : 'ok'}" style="margin-bottom:10px">${alerts} alerta(s) em ${state.modules.stockItems.length} item(ns)</div>
+    <div class="list-wrap">
+      ${state.modules.stockItems.map((i) => `<div class="sub-row"><div><strong>${i.name}</strong><small>${i.qty} un. (mín ${i.min})</small></div><div style="display:flex;align-items:center;gap:6px"><button onclick="changeStockQty('${i.id}', -1)" class="mini-action">-</button><button onclick="changeStockQty('${i.id}', 1)" class="mini-action">+</button><button onclick="removeStockItem('${i.id}')" class="mini-action">🗑</button></div></div>`).join('') || '<div class="empty">Sem itens no estoque</div>'}
+    </div>`;
 }
 
 export function toggleBillPaid(id, paid) {
