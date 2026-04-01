@@ -1,11 +1,12 @@
 import { state } from '../core/state.js';
 import { formatCurrency } from '../core/utils.js';
 import { showToast } from './feedback.js';
-import { db, doc, onSnapshot, setDoc } from '../config/firebase.js';
+import { addDoc, collection, db, deleteDoc, doc, onSnapshot, setDoc } from '../config/firebase.js';
 
 const STORAGE_KEY = 'fincontrol_modules_v1';
 const MODULES_DOC_TYPE = 'modules_state';
 const MODULES_COLLECTION = 'transactions';
+const pendingModuleRefs = new Set();
 
 const defaultData = {
   categories: [],
@@ -93,6 +94,7 @@ async function persist() {
 
 export function renderModules() {
   if (!state.modules) return;
+  processDueSubscriptions();
   renderLimits();
   renderSubscriptions();
   renderStock();
@@ -268,6 +270,11 @@ export function toggleBillPaid(id, paid) {
   const bill = state.modules.bills.find((b) => b.id === id);
   if (!bill) return;
   bill.paid = paid;
+  if (paid) {
+    postBillExpense(bill);
+  } else {
+    removeBillExpense(bill);
+  }
   persist();
   renderModules();
 }
@@ -585,4 +592,71 @@ function openConfirmDialog({ title, message, confirmLabel = 'Confirmar', onConfi
   };
 
   modal.style.display = 'flex';
+}
+
+function getPeriodKey(year = state.currentYear, month = state.currentMonth) {
+  return `${year}-${String(month + 1).padStart(2, '0')}`;
+}
+
+function alreadyPosted(ref) {
+  return state.transactions.some((t) => t.moduleRef === ref);
+}
+
+async function postModuleExpense({ ref, desc, value, category }) {
+  if (!state.currentUser || alreadyPosted(ref) || pendingModuleRefs.has(ref)) return;
+  pendingModuleRefs.add(ref);
+  try {
+    await addDoc(collection(db, 'transactions'), {
+      uid: state.currentUser.uid,
+      desc,
+      val: value,
+      type: 'expense',
+      cat: category || 'Outros',
+      date: new Date().toISOString(),
+      month: state.currentMonth,
+      year: state.currentYear,
+      moduleRef: ref,
+    });
+  } finally {
+    pendingModuleRefs.delete(ref);
+  }
+}
+
+async function removeModuleExpense(ref) {
+  const tx = state.transactions.find((item) => item.moduleRef === ref);
+  if (!tx) return;
+  await deleteDoc(doc(db, 'transactions', tx.id));
+}
+
+function processDueSubscriptions() {
+  const now = new Date();
+  const isViewingCurrentMonth = now.getMonth() === state.currentMonth && now.getFullYear() === state.currentYear;
+  if (!isViewingCurrentMonth) return;
+  const periodKey = getPeriodKey();
+  state.modules.subscriptions.forEach((sub) => {
+    if (now.getDate() < sub.day) return;
+    const ref = `subscription:${sub.id}:${periodKey}`;
+    if (alreadyPosted(ref)) return;
+    postModuleExpense({
+      ref,
+      desc: `Assinatura: ${sub.name}`,
+      value: sub.value,
+      category: 'Assinaturas',
+    });
+  });
+}
+
+function postBillExpense(bill) {
+  const ref = `bill:${bill.id}:${getPeriodKey()}`;
+  postModuleExpense({
+    ref,
+    desc: `Conta paga: ${bill.name}`,
+    value: bill.value,
+    category: bill.category || 'Despesa Fixa',
+  });
+}
+
+function removeBillExpense(bill) {
+  const ref = `bill:${bill.id}:${getPeriodKey()}`;
+  removeModuleExpense(ref);
 }
