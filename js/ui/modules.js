@@ -149,7 +149,7 @@ function renderLimits() {
           ${limits.map((item) => {
             const spent = spentMap[item.category] || 0;
             const pct = Math.min(100, Math.round((spent / item.limit) * 100));
-            return `<div class="limit-row"><div><strong>${item.category}</strong><small>Gasto: ${formatCurrency(spent)} / ${formatCurrency(item.limit)}</small></div><div style="display:flex; align-items:center; gap:12px;"><span>${pct}%</span><button onclick="removeLimit('${item.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">🗑</button></div><div class="progress"><i style="width:${pct}%"></i></div></div>`;
+            return `<div class="limit-row"><div><strong>${item.category}</strong><small>Gasto: ${formatCurrency(spent)} / ${formatCurrency(item.limit)}</small></div><div style="display:flex; align-items:center; gap:12px;"><span>${pct}%</span><button onclick="editLimit('${item.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">✏️</button><button onclick="removeLimit('${item.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">🗑</button></div><div class="progress"><i style="width:${pct}%"></i></div></div>`;
           }).join('')}
         </div>
       </div>
@@ -179,7 +179,7 @@ function renderSubscriptions() {
   <div class="module-card">
     <h3>🎬 Minhas Assinaturas</h3>
     <div class="list-wrap">
-      ${state.modules.subscriptions.map((s) => `<div class="sub-row"><div><strong>${s.name}</strong><small>${s.plan}</small></div><div style="text-align:right"><strong>${formatCurrency(s.value)}/mês</strong><small>Desconto dia ${s.day} <button onclick="removeSubscription('${s.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer; margin-left:6px">🗑</button></small></div></div>`).join('')}
+      ${state.modules.subscriptions.map((s) => `<div class="sub-row"><div><strong>${s.name}</strong><small>${s.plan}</small></div><div style="text-align:right"><strong>${formatCurrency(s.value)}/mês</strong><small>Desconto dia ${s.day} <button onclick="editSubscription('${s.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer; margin-left:6px">✏️</button><button onclick="removeSubscription('${s.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer; margin-left:6px">🗑</button></small></div></div>`).join('')}
     </div>
   </div>`;
 }
@@ -215,7 +215,7 @@ function renderBills() {
   <div class="module-card">
     <div class="bill-summary"><span class="ok">✓ Pago: ${formatCurrency(paid)}</span><span class="danger">✗ Pendente: ${formatCurrency(total - paid)}</span><span>Total: ${formatCurrency(total)}</span></div>
     <table class="bill-table" style="width:100%"><thead><tr><th>Conta</th><th>Categoria</th><th>Vencimento</th><th>Valor</th><th>Pago?</th><th></th></tr></thead>
-    <tbody>${state.modules.bills.map((b) => `<tr><td>${b.name}</td><td>${b.category}</td><td>Dia ${b.day}</td><td>${formatCurrency(b.value)}</td><td><input type="checkbox" ${b.paid ? 'checked' : ''} onchange="toggleBillPaid('${b.id}', this.checked)"></td><td><button onclick="removeBill('${b.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">🗑</button></td></tr>`).join('')}</tbody></table>
+    <tbody>${state.modules.bills.map((b) => `<tr><td>${b.name}</td><td>${b.category}</td><td>Dia ${b.day}</td><td>${formatCurrency(b.value)}</td><td><input type="checkbox" ${b.paid ? 'checked' : ''} onchange="toggleBillPaid('${b.id}', this.checked)"></td><td><button onclick="editBill('${b.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">✏️</button><button onclick="removeBill('${b.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">🗑</button></td></tr>`).join('')}</tbody></table>
   </div>`;
 }
 
@@ -238,7 +238,7 @@ function renderMobileModules() {
       ${state.modules.limits.map((item) => {
         const spent = spentMap[item.category] || 0;
         const pct = Math.min(100, Math.round((spent / item.limit) * 100));
-        return `<div class="limit-row"><div><strong>${item.category}</strong><small>${formatCurrency(spent)} de ${formatCurrency(item.limit)}</small></div><div style="display:flex;align-items:center;gap:8px"><span>${pct}%</span><button onclick="removeLimit('${item.id}')" class="mini-action">🗑</button></div><div class="progress"><i style="width:${pct}%"></i></div></div>`;
+        return `<div class="limit-row"><div><strong>${item.category}</strong><small>${formatCurrency(spent)} de ${formatCurrency(item.limit)}</small></div><div style="display:flex;align-items:center;gap:8px"><span>${pct}%</span><button onclick="editLimit('${item.id}')" class="mini-action">✏️</button><button onclick="removeLimit('${item.id}')" class="mini-action">🗑</button></div><div class="progress"><i style="width:${pct}%"></i></div></div>`;
       }).join('') || '<div class="empty">Nenhum limite configurado</div>'}
     </div>`;
 
@@ -246,14 +246,14 @@ function renderMobileModules() {
     <button class="list-btn" style="margin-bottom:10px" onclick="addSubscription()">+ Nova assinatura</button>
     <div class="notice ok" style="margin-bottom:10px">${state.modules.subscriptions.length} assinatura(s) · ${formatCurrency(totalMonth)}/mês</div>
     <div class="list-wrap">
-      ${state.modules.subscriptions.map((s) => `<div class="sub-row"><div><strong>${s.name}</strong><small>${s.plan}</small></div><div style="text-align:right"><strong>${formatCurrency(s.value)}</strong><small>Dia ${s.day} <button onclick="removeSubscription('${s.id}')" class="mini-action">🗑</button></small></div></div>`).join('') || '<div class="empty">Nenhuma assinatura</div>'}
+      ${state.modules.subscriptions.map((s) => `<div class="sub-row"><div><strong>${s.name}</strong><small>${s.plan}</small></div><div style="text-align:right"><strong>${formatCurrency(s.value)}</strong><small>Dia ${s.day} <button onclick="editSubscription('${s.id}')" class="mini-action">✏️</button><button onclick="removeSubscription('${s.id}')" class="mini-action">🗑</button></small></div></div>`).join('') || '<div class="empty">Nenhuma assinatura</div>'}
     </div>`;
 
   billsEl.innerHTML = `
     <button class="list-btn" style="margin-bottom:10px" onclick="addBill()">+ Nova conta</button>
     <div class="notice warn" style="margin-bottom:10px">Pago ${formatCurrency(paidBills)} de ${formatCurrency(totalBills)}</div>
     <div class="list-wrap">
-      ${state.modules.bills.map((b) => `<div class="sub-row"><div><strong>${b.name}</strong><small>Vence dia ${b.day}</small></div><div style="display:flex;align-items:center;gap:8px"><input type="checkbox" ${b.paid ? 'checked' : ''} onchange="toggleBillPaid('${b.id}', this.checked)"><button onclick="removeBill('${b.id}')" class="mini-action">🗑</button></div></div>`).join('') || '<div class="empty">Sem contas cadastradas</div>'}
+      ${state.modules.bills.map((b) => `<div class="sub-row"><div><strong>${b.name}</strong><small>Vence dia ${b.day}</small></div><div style="display:flex;align-items:center;gap:8px"><input type="checkbox" ${b.paid ? 'checked' : ''} onchange="toggleBillPaid('${b.id}', this.checked)"><button onclick="editBill('${b.id}')" class="mini-action">✏️</button><button onclick="removeBill('${b.id}')" class="mini-action">🗑</button></div></div>`).join('') || '<div class="empty">Sem contas cadastradas</div>'}
     </div>`;
 
   stockEl.innerHTML = `
@@ -306,6 +306,33 @@ export function removeSubscription(id) {
       return true;
     },
     successMessage: 'Assinatura removida.',
+  });
+}
+
+export function editSubscription(id) {
+  const item = state.modules.subscriptions.find((s) => s.id === id);
+  if (!item) return;
+  openModuleForm({
+    title: 'Editar assinatura',
+    fields: [
+      { name: 'name', label: 'Nome da assinatura', required: true },
+      { name: 'plan', label: 'Plano' },
+      { name: 'value', label: 'Valor mensal (R$)', type: 'number', required: true },
+      { name: 'day', label: 'Dia do vencimento', type: 'number', required: true },
+    ],
+    initialValues: item,
+    confirmLabel: 'Salvar alterações',
+    onSubmit: ({ name, plan, value, day }) => {
+      const monthlyValue = parseFloat(value);
+      const dueDay = parseInt(day, 10);
+      if (Number.isNaN(monthlyValue) || Number.isNaN(dueDay)) return false;
+      item.name = name.trim();
+      item.plan = (plan || 'Plano Padrão').trim();
+      item.value = monthlyValue;
+      item.day = dueDay;
+      return true;
+    },
+    successMessage: 'Assinatura atualizada.',
   });
 }
 
@@ -402,6 +429,28 @@ export function removeLimit(id) {
   });
 }
 
+export function editLimit(id) {
+  const item = state.modules.limits.find((l) => l.id === id);
+  if (!item) return;
+  openModuleForm({
+    title: 'Editar limite',
+    fields: [
+      { name: 'category', label: 'Categoria', required: true },
+      { name: 'limit', label: 'Valor do limite (R$)', type: 'number', required: true },
+    ],
+    initialValues: item,
+    confirmLabel: 'Salvar alterações',
+    onSubmit: ({ category, limit }) => {
+      const parsedLimit = parseFloat(limit);
+      if (Number.isNaN(parsedLimit)) return false;
+      item.category = category.trim();
+      item.limit = parsedLimit;
+      return true;
+    },
+    successMessage: 'Limite atualizado.',
+  });
+}
+
 export function addBill() {
   openModuleForm({
     title: 'Nova conta a pagar',
@@ -438,7 +487,32 @@ export function removeBill(id) {
   });
 }
 
-function openModuleForm({ title, fields, onSubmit, confirmLabel = 'Salvar', successMessage = 'Salvo com sucesso.' }) {
+export function editBill(id) {
+  const item = state.modules.bills.find((b) => b.id === id);
+  if (!item) return;
+  openModuleForm({
+    title: 'Editar conta',
+    fields: [
+      { name: 'name', label: 'Nome da conta', required: true },
+      { name: 'value', label: 'Valor (R$)', type: 'number', required: true },
+      { name: 'day', label: 'Dia do vencimento', type: 'number', required: true },
+    ],
+    initialValues: item,
+    confirmLabel: 'Salvar alterações',
+    onSubmit: ({ name, value, day }) => {
+      const parsedValue = parseFloat(value);
+      const dueDay = parseInt(day, 10);
+      if (Number.isNaN(parsedValue) || Number.isNaN(dueDay)) return false;
+      item.name = name.trim();
+      item.value = parsedValue;
+      item.day = dueDay;
+      return true;
+    },
+    successMessage: 'Conta atualizada.',
+  });
+}
+
+function openModuleForm({ title, fields, onSubmit, confirmLabel = 'Salvar', successMessage = 'Salvo com sucesso.', initialValues = {} }) {
   const modal = document.getElementById('genericFormModal');
   const titleEl = document.getElementById('gfmTitle');
   const body = document.getElementById('gfmBody');
@@ -480,6 +554,13 @@ function openModuleForm({ title, fields, onSubmit, confirmLabel = 'Salvar', succ
     modal.style.display = 'none';
     showToast(successMessage);
   };
+
+  fields.forEach((field) => {
+    const input = body.querySelector(`[data-name="${field.name}"]`);
+    if (input && initialValues[field.name] !== undefined) {
+      input.value = initialValues[field.name];
+    }
+  });
 
   modal.style.display = 'flex';
 }

@@ -100,16 +100,16 @@
     <div class="m-page active" id="mp-home">
       <div class="m-balance-hero">
         <label>SALDO TOTAL</label>
-        <div class="m-period-switch">
-          <button class="mnbtn" onclick="changeMonth(-1)">‹</button>
-          <span id="monthLabel">—</span>
-          <button class="mnbtn" onclick="changeMonth(1)">›</button>
-        </div>
         <div class="m-balance-row">
           <div class="big-val positive" id="mBalance">R$ 0,00</div>
           <span class="m-badge" id="mBalanceDelta">+0%</span>
         </div>
         <p id="mPeriodLabel">—</p>
+        <div class="m-period-switch">
+          <button class="mnbtn" onclick="changeMonth(-1)">‹</button>
+          <span id="monthLabel">—</span>
+          <button class="mnbtn" onclick="changeMonth(1)">›</button>
+        </div>
       </div>
       <div class="sec-title">Gastos por Categoria</div>
       <div class="m-card chart-card" id="mBarChart"><div class="empty">Sem gastos neste mês</div></div>

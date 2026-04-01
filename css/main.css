@@ -105,7 +105,7 @@ body.logged-out #desktop-app{display:none!important}
 .login-note{margin-top:24px;font-size:12px;line-height:1.7;color:var(--text3)}
 
 #mobile-app{display:none;flex-direction:column;height:100dvh;width:100%;background:transparent;overflow:hidden}
-.m-topbar{flex-shrink:0;padding:env(safe-area-inset-top,0) 16px 0;background:rgba(5,5,5,.78);backdrop-filter:blur(22px);border-bottom:1px solid var(--border)}
+.m-topbar{flex-shrink:0;padding:env(safe-area-inset-top,0) 16px 0;background:var(--bg);border-bottom:1px solid transparent}
 [data-theme="light"] .m-topbar{background:linear-gradient(135deg, rgba(37,99,235,.96), rgba(16,185,129,.90));border-bottom:1px solid rgba(255,255,255,.30);box-shadow:0 10px 30px rgba(37,99,235,.16)}
 .m-topbar-inner{display:flex;align-items:center;padding:14px 0 12px;gap:10px}
 .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;transition:background .3s}
@@ -132,11 +132,11 @@ body.logged-out #desktop-app{display:none!important}
 .avatar-btn{width:34px;height:34px;border-radius:50%;background:var(--accent-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;color:var(--text);font-weight:800;flex-shrink:0}
 
 .m-hero{flex-shrink:0;padding:14px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.025),transparent)}
-.m-balance-hero{padding:10px 6px 6px;margin-bottom:12px}
-.m-balance-hero label{font-size:11px;font-weight:700;letter-spacing:.09em;color:var(--text2)}
-.m-period-switch{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:10px}
+.m-balance-hero{padding:12px 6px 6px;margin-bottom:12px;text-align:center}
+.m-balance-hero label{font-size:11px;font-weight:700;letter-spacing:.09em;color:var(--text2);display:block}
+.m-period-switch{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px}
 .m-period-switch #monthLabel{font-size:13px;color:var(--text2);min-width:110px;text-align:center}
-.m-balance-row{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.m-balance-row{display:flex;align-items:flex-end;justify-content:center;gap:12px}
 .m-balance-hero .big-val{font-size:56px;line-height:1;margin-top:8px}
 .m-balance-hero p{margin-top:8px;color:var(--text2);font-weight:600}
 .m-badge{padding:6px 10px;border-radius:999px;background:var(--green-bg);color:var(--green);font-weight:800;font-size:13px}
