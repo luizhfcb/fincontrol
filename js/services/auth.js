@@ -32,6 +32,10 @@ export async function doLogout() {
     state.unsubscribe();
     state.unsubscribe = null;
   }
+  if (state.unsubscribeModules) {
+    state.unsubscribeModules();
+    state.unsubscribeModules = null;
+  }
 
   await signOut(auth);
 }
@@ -79,6 +83,10 @@ export function initAuth() {
     if (state.unsubscribe) {
       state.unsubscribe();
       state.unsubscribe = null;
+    }
+    if (state.unsubscribeModules) {
+      state.unsubscribeModules();
+      state.unsubscribeModules = null;
     }
 
     updateResponsiveAppView();
