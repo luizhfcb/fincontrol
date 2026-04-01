@@ -79,11 +79,27 @@ export function refreshUI() {
   setText('mPeriodLabel', getMonthPeriodLabel(state.currentYear, state.currentMonth));
   setText('mBalanceDelta', `${balanceDelta >= 0 ? '+' : ''}${balanceDelta}%`);
   renderMobileSpotlight('mTxList', highestExpense, expense);
+  renderMobileRecentTransactions('mRecentTxList', monthlyTransactions);
   renderGroupedTransactions('dTxList', monthlyTransactions);
   renderDonutCharts(sortedCategories, expense);
   renderSixMonthChart('mSixMonthChart', state.transactions);
   renderSixMonthChart('dSixMonthChart', state.transactions);
   renderModules();
+}
+
+function renderMobileRecentTransactions(containerId, transactions) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const recent = [...transactions]
+    .sort((left, right) => new Date(right.date) - new Date(left.date))
+    .slice(0, 6);
+
+  if (!recent.length) {
+    container.innerHTML = '<div class="empty">Nenhum lançamento neste mês</div>';
+    return;
+  }
+
+  container.innerHTML = recent.map((transaction) => renderTransactionItem(transaction)).join('');
 }
 
 function renderMobileSpotlight(containerId, highestExpense, totalExpense) {
