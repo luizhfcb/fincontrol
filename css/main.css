@@ -170,14 +170,14 @@ body.logged-out #desktop-app{display:none!important}
 .stat-sub{font-size:11px;color:var(--text3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
 .m-card{border-radius:26px;padding:18px 16px;margin-bottom:14px;background:linear-gradient(170deg,rgba(255,255,255,.05),rgba(255,255,255,.015))}
 .m-mobile-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0 16px}
-.m-stat-mini{background:rgba(8,8,8,.92);border:1px solid var(--border);border-radius:22px;padding:14px}
+.m-stat-mini{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:14px}
 .m-stat-mini span{display:block;font-size:11px;text-transform:uppercase;color:var(--text2);font-weight:700}
 .m-stat-mini strong{display:block;font-size:30px;margin-top:6px;line-height:1.1}
 .m-stat-mini.highlight{border-color:rgba(52,152,219,.35)}
 .m-top-expense{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
 .m-top-expense small{display:block;font-size:11px;color:var(--text2);text-transform:uppercase;font-weight:700}
 .m-top-expense strong{font-size:42px;line-height:1.05;letter-spacing:-.04em}
-.m-top-expense span{font-size:12px;color:var(--text2);background:rgba(255,255,255,.06);padding:6px 10px;border-radius:10px}
+.m-top-expense span{font-size:12px;color:var(--text2);background:var(--card2);padding:6px 10px;border-radius:10px}
 .m-top-expense-bar{margin-top:12px;height:10px;background:rgba(255,255,255,.10);border-radius:999px;overflow:hidden}
 .m-top-expense-bar i{display:block;height:100%;background:linear-gradient(90deg,#77c4ff,#3498db);border-radius:999px}
 
@@ -244,7 +244,7 @@ body.logged-out #desktop-app{display:none!important}
 .m-bottomnav{position:fixed;bottom:0;left:0;right:0;display:flex;background:rgba(28,28,28,.88);backdrop-filter:blur(18px);border-top:1px solid var(--border);padding:8px 0 calc(env(safe-area-inset-bottom,0px) + 6px);z-index:100}
 [data-theme="light"] .m-bottomnav{background:rgba(255,255,255,.92);border-top-color:rgba(37,99,235,.14)}
 .nbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 4px;border:none;background:none;cursor:pointer;color:var(--text3);font-size:11px;font-weight:700}
-.nbtn .ni{font-size:20px;line-height:1}
+.nbtn .ni{font-size:18px;line-height:1;font-weight:500;opacity:.9}
 .nbtn.on{color:var(--accent);background:rgba(52,152,219,.14);border-radius:14px}
 .mini-action{background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:2px 6px;cursor:pointer}
 

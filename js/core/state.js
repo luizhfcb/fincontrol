@@ -5,6 +5,7 @@ export const state = {
   transactions: [],
   isRecording: false,
   unsubscribe: null,
+  unsubscribeModules: null,
   currentUser: null,
   modalType: 'income',
   modules: null,

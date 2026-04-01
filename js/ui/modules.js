@@ -1,6 +1,7 @@
 import { state } from '../core/state.js';
 import { formatCurrency } from '../core/utils.js';
 import { showToast } from './feedback.js';
+import { db, doc, onSnapshot, setDoc } from '../config/firebase.js';
 
 const STORAGE_KEY = 'fincontrol_modules_v1';
 
@@ -13,10 +14,34 @@ const defaultData = {
 };
 
 export function initModules() {
-  if (!state.modules) {
-    state.modules = loadData();
+  if (!state.currentUser) {
+    if (!state.modules) state.modules = loadData();
+    renderModules();
+    return;
   }
-  renderModules();
+
+  if (state.unsubscribeModules) {
+    state.unsubscribeModules();
+  }
+
+  const modulesDocRef = doc(db, 'modules', state.currentUser.uid);
+
+  state.unsubscribeModules = onSnapshot(modulesDocRef, async (snapshot) => {
+    if (!snapshot.exists()) {
+      state.modules = loadData();
+      await setDoc(modulesDocRef, state.modules);
+      persistLocal();
+      renderModules();
+      return;
+    }
+    state.modules = { ...cloneDefaults(), ...snapshot.data() };
+    persistLocal();
+    renderModules();
+  }, () => {
+    state.modules = loadData();
+    renderModules();
+    showToast('Falha ao sincronizar módulos. Usando dados locais.', true);
+  });
 }
 
 function loadData() {
@@ -39,8 +64,18 @@ function loadData() {
 }
 const cloneDefaults = () => JSON.parse(JSON.stringify(defaultData));
 
-function persist() {
+function persistLocal() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.modules));
+}
+
+async function persist() {
+  persistLocal();
+  if (!state.currentUser) return;
+  try {
+    await setDoc(doc(db, 'modules', state.currentUser.uid), state.modules);
+  } catch {
+    showToast('Erro ao salvar módulos na nuvem.', true);
+  }
 }
 
 export function renderModules() {
