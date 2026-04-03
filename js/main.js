@@ -3,7 +3,7 @@ import { handleMic } from './services/audio.js';
 import { initTheme, toggleTheme } from './services/theme.js';
 import { removeTransaction } from './services/transactions.js';
 import { pickCategory } from './ui/categories.js';
-import { updateResponsiveAppView } from './ui/layout.js';
+import { initDesktopSidebar, toggleDesktopSidebar, updateResponsiveAppView } from './ui/layout.js';
 import { initModules, toggleBillPaid, addSubscription, removeSubscription, editSubscription, addStockItem, removeStockItem, changeStockQty, addLimit, removeLimit, editLimit, addBill, removeBill, editBill } from './ui/modules.js';
 import { closeModal, closeModalOutside, confirmTx, confirmTxAudio, openModal, setModalType } from './ui/modal.js';
 import { changeMonth, closeFab, goDesktopPage, goMobilePage, toggleFab } from './ui/navigation.js';
@@ -24,6 +24,7 @@ window.toggleFab = toggleFab;
 window.goMPage = goMobilePage;
 window.goDPage = goDesktopPage;
 window.changeMonth = changeMonth;
+window.toggleDSidebar = toggleDesktopSidebar;
 window.toggleBillPaid = toggleBillPaid;
 window.addSubscription = addSubscription;
 window.removeSubscription = removeSubscription;
@@ -39,6 +40,7 @@ window.removeBill = removeBill;
 window.editBill = editBill;
 
 initTheme();
+initDesktopSidebar();
 initModules();
 initAuth();
 

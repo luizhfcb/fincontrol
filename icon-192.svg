@@ -1,5 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
-  <rect width="192" height="192" rx="40" fill="#0a0a14"/>
-  <rect x="16" y="16" width="160" height="160" rx="32" fill="#131326"/>
-  <text x="96" y="115" font-size="80" text-anchor="middle" font-family="system-ui">💰</text>
+  <defs>
+    <linearGradient id="bg192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0C1726" />
+      <stop offset="100%" stop-color="#09111D" />
+    </linearGradient>
+    <linearGradient id="accent192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9FD3FF" />
+      <stop offset="100%" stop-color="#57A7FF" />
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="48" fill="url(#bg192)" />
+  <rect x="18" y="18" width="156" height="156" rx="36" fill="none" stroke="#9FD3FF" stroke-opacity=".18" stroke-width="2" />
+  <path d="M54 124V90" stroke="url(#accent192)" stroke-width="12" stroke-linecap="round" />
+  <path d="M84 124V70" stroke="url(#accent192)" stroke-width="12" stroke-linecap="round" />
+  <path d="M114 124V102" stroke="url(#accent192)" stroke-width="12" stroke-linecap="round" />
+  <path d="M52 120L84 90L112 102L142 62" fill="none" stroke="#EAF4FF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="142" cy="62" r="9" fill="#EAF4FF" />
 </svg>
