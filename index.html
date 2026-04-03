@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-BR" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#09111d">
+<meta name="theme-color" content="#f8f9fa">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FinControl">
@@ -87,7 +87,7 @@
   <div class="m-topbar">
     <div class="m-topbar-inner">
       <div class="m-profile-mini">
-        <div class="avatar-btn" id="mAvatar" onclick="doLogout()">?</div>
+        <div class="avatar-btn" id="mAvatar" onclick="confirmLogout()">?</div>
         <div class="m-profile-copy">
           <strong>Insights</strong>
           <span><span class="sync-dot" id="mSyncDot"></span><em id="mMonthSync">Março 2026 • Sincronizado</em></span>
@@ -114,13 +114,12 @@
           <button class="mnbtn" onclick="changeMonth(1)">›</button>
         </div>
       </div>
-      <div class="sec-title">Gastos por Categoria</div>
+      <div class="sec-title" style="justify-content: center;">Gastos por Categoria</div>
       <div class="m-card chart-card" id="mBarChart"><div class="empty">Sem gastos neste mês</div></div>
 
-      <div class="sec-title">Maior transação</div>
-      <div class="m-card grouped-list" id="mTxList"><div class="empty">Nenhum lançamento neste mês</div></div>
+      <div class="m-card grouped-list" id="mTxList" style="margin-top: 12px;"><div class="empty">Nenhum lançamento neste mês</div></div>
 
-      <div class="sec-title">Últimas transações</div>
+      <div class="sec-title" style="justify-content: center;">Últimas transações</div>
       <div class="m-card grouped-list" id="mRecentTxList"><div class="empty">Nenhum lançamento neste mês</div></div>
 
       <div class="m-mobile-stats">
@@ -130,7 +129,7 @@
         <div class="m-stat-mini highlight"><span>Maior gasto</span><strong id="mBig">R$0</strong></div>
       </div>
 
-      <div class="sec-title">Limites — Situação <button class="sec-link" onclick="goMPage('subscriptions')">Ver todos</button></div>
+      <div class="sec-title" style="justify-content: center; position: relative;">Limites — Situação <button class="sec-link" style="position: absolute; right: 0;" onclick="goMPage('subscriptions')">Ver todos</button></div>
       <div class="m-card" id="mLimitsMini"><div class="empty">Nenhum limite</div></div>
     </div>
 
@@ -159,14 +158,7 @@
     </div>
   </div>
 
-  <div class="fab-wrap" id="fabWrap">
-    <div class="fab-menu" id="fabMenu">
-      <div class="fab-item"><span class="fab-label">Adicionar Entrada</span><button class="fab-action fa-green" onclick="openModal('income')">💰</button></div>
-      <div class="fab-item"><span class="fab-label">Adicionar Gasto</span><button class="fab-action fa-red" onclick="openModal('expense')">💸</button></div>
-      <div class="fab-item"><span class="fab-label">Gravar Áudio</span><button class="fab-action fa-neutral" onclick="openModal('audio')">🎙️</button></div>
-    </div>
-    <button class="fab" id="fabBtn" onclick="toggleFab()">+</button>
-  </div>
+
 
   <nav class="m-bottomnav bg-surface-container/80 backdrop-blur-xl rounded-t-2xl shadow-nav">
     <button class="nbtn on" id="mn-home" onclick="goMPage('home')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9l8-6 8 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/></svg></span>Início</button>
@@ -228,29 +220,9 @@
         <span class="snav-text">Contas a Pagar</span>
       </button>
     </div>
-    <div class="sidebar-actions">
-      <span class="snav-label">Atalhos</span>
-      <button class="sbtn income" onclick="openModal('income')" title="Adicionar Entrada">
-        <span class="ni nav-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-        </span>
-        <span class="sbtn-text">Adicionar Entrada</span>
-      </button>
-      <button class="sbtn expense" onclick="openModal('expense')" title="Adicionar Gasto">
-        <span class="ni nav-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>
-        </span>
-        <span class="sbtn-text">Adicionar Gasto</span>
-      </button>
-      <button class="sbtn audio" onclick="openModal('audio')" title="Gravar Áudio">
-        <span class="ni nav-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M12 5a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0V8a3 3 0 0 1 3-3Z"/><path d="M7 11a5 5 0 0 0 10 0"/><path d="M12 16v3"/><path d="M9 19h6"/></svg>
-        </span>
-        <span class="sbtn-text">Gravar Áudio</span>
-      </button>
-    </div>
+
     <div class="sidebar-bottom">
-      <button class="logout-link" onclick="doLogout()" title="Sair da conta">
+      <button class="logout-link" onclick="confirmLogout()" title="Sair da conta">
         <span class="ni nav-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M14 7l5 5-5 5"/><path d="M19 12H9"/><path d="M9 5H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3"/></svg>
         </span>
@@ -272,14 +244,25 @@
         <p class="page-subtitle">Acompanhe saldo, categorias e padrões de consumo do mês.</p>
       </div>
       <div class="d-topbar-right">
-        <div class="sync-indicator">
-          <span class="sync-dot" id="dSyncDot"></span>
-          <span id="dSyncLabel">Sincronizado</span>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div class="sync-indicator">
+            <span class="sync-dot" id="dSyncDot"></span>
+            <span id="dSyncLabel">Sincronizado</span>
+          </div>
+          <div class="d-month-nav">
+            <button onclick="changeMonth(-1)">‹</button>
+            <span id="dMonthLabel">—</span>
+            <button onclick="changeMonth(1)">›</button>
+          </div>
         </div>
-        <div class="d-month-nav">
-          <button onclick="changeMonth(-1)">‹</button>
-          <span id="dMonthLabel">—</span>
-          <button onclick="changeMonth(1)">›</button>
+        <div style="display:flex;align-items:center;gap:12px;border-left:1px solid var(--border);padding-left:16px;">
+          <button class="icon-btn" aria-label="Notificações" style="background:transparent;border:none;box-shadow:none;padding:4px;color:var(--text2);">
+            <svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          </button>
+          <div class="avatar-wrap" onclick="confirmLogout()" title="Conta e Opções" style="width: 36px;height: 36px;border-radius: 50%;overflow: hidden;border: 1px solid var(--border2);display:flex;align-items:center;justify-content:center;background:var(--card2);cursor:pointer;transition:transform 0.2s;">
+            <img id="dAvatarImg" src="" alt="User" style="width:100%;height:100%;object-fit:cover;display:none;" referrerpolicy="no-referrer" onerror="this.style.display='none'; document.getElementById('dAvatarInitials').style.display='block';">
+            <span id="dAvatarInitials" style="font-size:13px;font-weight:bold;color:var(--text);display:none;"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -431,6 +414,27 @@
       <button class="btn-confirm" id="gfmConfirm" style="background:var(--accent-strong); color:white;">Continuar</button>
     </div>
   </div>
+</div>
+
+<div class="modal-overlay" id="logoutModal" onclick="if(event.target===this) document.getElementById('logoutModal').style.display='none'">
+  <div class="modal-box" style="max-width: 340px; text-align:center; padding-bottom: 24px; padding-top: 32px;">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="margin-bottom: 12px; font-size:22px;">Sair da conta?</div>
+    <p style="color: var(--text2); font-size: 15px; margin-bottom: 28px; line-height: 1.5;">Tem certeza que deseja desconectar?<br>Você precisará fazer login novamente para acessar seus dados.</p>
+    <div style="display:flex; gap:12px;">
+      <button class="btn-cancel" style="flex:1; padding:14px; border-radius:16px;" onclick="document.getElementById('logoutModal').style.display='none'">Cancelar</button>
+      <button class="btn-confirm" style="flex:1; padding:14px; border-radius:16px; background: var(--red); color: #fff; border:none; font-weight:800; cursor:pointer;" onclick="executeLogout()">Sair da Conta</button>
+    </div>
+  </div>
+</div>
+
+<div class="fab-wrap" id="fabWrap">
+  <div class="fab-menu" id="fabMenu">
+    <div class="fab-item"><span class="fab-label">Gravar Áudio</span><button class="fab-action fa-neutral" onclick="openModal('audio')">🎙️</button></div>
+    <div class="fab-item"><span class="fab-label">Adicionar Gasto</span><button class="fab-action fa-red" onclick="openModal('expense')">💸</button></div>
+    <div class="fab-item"><span class="fab-label">Adicionar Entrada</span><button class="fab-action fa-green" onclick="openModal('income')">💰</button></div>
+  </div>
+  <button class="fab" id="fabBtn" onclick="toggleFab()">+</button>
 </div>
 
 <div class="toast" id="toast"></div>
