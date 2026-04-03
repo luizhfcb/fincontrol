@@ -436,5 +436,22 @@
 <div class="toast" id="toast"></div>
 
 <script type="module" src="./js/main.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+    if (isLocal) {
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(r => r.unregister());
+      });
+      if (window.caches) {
+        caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+      }
+    } else {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+  });
+}
+</script>
 </body>
 </html>

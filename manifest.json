@@ -1,6 +1,7 @@
 {
   "name": "FinControl",
   "short_name": "FinControl",
+  "id": "/",
   "description": "Controle de gastos familiar",
   "start_url": "./",
   "display": "standalone",
@@ -19,6 +20,32 @@
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./stitch_mobile.png",
+      "sizes": "142x512",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "./stitch_dashboard.png",
+      "sizes": "512x458",
+      "type": "image/png",
+      "form_factor": "wide"
     }
   ]
 }
