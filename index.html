@@ -3,16 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#050505">
+<meta name="theme-color" content="#09111d">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FinControl">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="shortcut icon" href="./favicon.svg">
+<link rel="apple-touch-icon" href="./icon-192.svg">
 <link rel="manifest" href="./manifest.json">
 <link rel="stylesheet" href="./css/main.css">
 <title>FinControl</title>
 </head>
 <body>
-<div id="app-loading"><div class="spin">💰</div><p>Preparando seu painel financeiro…</p></div>
+<div id="app-loading"><div class="spin brand-loader"><img src="./favicon.svg" alt="FinControl"></div><p>Preparando seu painel financeiro…</p></div>
 
 <div id="login-screen">
   <div class="login-shell">
@@ -60,7 +63,7 @@
 
     <aside class="login-panel">
       <div class="login-panel-inner">
-        <div class="login-logo">💰</div>
+        <div class="login-logo"><img src="./favicon.svg" alt="FinControl"></div>
         <h2>Entrar no FinControl</h2>
         <p>Use sua conta Google para acessar seus lançamentos e continuar de onde parou.</p>
 
@@ -177,36 +180,102 @@
 <div id="desktop-app">
   <div class="sidebar">
     <div class="sidebar-header">
-      <div class="sidebar-title">💰 Fin<em>Control</em></div>
-      <div class="sidebar-user" id="dUserName">—</div>
+      <div class="sidebar-brand">
+        <div class="brand-mark">
+          <img src="./favicon.svg" alt="FinControl">
+        </div>
+        <div class="brand-copy">
+          <div class="sidebar-title">Fin<em>Control</em></div>
+          <div class="brand-tier">Premium Tier</div>
+          <div class="sidebar-user" id="dUserName">—</div>
+        </div>
+      </div>
+      <button class="sidebar-toggle" id="dSidebarToggle" onclick="toggleDSidebar()" aria-label="Minimizar barra lateral" title="Minimizar barra lateral">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15 6l-6 6 6 6" />
+        </svg>
+      </button>
     </div>
     <div class="sidebar-nav">
-      <button class="snav-item on" id="dn-home" onclick="goDPage('home')"><span class="ni">📈</span>Gráfico</button>
-      <button class="snav-item" id="dn-limits" onclick="goDPage('limits')"><span class="ni">🏷️</span>Limites & Categorias</button>
-      <button class="snav-item" id="dn-subscriptions" onclick="goDPage('subscriptions')"><span class="ni">📱</span>Assinaturas</button>
-      <button class="snav-item" id="dn-stock" onclick="goDPage('stock')"><span class="ni">📦</span>Estoque Doméstico</button>
-      <button class="snav-item" id="dn-bills" onclick="goDPage('bills')"><span class="ni">🗓️</span>Contas a Pagar</button>
+      <button class="snav-item on" id="dn-home" onclick="goDPage('home')" title="Gráfico">
+        <span class="ni nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 19h14"/><path d="M7 16V9"/><path d="M12 16V5"/><path d="M17 16v-3"/></svg>
+        </span>
+        <span class="snav-text">Gráfico</span>
+      </button>
+      <button class="snav-item" id="dn-limits" onclick="goDPage('limits')" title="Limites e Categorias">
+        <span class="ni nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M5 7h14"/><path d="M5 17h8"/><circle cx="17" cy="17" r="2"/></svg>
+        </span>
+        <span class="snav-text">Limites & Categorias</span>
+      </button>
+      <button class="snav-item" id="dn-subscriptions" onclick="goDPage('subscriptions')" title="Assinaturas">
+        <span class="ni nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><rect x="5" y="6" width="14" height="13" rx="2"/><path d="M8 4v4"/><path d="M16 4v4"/><path d="M5 10h14"/></svg>
+        </span>
+        <span class="snav-text">Assinaturas</span>
+      </button>
+      <button class="snav-item" id="dn-stock" onclick="goDPage('stock')" title="Estoque Doméstico">
+        <span class="ni nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5"/><path d="M12 12L4 7.5"/><path d="M12 21v-9"/></svg>
+        </span>
+        <span class="snav-text">Estoque Doméstico</span>
+      </button>
+      <button class="snav-item" id="dn-bills" onclick="goDPage('bills')" title="Contas a Pagar">
+        <span class="ni nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M8 8h8"/><path d="M8 12h8"/><path d="M8 16h5"/></svg>
+        </span>
+        <span class="snav-text">Contas a Pagar</span>
+      </button>
     </div>
     <div class="sidebar-actions">
-      <span class="snav-label">Nova Transação</span>
-      <button class="sbtn income" onclick="openModal('income')">💰 Adicionar Entrada</button>
-      <button class="sbtn expense" onclick="openModal('expense')">💸 Adicionar Gasto</button>
-      <button class="sbtn audio" onclick="openModal('audio')">🎙️ Gravar Áudio</button>
+      <span class="snav-label">Atalhos</span>
+      <button class="sbtn income" onclick="openModal('income')" title="Adicionar Entrada">
+        <span class="ni nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+        </span>
+        <span class="sbtn-text">Adicionar Entrada</span>
+      </button>
+      <button class="sbtn expense" onclick="openModal('expense')" title="Adicionar Gasto">
+        <span class="ni nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>
+        </span>
+        <span class="sbtn-text">Adicionar Gasto</span>
+      </button>
+      <button class="sbtn audio" onclick="openModal('audio')" title="Gravar Áudio">
+        <span class="ni nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 5a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0V8a3 3 0 0 1 3-3Z"/><path d="M7 11a5 5 0 0 0 10 0"/><path d="M12 16v3"/><path d="M9 19h6"/></svg>
+        </span>
+        <span class="sbtn-text">Gravar Áudio</span>
+      </button>
     </div>
     <div class="sidebar-bottom">
-      <button class="logout-link" onclick="doLogout()">Sair da conta</button>
-      <button class="theme-toggle" id="dThemeBtn" onclick="toggleTheme()">🌙</button>
+      <button class="logout-link" onclick="doLogout()" title="Sair da conta">
+        <span class="ni nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M14 7l5 5-5 5"/><path d="M19 12H9"/><path d="M9 5H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3"/></svg>
+        </span>
+        <span class="logout-text">Sair da conta</span>
+      </button>
+      <button class="theme-toggle" id="dThemeBtn" onclick="toggleTheme()" title="Alternar tema" aria-label="Alternar tema">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M18 15.5A6.5 6.5 0 0 1 8.5 6a7 7 0 1 0 9.5 9.5Z" />
+        </svg>
+      </button>
     </div>
   </div>
 
   <div class="d-main">
     <div class="d-topbar">
-      <div>
+      <div class="title-stack">
+        <span class="topbar-eyebrow">Visão geral</span>
         <h1>Seu controle financeiro em um relance</h1>
         <p class="page-subtitle">Acompanhe saldo, categorias e padrões de consumo do mês.</p>
       </div>
       <div class="d-topbar-right">
-        <div class="sync-indicator"><span class="sync-dot" id="dSyncDot"></span><span id="dSyncLabel">Sincronizado</span></div>
+        <div class="sync-indicator">
+          <span class="sync-dot" id="dSyncDot"></span>
+          <span id="dSyncLabel">Sincronizado</span>
+        </div>
         <div class="d-month-nav">
           <button onclick="changeMonth(-1)">‹</button>
           <span id="dMonthLabel">—</span>
@@ -218,25 +287,33 @@
     <div id="dp-home" class="d-page">
       <div class="d-hero-metrics">
         <div class="d-metric-card">
-          <div class="metric-icon si-amber">💰</div>
+          <div class="metric-icon si-amber">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M8.5 8.5c0-1.38 1.57-2.5 3.5-2.5s3.5 1.12 3.5 2.5S13.93 11 12 11s-3.5 1.12-3.5 2.5S10.07 16 12 16s3.5-1.12 3.5-2.5"/></svg>
+          </div>
           <label>Receita Total</label>
           <div class="val green" id="dIncome">R$ 0,00</div>
           <small>Período atual</small>
         </div>
         <div class="d-metric-card">
-          <div class="metric-icon si-neutral">🛒</div>
+          <div class="metric-icon si-neutral">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/><path d="M5 5h2l2.2 9.2a1 1 0 0 0 1 .8h6.8a1 1 0 0 0 1-.8L20 8H8"/></svg>
+          </div>
           <label>Despesas Totais</label>
           <div class="val red" id="dExpense">R$ 0,00</div>
           <small>Período atual</small>
         </div>
         <div class="d-metric-card">
-          <div class="metric-icon si-green">💎</div>
+          <div class="metric-icon si-green">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l6 5-6 11L6 9l6-5Z"/><path d="M9 9h6"/></svg>
+          </div>
           <label>Saldo Líquido</label>
           <div class="val positive" id="dBalance">R$ 0,00</div>
           <small>Receitas - Despesas</small>
         </div>
         <div class="d-metric-card">
-          <div class="metric-icon si-red">⚠️</div>
+          <div class="metric-icon si-red">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l8 14H4L12 4Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+          </div>
           <label>Alertas Estoque</label>
           <div class="val amber" id="dStockAlerts">0</div>
           <small>Itens para repor</small>
@@ -245,23 +322,43 @@
 
       <div class="d-panels-chart">
         <div class="d-panel">
-          <h3 class="panel-icon-title">🛒 Gastos por Categoria</h3>
+          <h3 class="panel-icon-title">
+            <span class="panel-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M7 12h10"/><path d="M10 17h4"/></svg>
+            </span>
+            Gastos por Categoria
+          </h3>
           <div class="chart-card d-donut" id="dBarChart"><div class="empty">Sem gastos neste mês</div></div>
         </div>
         <div class="d-panel">
-          <h3 class="panel-icon-title">📊 Receitas vs Despesas – 6 Meses</h3>
+          <h3 class="panel-icon-title">
+            <span class="panel-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19h14"/><path d="M7 16V9"/><path d="M12 16V5"/><path d="M17 16v-3"/></svg>
+            </span>
+            Receitas vs Despesas – 6 Meses
+          </h3>
           <div class="bar-chart-wrap" id="dSixMonthChart"><div class="empty">Carregando histórico...</div></div>
         </div>
       </div>
 
       <div class="d-panels">
         <div class="d-panel">
-          <h3 class="panel-icon-title">🕒 Últimas Transações</h3>
+          <h3 class="panel-icon-title">
+            <span class="panel-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg>
+            </span>
+            Últimas Transações
+          </h3>
           <div class="grouped-list desktop" id="dTxList"><div class="empty">Nenhum lançamento</div></div>
         </div>
         <div class="d-panel">
           <div class="panel-head-flex">
-            <h3 class="panel-icon-title">🏷️ Limites – Situação</h3>
+            <h3 class="panel-icon-title">
+              <span class="panel-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M5 7h14"/><path d="M5 17h8"/><circle cx="17" cy="17" r="2"/></svg>
+              </span>
+              Limites – Situação
+            </h3>
             <button class="list-btn" onclick="goDPage('limits')">Ver todos</button>
           </div>
           <div class="limits-mini-list" id="dLimitsMini"><div class="empty">Nenhum limite configurado</div></div>

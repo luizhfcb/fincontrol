@@ -1,5 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="100" fill="#0a0a14"/>
-  <rect x="40" y="40" width="432" height="432" rx="80" fill="#131326"/>
-  <text x="256" y="310" font-size="220" text-anchor="middle" font-family="system-ui">💰</text>
+  <defs>
+    <linearGradient id="bg512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0C1726" />
+      <stop offset="100%" stop-color="#09111D" />
+    </linearGradient>
+    <linearGradient id="accent512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9FD3FF" />
+      <stop offset="100%" stop-color="#57A7FF" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="120" fill="url(#bg512)" />
+  <rect x="42" y="42" width="428" height="428" rx="90" fill="none" stroke="#9FD3FF" stroke-opacity=".18" stroke-width="6" />
+  <path d="M146 336V238" stroke="url(#accent512)" stroke-width="28" stroke-linecap="round" />
+  <path d="M228 336V182" stroke="url(#accent512)" stroke-width="28" stroke-linecap="round" />
+  <path d="M310 336V272" stroke="url(#accent512)" stroke-width="28" stroke-linecap="round" />
+  <path d="M142 326L230 242L306 274L382 162" fill="none" stroke="#EAF4FF" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="382" cy="162" r="22" fill="#EAF4FF" />
 </svg>
