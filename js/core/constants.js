@@ -38,7 +38,7 @@ export const CATEGORY_COLORS = {
   Transporte: '#38bdf8',
   Saúde: '#f97316',
   Lazer: '#f59e0b',
-  Casa: '#a3a3a3',
-  Trabalho: '#e5e7eb',
-  Outros: '#71717a',
+  Casa: '#3426a4',
+  Trabalho: '#271b87',
+  Outros: '#180f68',
 };

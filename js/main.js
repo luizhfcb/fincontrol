@@ -1,4 +1,4 @@
-import { initAuth, loginGoogle, doLogout } from './services/auth.js';
+import { initAuth, loginGoogle, confirmLogout, executeLogout } from './services/auth.js';
 import { handleMic } from './services/audio.js';
 import { initTheme, toggleTheme } from './services/theme.js';
 import { removeTransaction } from './services/transactions.js';
@@ -9,7 +9,8 @@ import { closeModal, closeModalOutside, confirmTx, confirmTxAudio, openModal, se
 import { changeMonth, closeFab, goDesktopPage, goMobilePage, toggleFab } from './ui/navigation.js';
 
 window.loginGoogle = loginGoogle;
-window.doLogout = doLogout;
+window.confirmLogout = confirmLogout;
+window.executeLogout = executeLogout;
 window.toggleTheme = toggleTheme;
 window.delTx = removeTransaction;
 window.openModal = openModal;

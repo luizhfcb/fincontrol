@@ -23,10 +23,14 @@ export async function loginGoogle() {
   }
 }
 
-export async function doLogout() {
-  if (!window.confirm('Sair da conta?')) {
-    return;
-  }
+export function confirmLogout() {
+  const modal = document.getElementById('logoutModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+export async function executeLogout() {
+  const modal = document.getElementById('logoutModal');
+  if (modal) modal.style.display = 'none';
 
   localStorage.removeItem('fincontrol_modules_v1');
 
@@ -62,11 +66,24 @@ export function initAuth() {
 
       const avatar = document.getElementById('mAvatar');
       const userName = document.getElementById('dUserName');
+      const topbarAvatarImg = document.getElementById('dAvatarImg');
+      const topbarAvatarInitials = document.getElementById('dAvatarInitials');
       if (avatar) {
         avatar.textContent = initials;
       }
       if (userName) {
         userName.textContent = user.displayName || user.email || 'Usuário';
+      }
+      if (topbarAvatarImg && topbarAvatarInitials) {
+        if (user.photoURL) {
+          topbarAvatarImg.src = user.photoURL;
+          topbarAvatarImg.style.display = 'block';
+          topbarAvatarInitials.style.display = 'none';
+        } else {
+          topbarAvatarInitials.textContent = initials;
+          topbarAvatarInitials.style.display = 'block';
+          topbarAvatarImg.style.display = 'none';
+        }
       }
 
       const monthLabel = `${MONTHS[state.currentMonth]} ${state.currentYear}`;

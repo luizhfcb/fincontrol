@@ -77,7 +77,11 @@ export function refreshUI() {
 
   setText('mMonthSync', `${MONTHS[state.currentMonth]} ${state.currentYear} • Sincronizado`);
   setText('mPeriodLabel', getMonthPeriodLabel(state.currentYear, state.currentMonth));
-  setText('mBalanceDelta', `${balanceDelta >= 0 ? '+' : ''}${balanceDelta}%`);
+  const mBalanceDeltaObj = document.getElementById('mBalanceDelta');
+  if (mBalanceDeltaObj) {
+    mBalanceDeltaObj.textContent = `${balanceDelta >= 0 ? '+' : ''}${balanceDelta}%`;
+    mBalanceDeltaObj.className = `m-badge ${balanceDelta >= 0 ? 'positive' : 'negative'}`;
+  }
   renderMobileSpotlight('mTxList', highestExpense, expense);
   renderGroupedTransactions('mRecentTxList', monthlyTransactions);
   renderGroupedTransactions('dTxList', monthlyTransactions);
