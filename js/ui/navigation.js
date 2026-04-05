@@ -19,6 +19,7 @@ export function goMobilePage(name) {
   document.querySelectorAll('.nbtn').forEach((button) => button.classList.remove('on'));
   document.getElementById(`mp-${name}`)?.classList.add('active');
   document.getElementById(`mn-${name}`)?.classList.add('on');
+  document.getElementById('fabWrap')?.classList.toggle('hidden', ['limits', 'subscriptions', 'bills', 'stock'].includes(name));
   document.querySelector('.m-scroller')?.scrollTo({ top: 0 });
   closeFab();
 }

@@ -2,6 +2,18 @@ import { state } from '../core/state.js';
 import { formatCurrency } from '../core/utils.js';
 import { showToast } from './feedback.js';
 import { addDoc, collection, db, deleteDoc, doc, onSnapshot, setDoc } from '../config/firebase.js';
+import {
+  renderDesktopBillsModule,
+  renderDesktopLimitsModule,
+  renderDesktopStockModule,
+  renderDesktopSubscriptionsModule,
+} from './desktop-module-templates.mjs';
+import {
+  renderMobileBillsModule,
+  renderMobileLimitsModule,
+  renderMobileStockModule,
+  renderMobileSubscriptionsModule,
+} from './mobile-module-templates.mjs';
 import { escapeHtml } from './render.js';
 
 const STORAGE_KEY = 'fincontrol_modules_v1';
@@ -162,6 +174,17 @@ function renderLimits() {
         <div class="notice warn">• ${high} categorias acima de 70%</div>
       </div>
     </div>`;
+
+  el.innerHTML = renderDesktopLimitsModule({
+    categories: state.modules.categories,
+    limits: limits.map((item) => {
+      const spent = spentMap[item.category] || 0;
+      const pct = Math.min(100, Math.round((spent / item.limit) * 100));
+      return { ...item, spent, pct };
+    }),
+    within,
+    high,
+  });
 }
 
 function renderSubscriptions() {
@@ -185,6 +208,11 @@ function renderSubscriptions() {
       ${state.modules.subscriptions.map((s) => `<div class="sub-row"><div><strong>${escapeHtml(s.name)}</strong><small>${escapeHtml(s.plan)}</small></div><div style="text-align:right"><strong>${formatCurrency(s.value)}/mês</strong><small>Desconto dia ${s.day} <button onclick="editSubscription('${s.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer; margin-left:6px">✏️</button><button onclick="removeSubscription('${s.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer; margin-left:6px">🗑</button></small></div></div>`).join('')}
     </div>
   </div>`;
+
+  el.innerHTML = renderDesktopSubscriptionsModule({
+    subscriptions: state.modules.subscriptions,
+    totalMonth,
+  });
 }
 
 function renderStock() {
@@ -202,6 +230,11 @@ function renderStock() {
     <div class="module-card"><h3>📅 Próximas reposições</h3><div class="list-wrap">${state.modules.stockItems.map((i) => `<div class="sub-row"><div><strong>${escapeHtml(i.name)}</strong><small>${i.dueIn < 0 ? 'Vencido' : `Em ${i.dueIn} dias`}</small></div><strong>${formatCurrency(i.price)}</strong></div>`).join('')}</div></div>
   </div>
   <div class="module-card"><h3>📦 Itens do estoque</h3><div class="stock-grid">${state.modules.stockItems.map((i) => `<div class="stock-item"><div style="display:flex; justify-content:space-between"><strong>${escapeHtml(i.name)}</strong> <button onclick="removeStockItem('${i.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">🗑</button></div><small>${escapeHtml(i.category)}</small><div class="progress"><i style="width:${Math.min(100, (i.qty / Math.max(1, i.min)) * 100)}%"></i></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px"><p style="margin:0">${i.qty} un. (mín ${i.min})</p><div><button onclick="changeStockQty('${i.id}', -1)" style="padding:2px 6px; border-radius:4px">-</button> <button onclick="changeStockQty('${i.id}', 1)" style="padding:2px 6px; border-radius:4px">+</button></div></div></div>`).join('')}</div></div>`;
+
+  el.innerHTML = renderDesktopStockModule({
+    stockItems: state.modules.stockItems,
+    alerts,
+  });
 }
 
 function renderBills() {
@@ -220,6 +253,12 @@ function renderBills() {
     <table class="bill-table" style="width:100%"><thead><tr><th>Conta</th><th>Categoria</th><th>Vencimento</th><th>Valor</th><th>Pago?</th><th></th></tr></thead>
     <tbody>${state.modules.bills.map((b) => `<tr><td>${escapeHtml(b.name)}</td><td>${escapeHtml(b.category)}</td><td>Dia ${b.day}</td><td>${formatCurrency(b.value)}</td><td><input type="checkbox" ${b.paid ? 'checked' : ''} onchange="toggleBillPaid('${b.id}', this.checked)"></td><td><button onclick="editBill('${b.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">✏️</button><button onclick="removeBill('${b.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">🗑</button></td></tr>`).join('')}</tbody></table>
   </div>`;
+
+  el.innerHTML = renderDesktopBillsModule({
+    bills: state.modules.bills,
+    total,
+    paid,
+  });
 }
 
 function renderMobileModules() {
@@ -265,6 +304,30 @@ function renderMobileModules() {
     <div class="list-wrap">
       ${state.modules.stockItems.map((i) => `<div class="sub-row"><div><strong>${escapeHtml(i.name)}</strong><small>${i.qty} un. (mín ${i.min})</small></div><div style="display:flex;align-items:center;gap:6px"><button onclick="changeStockQty('${i.id}', -1)" class="mini-action">-</button><button onclick="changeStockQty('${i.id}', 1)" class="mini-action">+</button><button onclick="removeStockItem('${i.id}')" class="mini-action">🗑</button></div></div>`).join('') || '<div class="empty">Sem itens no estoque</div>'}
     </div>`;
+
+  limitsEl.innerHTML = renderMobileLimitsModule({
+    limits: state.modules.limits.map((item) => {
+      const spent = spentMap[item.category] || 0;
+      const pct = Math.min(100, Math.round((spent / item.limit) * 100));
+      return { ...item, spent, pct };
+    }),
+  });
+
+  subscriptionsEl.innerHTML = renderMobileSubscriptionsModule({
+    subscriptions: state.modules.subscriptions,
+    totalMonth,
+  });
+
+  billsEl.innerHTML = renderMobileBillsModule({
+    bills: state.modules.bills,
+    totalBills,
+    paidBills,
+  });
+
+  stockEl.innerHTML = renderMobileStockModule({
+    stockItems: state.modules.stockItems,
+    alerts,
+  });
 }
 
 export async function toggleBillPaid(id, paid) {
