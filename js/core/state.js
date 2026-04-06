@@ -3,6 +3,7 @@ export const state = {
   currentMonth: new Date().getMonth(),
   currentYear: new Date().getFullYear(),
   transactions: [],
+  transactionsLoaded: false,
   isRecording: false,
   unsubscribe: null,
   unsubscribeModules: null,

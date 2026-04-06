@@ -43,6 +43,7 @@ export async function executeLogout() {
     state.unsubscribeModules = null;
   }
   state.modulesDocId = null;
+  state.transactionsLoaded = false;
 
   await signOut(auth);
 }
@@ -56,6 +57,7 @@ export function initAuth() {
 
     if (user) {
       state.currentUser = user;
+      state.transactionsLoaded = false;
 
       const initials = (user.displayName || 'U')
         .split(' ')
@@ -92,13 +94,14 @@ export function initAuth() {
 
       updateResponsiveAppView();
       buildCategories();
-      initModules();
       startListening();
+      initModules();
       return;
     }
 
     state.currentUser = null;
     state.transactions = [];
+    state.transactionsLoaded = false;
 
     if (state.unsubscribe) {
       state.unsubscribe();

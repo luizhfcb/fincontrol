@@ -14,6 +14,7 @@ import { refreshUI } from '../ui/render.js';
 
 export function startListening() {
   if (!state.currentUser) {
+    state.transactionsLoaded = false;
     return;
   }
 
@@ -22,6 +23,7 @@ export function startListening() {
   }
 
   setSyncStatus('syncing');
+  state.transactionsLoaded = false;
 
   const transactionQuery = query(
     collection(db, 'transactions'),
@@ -34,10 +36,12 @@ export function startListening() {
       state.transactions = snapshot.docs
         .map((snapshotDoc) => ({ id: snapshotDoc.id, ...snapshotDoc.data() }))
         .filter((item) => item.type === 'income' || item.type === 'expense');
+      state.transactionsLoaded = true;
       setSyncStatus('ok');
       refreshUI();
     },
     () => {
+      state.transactionsLoaded = false;
       setSyncStatus('error');
       showToast('Erro de sincronização', true);
     },

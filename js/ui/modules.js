@@ -1,7 +1,8 @@
 import { state } from '../core/state.js';
+import { buildModuleTransactionDocId, getDueSubscriptionPosts } from '../core/subscription-sync.mjs';
 import { formatCurrency } from '../core/utils.js';
 import { showToast } from './feedback.js';
-import { addDoc, collection, db, deleteDoc, doc, onSnapshot, setDoc } from '../config/firebase.js';
+import { db, deleteDoc, doc, onSnapshot, setDoc } from '../config/firebase.js';
 import {
   renderDesktopBillsModule,
   renderDesktopLimitsModule,
@@ -675,7 +676,8 @@ async function postModuleExpense({ ref, desc, value, category }) {
   if (!state.currentUser || alreadyPosted(ref) || pendingModuleRefs.has(ref)) return;
   pendingModuleRefs.add(ref);
   try {
-    await addDoc(collection(db, 'transactions'), {
+    const transactionDocId = buildModuleTransactionDocId(state.currentUser.uid, ref);
+    const payload = {
       uid: state.currentUser.uid,
       desc,
       val: value,
@@ -685,7 +687,12 @@ async function postModuleExpense({ ref, desc, value, category }) {
       month: state.currentMonth,
       year: state.currentYear,
       moduleRef: ref,
-    });
+    };
+    await setDoc(doc(db, 'transactions', transactionDocId), payload);
+    state.transactions = [
+      ...state.transactions.filter((transaction) => transaction.id !== transactionDocId),
+      { id: transactionDocId, ...payload },
+    ];
   } catch (error) {
     showToast('Não foi possível lançar gasto automático.', true);
     console.error(error);
@@ -695,24 +702,27 @@ async function postModuleExpense({ ref, desc, value, category }) {
 }
 
 async function removeModuleExpense(ref) {
-  const tx = state.transactions.find((item) => item.moduleRef === ref);
-  if (!tx) return;
-  await deleteDoc(doc(db, 'transactions', tx.id));
+  if (!state.currentUser) return;
+  const transactionDocId = buildModuleTransactionDocId(state.currentUser.uid, ref);
+  await deleteDoc(doc(db, 'transactions', transactionDocId));
 }
 
 function processDueSubscriptions() {
-  const now = new Date();
-  const isViewingCurrentMonth = now.getMonth() === state.currentMonth && now.getFullYear() === state.currentYear;
-  if (!isViewingCurrentMonth) return;
-  const periodKey = getPeriodKey();
-  state.modules.subscriptions.forEach((sub) => {
-    if (now.getDate() < sub.day) return;
-    const ref = `subscription:${sub.id}:${periodKey}`;
-    if (alreadyPosted(ref)) return;
+  const duePosts = getDueSubscriptionPosts({
+    subscriptions: state.modules.subscriptions,
+    now: new Date(),
+    viewedMonth: state.currentMonth,
+    viewedYear: state.currentYear,
+    transactionsLoaded: state.transactionsLoaded,
+    existingRefs: new Set(state.transactions.map((transaction) => transaction.moduleRef).filter(Boolean)),
+    pendingRefs: pendingModuleRefs,
+  });
+
+  duePosts.forEach(({ subscription, ref }) => {
     postModuleExpense({
       ref,
-      desc: `Assinatura: ${sub.name}`,
-      value: sub.value,
+      desc: `Assinatura: ${subscription.name}`,
+      value: subscription.value,
       category: 'Assinaturas',
     });
   });
