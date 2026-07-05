@@ -57,8 +57,13 @@ export function renderDesktopLimitsModule({ categories = [], limits = [], within
             <h3><span class="desktop-inline-icon amber">${cardIcon('category')}</span>Categorias</h3>
           </div>
           <div class="desktop-chip-grid">
-            ${categories.map((category) => `<div class="desktop-category-chip"><strong>${escapeHtml(category.name)}</strong><small>${escapeHtml(category.type || 'expense')}</small></div>`).join('') || '<div class="empty">Sem categorias cadastradas</div>'}
-            <button class="desktop-dashed-btn" onclick="addLimit()">+ Nova categoria</button>
+            ${categories.map((category) => `
+              <div class="desktop-category-chip" data-id="${escapeHtml(category.id)}">
+                <strong>${escapeHtml(category.name)}</strong>
+                <small>${escapeHtml(category.type || 'expense')}</small>
+                <button class="chip-remove-btn" onclick="removeCategory('${escapeHtml(category.id)}')" title="Remover categoria">✕</button>
+              </div>`).join('') || '<div class="empty">Sem categorias cadastradas</div>'}
+            <button class="desktop-dashed-btn" onclick="addCategory()">+ Nova categoria</button>
           </div>
         </article>
         <article class="desktop-panel desktop-panel-tall">

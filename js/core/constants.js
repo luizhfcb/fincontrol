@@ -42,3 +42,17 @@ export const CATEGORY_COLORS = {
   Trabalho: '#271b87',
   Outros: '#180f68',
 };
+
+/** Categorias pré-definidas para distribuidora de água */
+export const DEFAULT_WATER_CATEGORIES = [
+  { id: 'dw-1',  name: 'Combustível',   type: 'expense' },
+  { id: 'dw-2',  name: 'Manutenção',    type: 'expense' },
+  { id: 'dw-3',  name: 'Motorista 1',   type: 'expense' },
+  { id: 'dw-4',  name: 'Motorista 2',   type: 'expense' },
+  { id: 'dw-5',  name: 'Caminhão A',    type: 'expense' },
+  { id: 'dw-6',  name: 'Caminhão B',    type: 'expense' },
+  { id: 'dw-7',  name: 'Fornecedor',    type: 'expense' },
+  { id: 'dw-8',  name: 'Venda de Água', type: 'income'  },
+  { id: 'dw-9',  name: 'Entrega',       type: 'income'  },
+  { id: 'dw-10', name: 'Outros',        type: 'expense' },
+];

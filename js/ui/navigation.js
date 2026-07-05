@@ -19,7 +19,7 @@ export function goMobilePage(name) {
   document.querySelectorAll('.nbtn').forEach((button) => button.classList.remove('on'));
   document.getElementById(`mp-${name}`)?.classList.add('active');
   document.getElementById(`mn-${name}`)?.classList.add('on');
-  document.getElementById('fabWrap')?.classList.toggle('hidden', ['limits', 'subscriptions', 'bills', 'stock'].includes(name));
+  document.getElementById('fabWrap')?.classList.toggle('hidden', ['limits', 'transactions', 'subscriptions', 'bills', 'stock'].includes(name));
   document.querySelector('.m-scroller')?.scrollTo({ top: 0 });
   closeFab();
 }
@@ -45,6 +45,10 @@ export function changeMonth(delta) {
     state.currentMonth = 11;
     state.currentYear -= 1;
   }
+
+  // Resetar busca e filtro ao trocar de mês
+  state.txSearchQuery = '';
+  state.txTypeFilter = 'all';
 
   const label = `${MONTHS[state.currentMonth]} ${state.currentYear}`;
   setText('monthLabel', label);

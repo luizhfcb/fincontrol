@@ -3,6 +3,7 @@ import { buildModuleTransactionDocId, getDueSubscriptionPosts } from '../core/su
 import { formatCurrency } from '../core/utils.js';
 import { showToast } from './feedback.js';
 import { db, deleteDoc, doc, onSnapshot, setDoc } from '../config/firebase.js';
+import { DEFAULT_WATER_CATEGORIES } from '../core/constants.js';
 import {
   renderDesktopBillsModule,
   renderDesktopLimitsModule,
@@ -45,6 +46,10 @@ export function initModules() {
   state.unsubscribeModules = onSnapshot(docRef, async (snapshot) => {
     if (!snapshot.exists()) {
       state.modules = loadData();
+      // Seed de categorias padrão da distribuidora para usuários novos
+      if (!state.modules.categories || state.modules.categories.length === 0) {
+        state.modules.categories = DEFAULT_WATER_CATEGORIES.map((c) => ({ ...c }));
+      }
       await setDoc(docRef, {
         uid: state.currentUser.uid,
         _docType: MODULES_DOC_TYPE,
@@ -105,6 +110,9 @@ async function persist() {
     showToast('Erro ao salvar módulos na nuvem.', true);
   }
 }
+
+/** Exportado para uso em categories.js (criação inline de categoria) */
+export const persistModules = persist;
 
 export function renderModules() {
   if (!state.modules) return;
@@ -186,6 +194,29 @@ function renderLimits() {
     within,
     high,
   });
+
+  // Botão para adicionar categoria personalizada
+  const catSection = el.querySelector('.chip-wrap')?.closest('.module-card');
+  if (catSection) {
+    const addCatBtn = document.createElement('button');
+    addCatBtn.className = 'list-btn';
+    addCatBtn.style.marginTop = '12px';
+    addCatBtn.textContent = '+ Nova Categoria';
+    addCatBtn.onclick = () => addCategory();
+    catSection.appendChild(addCatBtn);
+
+    // Tornar chips de categoria clicáveis para remoção
+    catSection.querySelectorAll('.chip').forEach((chip) => {
+      const id = chip.dataset.id;
+      if (id) {
+        const delBtn = document.createElement('button');
+        delBtn.innerHTML = ' ✕';
+        delBtn.style.cssText = 'background:transparent;border:none;cursor:pointer;color:var(--text3);font-size:11px;padding:0 0 0 4px;';
+        delBtn.onclick = (e) => { e.stopPropagation(); removeCategory(id); };
+        chip.appendChild(delBtn);
+      }
+    });
+  }
 }
 
 function renderSubscriptions() {
@@ -503,6 +534,47 @@ export function removeLimit(id) {
       return true;
     },
     successMessage: 'Limite removido.',
+  });
+}
+
+// ─── Gerenciamento de Categorias Dinâmicas ─────────────────────────────────
+
+export function addCategory() {
+  openModuleForm({
+    title: 'Nova categoria',
+    fields: [
+      { name: 'name', label: 'Nome da categoria', placeholder: 'Ex: Combustível, Motorista 1, Caminhão A…', required: true },
+      { name: 'type', label: 'Tipo (income = receita / expense = despesa)', placeholder: 'expense' },
+    ],
+    confirmLabel: 'Criar categoria',
+    onSubmit: ({ name, type }) => {
+      const normalizedType = (type || 'expense').toLowerCase().includes('inc') ? 'income' : 'expense';
+      const trimmed = name.trim();
+      if (!trimmed) {
+        showToast('Informe o nome da categoria.', true);
+        return false;
+      }
+      if (state.modules.categories.find((c) => c.name.toLowerCase() === trimmed.toLowerCase())) {
+        showToast('Categoria já existe.', true);
+        return false;
+      }
+      state.modules.categories.push({ id: Date.now().toString(), name: trimmed, type: normalizedType });
+      return true;
+    },
+    successMessage: 'Categoria criada com sucesso.',
+  });
+}
+
+export function removeCategory(id) {
+  openConfirmDialog({
+    title: 'Remover categoria',
+    message: 'Deseja remover esta categoria? Os lançamentos existentes não serão afetados.',
+    confirmLabel: 'Remover',
+    onConfirm: () => {
+      state.modules.categories = state.modules.categories.filter((c) => c.id !== id);
+      return true;
+    },
+    successMessage: 'Categoria removida.',
   });
 }
 
