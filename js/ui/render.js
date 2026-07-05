@@ -9,6 +9,12 @@ const INCOME_PALETTE = [
   '#4ade80', '#86efac', '#34d399', '#059669',
 ];
 
+const EXPENSE_PALETTE = [
+  '#e35d6a', '#f0a35e', '#d7bf55', '#8aa7d6',
+  '#8fc7b5', '#b58bd6', '#d78bb1', '#9aa4b2',
+  '#c96f55', '#6fa8a0', '#a894d6', '#d29a6a',
+];
+
 // ─── SVGs das visões do dashboard ────────────────────────────────────
 const DVP_ICONS = {
   all:     '<svg class="dvp-svg" viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>',
@@ -800,9 +806,7 @@ function buildDonutMarkup(sortedCategories, totalValue, isIncome) {
     const start = current;
     const pct   = (val / totalValue) * 100;
     current    += pct;
-    const color = isIncome
-      ? INCOME_PALETTE[i % INCOME_PALETTE.length]
-      : (CATEGORY_COLORS[cat] || '#71717a');
+    const color = getDonutColor(cat, i, isIncome);
     return `${color} ${start.toFixed(2)}% ${current.toFixed(2)}%`;
   });
 
@@ -829,9 +833,7 @@ function buildDonutMarkup(sortedCategories, totalValue, isIncome) {
         </div>
         <div class="donut-legend">
           ${sortedCategories.map(([cat, val], i) => {
-            const color = isIncome
-              ? INCOME_PALETTE[i % INCOME_PALETTE.length]
-              : (CATEGORY_COLORS[cat] || '#71717a');
+            const color = getDonutColor(cat, i, isIncome);
             return `
               <div class="legend-item">
                 <span class="legend-dot" style="background:${color}"></span>
@@ -847,6 +849,11 @@ function buildDonutMarkup(sortedCategories, totalValue, isIncome) {
       </div>
     </div>
   `;
+}
+
+function getDonutColor(category, index, isIncome) {
+  if (isIncome) return INCOME_PALETTE[index % INCOME_PALETTE.length];
+  return EXPENSE_PALETTE[index % EXPENSE_PALETTE.length] || CATEGORY_COLORS[category] || '#71717a';
 }
 
 // ─── Utilidades ───────────────────────────────────────────────────────────────
