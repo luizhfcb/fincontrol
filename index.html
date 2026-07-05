@@ -102,17 +102,40 @@
   <div class="m-scroller">
     <div class="m-page active" id="mp-home">
       <div class="m-balance-hero">
-        <div id="mDashViewWrap" class="dash-view-wrap"></div>
+        <div class="m-home-headline">
+          <div>
+            <span class="m-greeting">Bom dia</span>
+            <strong>Resumo do mês</strong>
+          </div>
+          <div id="mDashViewWrap" class="dash-view-wrap"></div>
+        </div>
+        <div class="m-period-switch">
+          <button class="mnbtn" onclick="changeMonth(-1)">‹</button>
+          <span id="monthLabel">—</span>
+          <button class="mnbtn" onclick="changeMonth(1)">›</button>
+        </div>
         <label id="mBalanceLabel">SALDO TOTAL</label>
         <div class="m-balance-row">
           <div class="big-val positive" id="mBalance">R$ 0,00</div>
           <span class="m-badge" id="mBalanceDelta">+0%</span>
         </div>
         <p id="mPeriodLabel">—</p>
-        <div class="m-period-switch">
-          <button class="mnbtn" onclick="changeMonth(-1)">‹</button>
-          <span id="monthLabel">—</span>
-          <button class="mnbtn" onclick="changeMonth(1)">›</button>
+        <div class="m-summary-stack" aria-label="Resumo financeiro do mês">
+          <article class="m-summary-card income">
+            <span>Total Receitas</span>
+            <strong id="mIncome">R$ 0,00</strong>
+            <i aria-hidden="true">↗</i>
+          </article>
+          <article class="m-summary-card expense">
+            <span>Total Despesas</span>
+            <strong id="mExpense">R$ 0,00</strong>
+            <i aria-hidden="true">↘</i>
+          </article>
+          <article class="m-summary-card balance">
+            <span>Saldo do Mês</span>
+            <strong id="mBalanceCard">R$ 0,00</strong>
+            <i aria-hidden="true">$</i>
+          </article>
         </div>
       </div>
       <div class="sec-title" style="justify-content: center;">Gastos por Categoria</div>
@@ -168,10 +191,10 @@
 
   <nav class="m-bottomnav">
     <button class="nbtn on" id="mn-home" onclick="goMPage('home')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9l8-6 8 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/></svg></span>Início</button>
+    <button class="nbtn" id="mn-bills" onclick="goMPage('bills')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M6 3h12"/><path d="M10 13h4"/></svg></span>Contas</button>
     <button class="nbtn" id="mn-transactions" onclick="goMPage('transactions')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h12"/></svg></span>Transações</button>
     <button class="nbtn" id="mn-limits" onclick="goMPage('limits')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l6 9H6z"/><circle cx="6" cy="18" r="3"/><rect x="15" y="15" width="6" height="6" rx="1"/></svg></span>Limites</button>
-    <button class="nbtn" id="mn-bills" onclick="goMPage('bills')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M6 3h12"/><path d="M10 13h4"/></svg></span>Contas</button>
-    <button class="nbtn" id="mn-stock" onclick="goMPage('stock')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5"/><path d="M12 12L4 7.5"/><path d="M12 21v-9"/></svg></span>Estoque</button>
+    <button class="nbtn" id="mn-stock" onclick="goMPage('stock')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5"/><path d="M12 12L4 7.5"/><path d="M12 21v-9"/></svg></span>Mais</button>
   </nav>
 </div>
 

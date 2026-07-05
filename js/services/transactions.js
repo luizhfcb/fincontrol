@@ -7,6 +7,7 @@ import {
   onSnapshot,
   query,
   where,
+  updateDoc,
 } from '../config/firebase.js';
 import { state } from '../core/state.js';
 import { showToast, setSyncStatus } from '../ui/feedback.js';
@@ -56,23 +57,55 @@ export async function saveTransaction(description, value, type, category) {
   setSyncStatus('syncing');
 
   try {
-    await addDoc(collection(db, 'transactions'), {
-      uid: state.currentUser.uid,
-      desc: description,
-      val: value,
-      type,
-      cat: category,
-      date: new Date().toISOString(),
-      month: state.currentMonth,
-      year: state.currentYear,
-    });
+    if (state.editingTxId) {
+      await updateDoc(doc(db, 'transactions', state.editingTxId), {
+        desc: description,
+        val: value,
+        type,
+        cat: category,
+      });
+      state.editingTxId = null;
+    } else {
+      await addDoc(collection(db, 'transactions'), {
+        uid: state.currentUser.uid,
+        desc: description,
+        val: value,
+        type,
+        cat: category,
+        date: new Date().toISOString(),
+        month: state.currentMonth,
+        year: state.currentYear,
+      });
+    }
   } catch (error) {
     setSyncStatus('error');
     showToast('Erro ao salvar!', true);
   }
 }
 
-export async function removeTransaction(id) {
+export function removeTransaction(id) {
+  const modal = document.getElementById('genericFormModal');
+  const titleEl = document.getElementById('gfmTitle');
+  const body = document.getElementById('gfmBody');
+  const confirm = document.getElementById('gfmConfirm');
+
+  if (!modal || !titleEl || !body || !confirm) {
+    showToast('Erro ao abrir confirmação', true);
+    return;
+  }
+
+  titleEl.textContent = 'Excluir transação';
+  body.innerHTML = '<p class="gfm-message">Deseja excluir esta transação? Esta ação não pode ser desfeita.</p>';
+  confirm.textContent = 'Excluir';
+  confirm.onclick = async () => {
+    modal.style.display = 'none';
+    await deleteTransaction(id);
+  };
+
+  modal.style.display = 'flex';
+}
+
+async function deleteTransaction(id) {
   setSyncStatus('syncing');
 
   try {

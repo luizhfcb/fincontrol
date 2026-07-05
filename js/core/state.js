@@ -21,4 +21,6 @@ export const state = {
   dashView: 'all',
   // Feature: agrupar transações por categoria (false = lista plana)
   txGrouped: false,
+  // Feature: edição de transações
+  editingTxId: null,
 };

@@ -60,6 +60,27 @@ export function closeModal() {
     state.isRecording = false;
     document.getElementById('micBtn')?.classList.remove('rec');
   }
+  state.editingTxId = null;
+}
+
+export function editTx(id) {
+  const tx = state.transactions.find(t => t.id === id);
+  if (!tx) return;
+  
+  state.editingTxId = id;
+  openModal(tx.type);
+  
+  // Usar setTimeout para garantir que o modal e categorias foram renderizados
+  setTimeout(() => {
+    const description = document.getElementById('mDesc');
+    const value = document.getElementById('mVal');
+    
+    if (description) description.value = tx.desc;
+    if (value) value.value = tx.val;
+    
+    state.selectedCategory = tx.cat || 'Outros';
+    buildCategories();
+  }, 50);
 }
 
 export function closeModalOutside(event) {

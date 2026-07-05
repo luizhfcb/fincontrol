@@ -99,6 +99,11 @@ export function refreshUI() {
     el.textContent = formatCurrency(heroValue);
     el.className   = `big-val ${heroClass}`;
   });
+  const mobileBalanceCard = document.getElementById('mBalanceCard');
+  if (mobileBalanceCard) {
+    mobileBalanceCard.textContent = formatCurrency(heroValue);
+    mobileBalanceCard.className = heroClass;
+  }
   setText('mBalanceLabel', balanceLabel);
   setText('dBalanceLabel', balanceLabel);
 
@@ -261,21 +266,34 @@ function renderFlatTxList(container, transactions, query) {
 function renderFlatTxItem(transaction) {
   const safeDesc = escapeHtml(transaction.desc).replace(/'/g, "\\'");
   return `
-    <div class="tx-item tx-flat-item tx-item-clickable" onclick="openTxHistory('${safeDesc}')">
-      <div class="tx-ico ${transaction.type}">${txTypeIcon(transaction.type)}</div>
-      <div class="tx-info">
-        <div class="tx-name">${escapeHtml(transaction.desc)}</div>
-        <div class="tx-meta">
-          ${formatDateTime(transaction.date)}
-          · <span class="tx-cat-badge">${escapeHtml(transaction.cat || 'Outros')}</span>
-          <span class="tx-hist-hint"> · Ver histórico →</span>
+    <div class="tx-card tx-item-clickable ${transaction.type}" onclick="openTxHistory('${safeDesc}')">
+      <div class="tx-card-top">
+        <div class="tx-card-title">
+          <div class="tx-card-ico ${transaction.type}">${txTypeIcon(transaction.type)}</div>
+          <span class="tx-name">${escapeHtml(transaction.desc)}</span>
         </div>
-      </div>
-      <div class="tx-right">
-        <div class="tx-amt ${transaction.type === 'income' ? 'positive' : 'negative'}">
+        <div class="tx-card-amt ${transaction.type === 'income' ? 'positive' : 'negative'}">
           ${transaction.type === 'income' ? '+' : '−'} ${formatCurrency(transaction.val)}
         </div>
-        <button class="tdel" onclick="event.stopPropagation(); delTx('${transaction.id}')">✕</button>
+      </div>
+      
+      <div class="tx-card-middle">
+        <span class="tx-cat-badge ${transaction.type}">
+          ${catGroupIcon()}
+          ${escapeHtml(transaction.cat || 'Outros')}
+        </span>
+      </div>
+      
+      <div class="tx-card-bottom">
+        <div class="tx-card-date">${formatDateTime(transaction.date)}</div>
+        <div class="tx-card-actions">
+          <button class="tx-action-btn edit" onclick="event.stopPropagation(); window.editTx ? window.editTx('${transaction.id}') : alert('Em breve')" aria-label="Editar" title="Editar">
+            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
+          <button class="tx-action-btn delete" onclick="event.stopPropagation(); delTx('${transaction.id}')" aria-label="Excluir" title="Excluir">
+            <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          </button>
+        </div>
       </div>
     </div>
   `;
@@ -615,17 +633,34 @@ function renderGroupSection(group) {
 function renderTransactionItem(transaction) {
   const safeDesc = escapeHtml(transaction.desc).replace(/'/g, "\\'");
   return `
-    <div class="tx-item tx-item-clickable" onclick="openTxHistory('${safeDesc}')">
-      <div class="tx-ico ${transaction.type}">${txTypeIcon(transaction.type)}</div>
-      <div class="tx-info">
-        <div class="tx-name">${escapeHtml(transaction.desc)}</div>
-        <div class="tx-meta">${formatDateTime(transaction.date)} · ${transaction.type === 'income' ? 'Entrada' : 'Saída'} <span class="tx-hist-hint">· Ver histórico →</span></div>
-      </div>
-      <div class="tx-right">
-        <div class="tx-amt ${transaction.type === 'income' ? 'positive' : 'negative'}">
+    <div class="tx-card tx-item-clickable" onclick="openTxHistory('${safeDesc}')">
+      <div class="tx-card-top">
+        <div class="tx-card-title">
+          <div class="tx-card-ico ${transaction.type}">${txTypeIcon(transaction.type)}</div>
+          <span class="tx-name">${escapeHtml(transaction.desc)}</span>
+        </div>
+        <div class="tx-card-amt ${transaction.type === 'income' ? 'positive' : 'negative'}">
           ${transaction.type === 'income' ? '+' : '-'} ${formatCurrency(transaction.val)}
         </div>
-        <button class="tdel" onclick="event.stopPropagation(); delTx('${transaction.id}')">✕</button>
+      </div>
+      
+      <div class="tx-card-middle">
+        <span class="tx-cat-badge">
+          ${catGroupIcon()}
+          ${escapeHtml(transaction.cat || 'Outros')}
+        </span>
+      </div>
+      
+      <div class="tx-card-bottom">
+        <div class="tx-card-date">${formatDateTime(transaction.date)}</div>
+        <div class="tx-card-actions">
+          <button class="tx-action-btn edit" onclick="event.stopPropagation(); window.editTx ? window.editTx('${transaction.id}') : alert('Em breve')" aria-label="Editar" title="Editar">
+            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
+          <button class="tx-action-btn delete" onclick="event.stopPropagation(); delTx('${transaction.id}')" aria-label="Excluir" title="Excluir">
+            <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          </button>
+        </div>
       </div>
     </div>
   `;

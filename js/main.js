@@ -5,7 +5,7 @@ import { removeTransaction } from './services/transactions.js';
 import { pickCategory, openInlineCatInput, cancelInlineCatInput, saveInlineCategory } from './ui/categories.js';
 import { initDesktopSidebar, toggleDesktopSidebar, updateResponsiveAppView } from './ui/layout.js';
 import { initModules, toggleBillPaid, addSubscription, removeSubscription, editSubscription, addStockItem, removeStockItem, changeStockQty, addLimit, removeLimit, editLimit, addBill, removeBill, editBill, addCategory, removeCategory } from './ui/modules.js';
-import { closeModal, closeModalOutside, confirmTx, confirmTxAudio, openModal, setModalType } from './ui/modal.js';
+import { closeModal, closeModalOutside, confirmTx, confirmTxAudio, openModal, setModalType, editTx } from './ui/modal.js';
 import { changeMonth, closeFab, goDesktopPage, goMobilePage, toggleFab } from './ui/navigation.js';
 import { setTxSearch, setTxFilter, setTxGrouped, openTxHistory, closeTxHistory, setDashView, toggleDashViewDropdown } from './ui/render.js';
 
@@ -14,6 +14,7 @@ window.confirmLogout = confirmLogout;
 window.executeLogout = executeLogout;
 window.toggleTheme = toggleTheme;
 window.delTx = removeTransaction;
+window.editTx = editTx;
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.closeModalOutside = closeModalOutside;
