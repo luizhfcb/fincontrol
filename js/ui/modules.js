@@ -2,7 +2,7 @@ import { state } from '../core/state.js';
 import { buildModuleTransactionDocId, getDueSubscriptionPosts } from '../core/subscription-sync.mjs';
 import { formatCurrency } from '../core/utils.js';
 import { showToast } from './feedback.js';
-import { db, deleteDoc, doc, onSnapshot, setDoc } from '../config/firebase.js';
+import { db, deleteDoc, doc, onSnapshot, setDoc, updateDoc } from '../config/firebase.js';
 import { DEFAULT_WATER_CATEGORIES } from '../core/constants.js';
 import {
   renderDesktopBillsModule,
@@ -338,6 +338,7 @@ function renderMobileModules() {
     </div>`;
 
   limitsEl.innerHTML = renderMobileLimitsModule({
+    categories: state.modules.categories,
     limits: state.modules.limits.map((item) => {
       const spent = spentMap[item.category] || 0;
       const pct = Math.min(100, Math.round((spent / item.limit) * 100));
@@ -566,16 +567,124 @@ export function addCategory() {
 }
 
 export function removeCategory(id) {
+  const item = state.modules.categories.find((c) => c.id === id);
+  if (!item) return;
+
+  openCategoryDeleteDialog(item);
+}
+
+export function editCategory(id) {
+  const item = state.modules.categories.find((c) => c.id === id);
+  if (!item) return;
+
+  const modal = document.getElementById('genericFormModal');
+  const titleEl = document.getElementById('gfmTitle');
+  const body = document.getElementById('gfmBody');
+  const confirm = document.getElementById('gfmConfirm');
+  if (!modal || !titleEl || !body || !confirm) return;
+
+  titleEl.textContent = 'Editar categoria';
+  body.innerHTML = `
+    <div>
+      <label class="gfm-label" for="categoryEditName">Nome da categoria</label>
+      <input class="finput" id="categoryEditName" type="text" value="${escapeHtml(item.name)}" maxlength="32" />
+    </div>
+    <div>
+      <label class="gfm-label" for="categoryEditType">Tipo</label>
+      <select class="finput" id="categoryEditType">
+        <option value="expense" ${item.type !== 'income' ? 'selected' : ''}>Despesa</option>
+        <option value="income" ${item.type === 'income' ? 'selected' : ''}>Receita</option>
+      </select>
+    </div>
+    <label class="category-option-row">
+      <input id="categoryEditApplyOld" type="checkbox" />
+      <span>Atualizar transações antigas desta categoria também</span>
+    </label>
+  `;
+  confirm.textContent = 'Salvar';
+  confirm.onclick = async () => {
+    const input = document.getElementById('categoryEditName');
+    const typeInput = document.getElementById('categoryEditType');
+    const applyOldInput = document.getElementById('categoryEditApplyOld');
+    const nextName = input?.value?.trim();
+    const nextType = typeInput?.value === 'income' ? 'income' : 'expense';
+    const previousName = item.name;
+
+    if (!nextName) {
+      showToast('Informe o nome da categoria.', true);
+      input?.focus();
+      return;
+    }
+
+    const duplicated = state.modules.categories.some(
+      (category) => category.id !== id && category.name.toLowerCase() === nextName.toLowerCase(),
+    );
+    if (duplicated) {
+      showToast('Categoria já existe.', true);
+      input?.focus();
+      return;
+    }
+
+    item.name = nextName;
+    item.type = nextType;
+    if (state.selectedCategory === previousName) state.selectedCategory = nextName;
+
+    if (applyOldInput?.checked && previousName !== nextName) {
+      await updateTransactionsCategory(previousName, nextName);
+    }
+
+    persist();
+    renderModules();
+    modal.style.display = 'none';
+    showToast('Categoria atualizada.');
+  };
+
+  modal.style.display = 'flex';
+  document.getElementById('categoryEditName')?.focus();
+}
+
+function openCategoryDeleteDialog(item) {
   openConfirmDialog({
     title: 'Remover categoria',
-    message: 'Deseja remover esta categoria? Os lançamentos existentes não serão afetados.',
+    message: `
+      Deseja remover a categoria "${escapeHtml(item.name)}"?
+      <label class="category-option-row">
+        <input id="categoryDeleteMoveOld" type="checkbox" />
+        <span>Mover transações antigas desta categoria para "Outros"</span>
+      </label>
+    `,
     confirmLabel: 'Remover',
-    onConfirm: () => {
-      state.modules.categories = state.modules.categories.filter((c) => c.id !== id);
+    onConfirm: async () => {
+      const moveOld = document.getElementById('categoryDeleteMoveOld')?.checked;
+      state.modules.categories = state.modules.categories.filter((c) => c.id !== item.id);
+      if (state.selectedCategory === item.name) {
+        state.selectedCategory = state.modules.categories[0]?.name || 'Outros';
+      }
+      if (moveOld) {
+        await updateTransactionsCategory(item.name, 'Outros');
+      }
       return true;
     },
     successMessage: 'Categoria removida.',
   });
+}
+
+async function updateTransactionsCategory(fromCategory, toCategory) {
+  if (!state.currentUser) return;
+
+  const matchingTransactions = state.transactions.filter((transaction) => transaction.cat === fromCategory);
+  if (!matchingTransactions.length) return;
+
+  try {
+    await Promise.all(matchingTransactions.map((transaction) => (
+      updateDoc(doc(db, 'transactions', transaction.id), { cat: toCategory })
+    )));
+    state.transactions = state.transactions.map((transaction) => (
+      transaction.cat === fromCategory ? { ...transaction, cat: toCategory } : transaction
+    ));
+  } catch (error) {
+    showToast('Erro ao atualizar transações antigas.', true);
+  }
 }
 
 export function editLimit(id) {
@@ -722,10 +831,10 @@ function openConfirmDialog({ title, message, confirmLabel = 'Confirmar', onConfi
   if (!modal || !titleEl || !body || !confirm) return;
 
   titleEl.textContent = title;
-  body.innerHTML = `<p class="gfm-message">${message}</p>`;
+  body.innerHTML = `<div class="gfm-message">${message}</div>`;
   confirm.textContent = confirmLabel;
-  confirm.onclick = () => {
-    const removed = onConfirm();
+  confirm.onclick = async () => {
+    const removed = await onConfirm();
     if (!removed) return;
     persist();
     renderModules();

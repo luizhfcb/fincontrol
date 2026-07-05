@@ -148,6 +148,8 @@ export function refreshUI() {
   chartTxs.forEach((t) => { catMap[t.cat || 'Outros'] = (catMap[t.cat || 'Outros'] || 0) + t.val; });
   const sortedCategories = Object.entries(catMap).sort((a, b) => b[1] - a[1]);
 
+  renderExpenseHeatmap('mExpenseHeatmap', monthlyTransactions);
+  renderExpenseHeatmap('dExpenseHeatmap', monthlyTransactions);
   renderMobileSpotlight('mTxList', highestExpense, expense);
   renderTransactionsPage(monthlyTransactions);
   renderDonutCharts(sortedCategories, chartTotal, chartIsIncome);
@@ -216,6 +218,15 @@ export function toggleDashViewDropdown(dropId) {
   // Rotaciona a seta
   const pill = drop.previousElementSibling;
   if (pill) pill.setAttribute('aria-expanded', String(isOpen));
+}
+
+export function selectExpenseHeatmapDay(day) {
+  state.heatmapSelectedDay = Number(day) || 1;
+  const monthlyTransactions = state.transactions.filter(
+    (t) => t.month === state.currentMonth && t.year === state.currentYear,
+  );
+  renderExpenseHeatmap('mExpenseHeatmap', monthlyTransactions);
+  renderExpenseHeatmap('dExpenseHeatmap', monthlyTransactions);
 }
 
 // ─── Aba Dedicada de Transações ───────────────────────────────────────────────
@@ -394,7 +405,10 @@ export function setTxSearch(value) {
     (t) => t.month === state.currentMonth && t.year === state.currentYear,
   );
   // NÃO re-renderiza os controles (destruiria o <input> e fecharia o teclado).
-  // Apenas atualiza a visibilidade do botão de limpar no DOM.
+  // Apenas sincroniza o valor visível e a visibilidade do botão de limpar no DOM.
+  document.querySelectorAll('.tx-search-input').forEach((input) => {
+    if (input.value !== value) input.value = value;
+  });
   document.querySelectorAll('.tx-search-clear').forEach((btn) => {
     btn.style.opacity = value ? '1' : '0';
     btn.style.pointerEvents = value ? 'auto' : 'none';
@@ -580,6 +594,105 @@ function renderSixMonthChart(containerId, allTransactions) {
       </div>
     </div>
   `;
+}
+
+function renderExpenseHeatmap(containerId, transactions) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  const daysInMonth = new Date(state.currentYear, state.currentMonth + 1, 0).getDate();
+  const expenses = transactions.filter((transaction) => transaction.type === 'expense');
+  const days = Array.from({ length: daysInMonth }, (_, index) => ({
+    day: index + 1,
+    total: 0,
+    transactions: [],
+  }));
+
+  expenses.forEach((transaction) => {
+    const date = new Date(transaction.date);
+    const dayIndex = date.getDate() - 1;
+    if (dayIndex < 0 || dayIndex >= days.length) return;
+    days[dayIndex].total += Number(transaction.val) || 0;
+    days[dayIndex].transactions.push(transaction);
+  });
+
+  const totalMonth = days.reduce((sum, day) => sum + day.total, 0);
+  const maxDayTotal = Math.max(...days.map((day) => day.total), 0);
+  const selectedDay = Math.min(
+    daysInMonth,
+    Math.max(1, Number(state.heatmapSelectedDay) || new Date().getDate()),
+  );
+  state.heatmapSelectedDay = selectedDay;
+  const selected = days[selectedDay - 1];
+  const selectedExpenses = [...selected.transactions].sort((a, b) => b.val - a.val);
+  const biggest = selectedExpenses[0];
+  const others = selectedExpenses.slice(1);
+
+  container.innerHTML = `
+    <div class="heatmap-head">
+      <div>
+        <span>Despesas por dia</span>
+        <h3>Mapa de Calor</h3>
+      </div>
+      <div class="heatmap-total">
+        <small>Total Gasto no Mês</small>
+        <strong>${formatCurrency(totalMonth)}</strong>
+      </div>
+    </div>
+    <div class="heatmap-weekdays" aria-hidden="true">
+      <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+    </div>
+    <div class="heatmap-grid">
+      ${days.map((day) => `
+        <button
+          class="heatmap-day ${getHeatmapTone(day.total, maxDayTotal)}${day.day === selectedDay ? ' selected' : ''}"
+          onclick="selectExpenseHeatmapDay(${day.day})"
+          title="Dia ${day.day}: ${formatCurrency(day.total)}"
+          aria-label="Dia ${day.day}, ${formatCurrency(day.total)} em despesas"
+        >${day.day}</button>
+      `).join('')}
+    </div>
+    <div class="heatmap-detail">
+      <div class="heatmap-detail-top">
+        <span>Dia ${String(selectedDay).padStart(2, '0')}</span>
+        <strong>${formatCurrency(selected.total)}</strong>
+      </div>
+      ${biggest ? `
+        <div class="heatmap-highlight">
+          <small>Maior compra do dia</small>
+          <div class="heatmap-highlight-row">
+            <span>${CATEGORY_ICONS[biggest.cat] || '□'}</span>
+            <div>
+              <strong>${escapeHtml(biggest.desc)}</strong>
+              <small>${escapeHtml(biggest.cat || 'Outros')}</small>
+            </div>
+            <b>${formatCurrency(biggest.val)}</b>
+          </div>
+        </div>
+        <div class="heatmap-list">
+          ${others.map((transaction) => `
+            <div class="heatmap-list-row">
+              <span>${CATEGORY_ICONS[transaction.cat] || '□'}</span>
+              <div>
+                <strong>${escapeHtml(transaction.desc)}</strong>
+                <small>${formatDateTime(transaction.date)}</small>
+              </div>
+              <b>${formatCurrency(transaction.val)}</b>
+            </div>
+          `).join('') || '<div class="heatmap-empty">Nenhuma outra despesa nesse dia.</div>'}
+        </div>
+      ` : '<div class="heatmap-empty">Nenhuma despesa registrada nesse dia.</div>'}
+    </div>
+  `;
+}
+
+function getHeatmapTone(total, maxTotal) {
+  if (!total || !maxTotal) return 'level-0';
+  const intensity = total / maxTotal;
+  if (intensity <= 0.25) return 'level-1';
+  if (intensity <= 0.5) return 'level-2';
+  if (intensity <= 0.75) return 'level-3';
+  return 'level-4';
 }
 
 function renderGroupedTransactions(container, transactions) {

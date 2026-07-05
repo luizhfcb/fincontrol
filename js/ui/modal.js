@@ -4,6 +4,16 @@ import { closeFab } from './navigation.js';
 import { saveTransaction } from '../services/transactions.js';
 import { buildCategories } from './categories.js';
 
+function getTodayInputValue() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function getDateInputValue(date) {
+  const parsedDate = new Date(date);
+  if (Number.isNaN(parsedDate.getTime())) return getTodayInputValue();
+  return parsedDate.toISOString().slice(0, 10);
+}
+
 export function openModal(type) {
   closeFab();
   state.modalType = type === 'audio' ? 'income' : type;
@@ -15,6 +25,7 @@ export function openModal(type) {
   const transcript = document.getElementById('transcribed');
   const description = document.getElementById('mDesc');
   const value = document.getElementById('mVal');
+  const date = document.getElementById('mDate');
 
   if (textModal) {
     textModal.style.display = type === 'audio' ? 'none' : 'block';
@@ -37,6 +48,9 @@ export function openModal(type) {
   }
   if (value) {
     value.value = '';
+  }
+  if (date) {
+    date.value = getTodayInputValue();
   }
 
   if (type === 'audio') {
@@ -74,9 +88,11 @@ export function editTx(id) {
   setTimeout(() => {
     const description = document.getElementById('mDesc');
     const value = document.getElementById('mVal');
+    const date = document.getElementById('mDate');
     
     if (description) description.value = tx.desc;
     if (value) value.value = tx.val;
+    if (date) date.value = getDateInputValue(tx.date);
     
     state.selectedCategory = tx.cat || 'Outros';
     buildCategories();
@@ -109,13 +125,14 @@ export function setModalType(type) {
 export async function confirmTx() {
   const description = document.getElementById('mDesc')?.value.trim();
   const value = parseFloat(document.getElementById('mVal')?.value);
+  const date = document.getElementById('mDate')?.value;
 
-  if (!description || Number.isNaN(value) || value <= 0) {
-    showToast('Preencha descrição e valor!', true);
+  if (!description || Number.isNaN(value) || value <= 0 || !date) {
+    showToast('Preencha descrição, valor e data!', true);
     return;
   }
 
-  await saveTransaction(description, value, state.modalType, state.selectedCategory);
+  await saveTransaction(description, value, state.modalType, state.selectedCategory, date);
   closeModal();
   showToast(state.modalType === 'expense' ? '💸 Gasto registrado!' : '💰 Entrada registrada!');
 }

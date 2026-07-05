@@ -49,12 +49,13 @@ export function startListening() {
   );
 }
 
-export async function saveTransaction(description, value, type, category) {
+export async function saveTransaction(description, value, type, category, dateValue = new Date().toISOString().slice(0, 10)) {
   if (!state.currentUser) {
     return;
   }
 
   setSyncStatus('syncing');
+  const transactionDate = buildTransactionDate(dateValue);
 
   try {
     if (state.editingTxId) {
@@ -63,6 +64,9 @@ export async function saveTransaction(description, value, type, category) {
         val: value,
         type,
         cat: category,
+        date: transactionDate.toISOString(),
+        month: transactionDate.getMonth(),
+        year: transactionDate.getFullYear(),
       });
       state.editingTxId = null;
     } else {
@@ -72,15 +76,36 @@ export async function saveTransaction(description, value, type, category) {
         val: value,
         type,
         cat: category,
-        date: new Date().toISOString(),
-        month: state.currentMonth,
-        year: state.currentYear,
+        date: transactionDate.toISOString(),
+        month: transactionDate.getMonth(),
+        year: transactionDate.getFullYear(),
       });
     }
   } catch (error) {
     setSyncStatus('error');
     showToast('Erro ao salvar!', true);
   }
+}
+
+function buildTransactionDate(dateValue) {
+  const [year, month, day] = String(dateValue).split('-').map(Number);
+  const timeSource = state.editingTxId
+    ? new Date(state.transactions.find((transaction) => transaction.id === state.editingTxId)?.date || Date.now())
+    : new Date();
+
+  if (!year || !month || !day || Number.isNaN(timeSource.getTime())) {
+    return new Date();
+  }
+
+  return new Date(
+    year,
+    month - 1,
+    day,
+    timeSource.getHours(),
+    timeSource.getMinutes(),
+    timeSource.getSeconds(),
+    timeSource.getMilliseconds(),
+  );
 }
 
 export function removeTransaction(id) {

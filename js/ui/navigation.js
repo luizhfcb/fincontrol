@@ -49,6 +49,7 @@ export function changeMonth(delta) {
   // Resetar busca e filtro ao trocar de mês
   state.txSearchQuery = '';
   state.txTypeFilter = 'all';
+  state.heatmapSelectedDay = 1;
 
   const label = `${MONTHS[state.currentMonth]} ${state.currentYear}`;
   setText('monthLabel', label);

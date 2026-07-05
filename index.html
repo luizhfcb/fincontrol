@@ -141,6 +141,8 @@
       <div class="sec-title" style="justify-content: center;">Gastos por Categoria</div>
       <div class="m-card chart-card" id="mBarChart"><div class="empty">Sem gastos neste mês</div></div>
 
+      <div class="m-card expense-heatmap-card" id="mExpenseHeatmap"><div class="empty">Carregando mapa de calor...</div></div>
+
       <div class="m-card grouped-list" id="mTxList" style="margin-top: 12px;"><div class="empty">Nenhum lançamento neste mês</div></div>
 
 
@@ -193,7 +195,7 @@
     <button class="nbtn on" id="mn-home" onclick="goMPage('home')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9l8-6 8 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/></svg></span>Início</button>
     <button class="nbtn" id="mn-bills" onclick="goMPage('bills')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M6 3h12"/><path d="M10 13h4"/></svg></span>Contas</button>
     <button class="nbtn" id="mn-transactions" onclick="goMPage('transactions')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h12"/></svg></span>Transações</button>
-    <button class="nbtn" id="mn-limits" onclick="goMPage('limits')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l6 9H6z"/><circle cx="6" cy="18" r="3"/><rect x="15" y="15" width="6" height="6" rx="1"/></svg></span>Limites</button>
+    <button class="nbtn" id="mn-limits" onclick="goMPage('limits')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l6 9H6z"/><circle cx="6" cy="18" r="3"/><rect x="15" y="15" width="6" height="6" rx="1"/></svg></span>Categorias</button>
     <button class="nbtn" id="mn-stock" onclick="goMPage('stock')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5"/><path d="M12 12L4 7.5"/><path d="M12 21v-9"/></svg></span>Mais</button>
   </nav>
 </div>
@@ -362,6 +364,8 @@
         </div>
       </div>
 
+      <div class="d-panel expense-heatmap-card" id="dExpenseHeatmap"><div class="empty">Carregando mapa de calor...</div></div>
+
       <div class="d-panels">
         <div class="d-panel">
           <h3 class="panel-icon-title">
@@ -416,6 +420,10 @@
       <div class="finput-row">
         <input class="finput" id="mDesc" type="text" placeholder="Ex: Almoço, Salário, Uber…" autocomplete="off"/>
         <input class="finput amt" id="mVal" type="number" inputmode="decimal" placeholder="R$"/>
+      </div>
+      <div>
+        <label class="gfm-label" for="mDate">Data</label>
+        <input class="finput" id="mDate" type="date"/>
       </div>
       <div class="cats" id="mCatRow"></div>
       <div class="modal-actions">

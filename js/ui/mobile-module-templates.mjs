@@ -149,7 +149,7 @@ export function renderMobileBillsModule({ bills = [], totalBills = 0, paidBills 
   `;
 }
 
-export function renderMobileLimitsModule({ limits = [] }) {
+export function renderMobileLimitsModule({ categories = [], limits = [] }) {
   const avgUsage = limits.length
     ? Math.round(limits.reduce((sum, item) => sum + item.pct, 0) / limits.length)
     : 0;
@@ -174,6 +174,19 @@ export function renderMobileLimitsModule({ limits = [] }) {
     </article>
   `).join('');
 
+  const categoryCards = categories.map((category) => `
+    <article class="mobile-category-row">
+      <div>
+        <strong>${escapeHtml(category.name)}</strong>
+        <small>${category.type === 'income' ? 'Receita' : 'Despesa'}</small>
+      </div>
+      <div class="mobile-entry-actions">
+        ${iconAction('edit', 'Editar categoria', `editCategory('${category.id}')`)}
+        ${iconAction('remove', 'Remover categoria', `removeCategory('${category.id}')`)}
+      </div>
+    </article>
+  `).join('');
+
   return `
     <section class="mobile-module-hero limits-hero">
       <div class="mobile-module-kicker">CONTROLE DE GASTOS</div>
@@ -192,6 +205,16 @@ export function renderMobileLimitsModule({ limits = [] }) {
     </section>
     <section class="mobile-module-list">
       ${cards || '<div class="mobile-empty-state">Nenhum limite configurado.</div>'}
+    </section>
+    <section class="mobile-module-section-head category-head">
+      <div>
+        <h3>Categorias</h3>
+        <p>${categories.length} categoria(s) disponíveis</p>
+      </div>
+      <button class="mobile-primary-cta" onclick="addCategory()"><span>+</span>Nova</button>
+    </section>
+    <section class="mobile-category-list">
+      ${categoryCards || '<div class="mobile-empty-state">Nenhuma categoria cadastrada.</div>'}
     </section>
   `;
 }

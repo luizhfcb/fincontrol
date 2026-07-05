@@ -4,10 +4,10 @@ import { initTheme, toggleTheme } from './services/theme.js';
 import { removeTransaction } from './services/transactions.js';
 import { pickCategory, openInlineCatInput, cancelInlineCatInput, saveInlineCategory } from './ui/categories.js';
 import { initDesktopSidebar, toggleDesktopSidebar, updateResponsiveAppView } from './ui/layout.js';
-import { initModules, toggleBillPaid, addSubscription, removeSubscription, editSubscription, addStockItem, removeStockItem, changeStockQty, addLimit, removeLimit, editLimit, addBill, removeBill, editBill, addCategory, removeCategory } from './ui/modules.js';
+import { initModules, toggleBillPaid, addSubscription, removeSubscription, editSubscription, addStockItem, removeStockItem, changeStockQty, addLimit, removeLimit, editLimit, addBill, removeBill, editBill, addCategory, editCategory, removeCategory } from './ui/modules.js';
 import { closeModal, closeModalOutside, confirmTx, confirmTxAudio, openModal, setModalType, editTx } from './ui/modal.js';
 import { changeMonth, closeFab, goDesktopPage, goMobilePage, toggleFab } from './ui/navigation.js';
-import { setTxSearch, setTxFilter, setTxGrouped, openTxHistory, closeTxHistory, setDashView, toggleDashViewDropdown } from './ui/render.js';
+import { setTxSearch, setTxFilter, setTxGrouped, openTxHistory, closeTxHistory, setDashView, toggleDashViewDropdown, selectExpenseHeatmapDay } from './ui/render.js';
 
 window.loginGoogle = loginGoogle;
 window.confirmLogout = confirmLogout;
@@ -46,6 +46,7 @@ window.removeBill = removeBill;
 window.editBill = editBill;
 // Feature: Categorias Dinâmicas
 window.addCategory = addCategory;
+window.editCategory = editCategory;
 window.removeCategory = removeCategory;
 // Feature: Busca + Filtros
 window.setTxSearch = setTxSearch;
@@ -58,6 +59,7 @@ window.setDashView = setDashView;
 window.toggleDashViewDropdown = toggleDashViewDropdown;
 // Feature: Agrupamento de transações
 window.setTxGrouped = setTxGrouped;
+window.selectExpenseHeatmapDay = selectExpenseHeatmapDay;
 
 initTheme();
 initDesktopSidebar();
@@ -75,4 +77,3 @@ document.addEventListener('click', (event) => {
     document.querySelectorAll('.dash-view-dropdown.open').forEach((d) => d.classList.remove('open'));
   }
 });
-

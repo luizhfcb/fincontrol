@@ -61,7 +61,10 @@ export function renderDesktopLimitsModule({ categories = [], limits = [], within
               <div class="desktop-category-chip" data-id="${escapeHtml(category.id)}">
                 <strong>${escapeHtml(category.name)}</strong>
                 <small>${escapeHtml(category.type || 'expense')}</small>
-                <button class="chip-remove-btn" onclick="removeCategory('${escapeHtml(category.id)}')" title="Remover categoria">✕</button>
+                <div class="category-chip-actions">
+                  <button class="chip-action-btn" onclick="editCategory('${escapeHtml(category.id)}')" title="Editar categoria">✎</button>
+                  <button class="chip-action-btn danger" onclick="removeCategory('${escapeHtml(category.id)}')" title="Remover categoria">✕</button>
+                </div>
               </div>`).join('') || '<div class="empty">Sem categorias cadastradas</div>'}
             <button class="desktop-dashed-btn" onclick="addCategory()">+ Nova categoria</button>
           </div>

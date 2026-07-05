@@ -23,4 +23,6 @@ export const state = {
   txGrouped: false,
   // Feature: edição de transações
   editingTxId: null,
+  // Feature: dia selecionado no mapa de calor de despesas
+  heatmapSelectedDay: new Date().getDate(),
 };
