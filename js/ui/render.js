@@ -304,8 +304,8 @@ function renderSearchAndFilters(controlsId) {
   container.innerHTML = `
     <div class="tx-controls">
       <div class="tx-topbar">
-        <!-- Pill seletor de tipo (igual ao do dashboard) -->
-        <div class="dash-view-selector">
+        <!-- Pill seletor de tipo -->
+        <div class="dash-view-selector tx-type-selector">
           <button
             class="dash-view-pill tx-type-pill${f === 'income' ? ' income' : f === 'expense' ? ' expense' : ''}"
             onclick="toggleDashViewDropdown('${dropId}')"
@@ -315,7 +315,7 @@ function renderSearchAndFilters(controlsId) {
             <span class="dvp-label">${TX_TYPE_LABELS[f]}</span>
             <svg class="dvp-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
           </button>
-          <div class="dash-view-dropdown" id="${dropId}" role="listbox">
+          <div class="dash-view-dropdown tx-type-dropdown" id="${dropId}" role="listbox">
             ${TX_TYPE_OPTS.map((k) => `
               <button class="dv-option${k === f ? ' active' : ''}" role="option"
                       onclick="setTxFilter('${k}')">
@@ -332,7 +332,6 @@ function renderSearchAndFilters(controlsId) {
           class="tx-group-toggle${grp ? ' active' : ''}"
           onclick="setTxGrouped(${!grp})"
           title="${grp ? 'Listar sem categorias' : 'Agrupar por categoria'}"
-          aria-label="${grp ? 'Listar sem categorias' : 'Agrupar por categoria'}"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <rect x="3" y="5" width="7" height="4" rx="1"/>
@@ -357,8 +356,15 @@ function renderSearchAndFilters(controlsId) {
           value="${escapeHtml(q)}"
           oninput="setTxSearch(this.value)"
           autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
         />
-        ${q ? `<button class="tx-search-clear" onclick="setTxSearch('')" aria-label="Limpar busca">✕</button>` : ''}
+        <button
+          class="tx-search-clear"
+          onclick="setTxSearch('')"
+          aria-label="Limpar busca"
+          style="opacity:${q ? '1' : '0'};pointer-events:${q ? 'auto' : 'none'}"
+        >✕</button>
       </div>
     </div>
   `;
@@ -369,8 +375,12 @@ export function setTxSearch(value) {
   const monthly = state.transactions.filter(
     (t) => t.month === state.currentMonth && t.year === state.currentYear,
   );
-  renderSearchAndFilters('mAllTxControls');
-  renderSearchAndFilters('dAllTxControls');
+  // NÃO re-renderiza os controles (destruiria o <input> e fecharia o teclado).
+  // Apenas atualiza a visibilidade do botão de limpar no DOM.
+  document.querySelectorAll('.tx-search-clear').forEach((btn) => {
+    btn.style.opacity = value ? '1' : '0';
+    btn.style.pointerEvents = value ? 'auto' : 'none';
+  });
   renderTxList('mAllTxList', monthly);
   renderTxList('dAllTxList', monthly);
 }

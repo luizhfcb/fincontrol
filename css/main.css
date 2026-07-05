@@ -1210,7 +1210,7 @@ body.logged-out .d-main {
   transform: rotate(180deg);
 }
 
-/* Card dropdown */
+/* Card dropdown — posicionamento centralizado (padrão para dashboard) */
 .dash-view-dropdown {
   position: absolute;
   top: calc(100% + 10px);
@@ -1231,6 +1231,15 @@ body.logged-out .d-main {
   opacity: 1;
   pointer-events: all;
   transform: translateX(-50%) translateY(0);
+}
+
+/* Dropdown da aba Transações — alinhado à esquerda para não cortar na borda */
+.tx-type-dropdown {
+  left: 0;
+  transform: translateX(0) translateY(-8px);
+}
+.tx-type-dropdown.open {
+  transform: translateX(0) translateY(0);
 }
 
 /* Opções dentro do dropdown */
