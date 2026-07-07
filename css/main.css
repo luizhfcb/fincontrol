@@ -2474,6 +2474,11 @@ body.logged-out .d-main {
   transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
 }
 
+.heatmap-day-spacer {
+  aspect-ratio:1;
+  display:block;
+}
+
 .heatmap-day:hover {
   transform:translateY(-1px);
 }
@@ -2805,6 +2810,7 @@ body.logged-out .d-main {
     justify-content:space-between;
     gap:12px;
     padding-top:0;
+    border-top:none !important;
   }
 
   .tx-card-date {

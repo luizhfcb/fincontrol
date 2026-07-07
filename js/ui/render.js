@@ -98,17 +98,24 @@ export function refreshUI() {
     chartIsIncome = false;
   }
 
-  // ── Atualiza métrica principal ─────────────────────────────────────────────
-  ['mBalance', 'dBalance'].forEach((id) => {
+  // ── Atualiza métrica principal do dashboard ────────────────────────────────
+  ['mBalance'].forEach((id) => {
     const el = document.getElementById(id);
     if (!el) return;
     el.textContent = formatCurrency(heroValue);
     el.className   = `big-val ${heroClass}`;
   });
+
+  const desktopBalance = document.getElementById('dBalance');
+  if (desktopBalance) {
+    desktopBalance.textContent = formatCurrency(balance);
+    desktopBalance.className = `val ${balance >= 0 ? 'positive' : 'negative'}`;
+  }
+
   const mobileBalanceCard = document.getElementById('mBalanceCard');
   if (mobileBalanceCard) {
-    mobileBalanceCard.textContent = formatCurrency(heroValue);
-    mobileBalanceCard.className = heroClass;
+    mobileBalanceCard.textContent = formatCurrency(balance);
+    mobileBalanceCard.className = balance >= 0 ? 'positive' : 'negative';
   }
   setText('mBalanceLabel', balanceLabel);
   setText('dBalanceLabel', balanceLabel);
@@ -607,6 +614,7 @@ function renderExpenseHeatmap(containerId, transactions) {
   if (!container) return;
 
   const daysInMonth = new Date(state.currentYear, state.currentMonth + 1, 0).getDate();
+  const firstWeekday = new Date(state.currentYear, state.currentMonth, 1).getDay();
   const expenses = transactions.filter((transaction) => transaction.type === 'expense');
   const days = Array.from({ length: daysInMonth }, (_, index) => ({
     day: index + 1,
@@ -649,6 +657,7 @@ function renderExpenseHeatmap(containerId, transactions) {
       <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
     </div>
     <div class="heatmap-grid">
+      ${Array.from({ length: firstWeekday }, () => '<span class="heatmap-day-spacer" aria-hidden="true"></span>').join('')}
       ${days.map((day) => `
         <button
           class="heatmap-day ${getHeatmapTone(day.total, maxDayTotal)}${day.day === selectedDay ? ' selected' : ''}"
@@ -667,7 +676,7 @@ function renderExpenseHeatmap(containerId, transactions) {
         <div class="heatmap-highlight">
           <small>Maior compra do dia</small>
           <div class="heatmap-highlight-row">
-            <span>${CATEGORY_ICONS[biggest.cat] || '□'}</span>
+            <span>${CATEGORY_ICONS[biggest.cat] || '💸'}</span>
             <div>
               <strong>${escapeHtml(biggest.desc)}</strong>
               <small>${escapeHtml(biggest.cat || 'Outros')}</small>
@@ -678,7 +687,7 @@ function renderExpenseHeatmap(containerId, transactions) {
         <div class="heatmap-list">
           ${others.map((transaction) => `
             <div class="heatmap-list-row">
-              <span>${CATEGORY_ICONS[transaction.cat] || '□'}</span>
+              <span>${CATEGORY_ICONS[transaction.cat] || '💸'}</span>
               <div>
                 <strong>${escapeHtml(transaction.desc)}</strong>
                 <small>${formatDateTime(transaction.date)}</small>

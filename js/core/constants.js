@@ -30,6 +30,13 @@ export const CATEGORY_ICONS = {
   Lazer: '🎮',
   Casa: '🏠',
   Trabalho: '💼',
+  Assinaturas: '💳',
+  'Despesa Fixa': '🧾',
+  Combustível: '⛽',
+  Manutenção: '🔧',
+  Fornecedor: '📦',
+  'Venda de Água': '💧',
+  Entrega: '🚚',
   Outros: '📦',
 };
 
