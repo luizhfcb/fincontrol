@@ -1,0 +1,70 @@
+From 6f2d8cb57a25ba725a95f6eb7df376a3a54c4dc5 Mon Sep 17 00:00:00 2001
+From: Claude <assistant@claude.local>
+Date: Wed, 8 Jul 2026 03:04:05 +0000
+Subject: [PATCH] =?UTF-8?q?Melhora=20primeira=20impress=C3=A3o=20visual=20?=
+ =?UTF-8?q?do=20dashboard?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- Corrige flash de tema claro no carregamento (html já nasce em data-theme="dark", igual ao padrão do JS), e ajusta theme-color da barra do navegador para combinar
+- Transforma o card de saldo (.m-balance-hero) em um card elevado com gradiente, borda e sombra, no mesmo padrão visual do preview usado na tela de login, dando mais peso ao dado mais importante do dashboard
+- Redesenha estados vazios (.empty) com card tracejado + ícone, no lugar de uma linha de texto solta
+---
+ css/main.css | 14 ++++++++------
+ index.html   |  4 ++--
+ 2 files changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/css/main.css b/css/main.css
+index 34ef97a..99f9049 100644
+--- a/css/main.css
++++ b/css/main.css
+@@ -137,13 +137,14 @@ body.logged-out #desktop-app{display:none!important}
+ .avatar-btn{width:34px;height:34px;border-radius:50%;background:var(--accent-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;color:var(--text);font-weight:800;flex-shrink:0}
+ 
+ .m-hero{flex-shrink:0;padding:14px;border-bottom:1px solid var(--border);background:var(--card)}
+-.m-balance-hero{padding:12px 6px 6px;margin-bottom:12px;text-align:center}
++.m-balance-hero{position:relative;padding:22px 18px 18px;margin-bottom:16px;text-align:center;border-radius:28px;border:1px solid var(--border2);background:linear-gradient(165deg,var(--accent-bg) 0%,var(--card) 55%,var(--card) 100%);box-shadow:var(--shadow-soft);overflow:hidden}
++.m-balance-hero::before{content:"";position:absolute;inset:auto auto 0 0;width:220px;height:220px;background:radial-gradient(circle,rgba(255,255,255,.10),transparent 72%);filter:blur(10px);pointer-events:none}
+ .m-balance-hero label{font-size:11px;font-weight:700;letter-spacing:.09em;color:var(--text2);display:block}
+-.m-period-switch{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px}
++.m-period-switch{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;position:relative}
+ .m-period-switch #monthLabel{font-size:13px;color:var(--text2);min-width:110px;text-align:center}
+-.m-balance-row{display:flex;align-items:flex-end;justify-content:center;gap:12px}
+-.m-balance-hero .big-val{font-size:56px;line-height:1;margin-top:8px}
+-.m-balance-hero p{margin-top:8px;color:var(--text2);font-weight:600}
++.m-balance-row{display:flex;align-items:flex-end;justify-content:center;gap:12px;position:relative}
++.m-balance-hero .big-val{font-size:56px;line-height:1;margin-top:8px;letter-spacing:-.03em}
++.m-balance-hero p{margin-top:8px;color:var(--text2);font-weight:600;position:relative}
+ .m-badge{padding:6px 10px;border-radius:999px;font-weight:800;font-size:13px}
+ .m-badge.positive{background:var(--green-bg);color:var(--green)}
+ .m-badge.negative{background:var(--red-bg);color:var(--red)}
+@@ -329,7 +330,8 @@ body.logged-out #desktop-app{display:none!important}
+ .tx-action-btn.edit:hover { color: var(--accent); background: var(--accent-bg); }
+ .tx-action-btn.delete:hover { color: var(--red); background: var(--red-bg); }
+ 
+-.empty{text-align:center;color:var(--text3);font-size:14px;padding:2rem 0}
++.empty{text-align:center;color:var(--text3);font-size:14px;padding:2.4rem 1rem;display:flex;flex-direction:column;align-items:center;gap:10px;border:1.5px dashed var(--border);border-radius:18px;background:rgba(255,255,255,.015)}
++.empty::before{content:"";width:38px;height:38px;border-radius:12px;background:var(--accent-bg);border:1px solid var(--border);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238ec5ff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 3v18h18'/%3E%3Cpath d='M7 15l4-5 3 3 5-7'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;background-size:18px}
+ 
+ .chart-card{padding:18px}
+ .chart-layout{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:18px;align-items:center}
+diff --git a/index.html b/index.html
+index f297bbc..a8e4506 100644
+--- a/index.html
++++ b/index.html
+@@ -1,9 +1,9 @@
+ <!DOCTYPE html>
+-<html lang="pt-BR" data-theme="light">
++<html lang="pt-BR" data-theme="dark">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+-<meta name="theme-color" content="#f8f9fa">
++<meta name="theme-color" content="#07111d">
+ <meta name="apple-mobile-web-app-capable" content="yes">
+ <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+ <meta name="apple-mobile-web-app-title" content="FinControl">
+-- 
+2.43.0
+
