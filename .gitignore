@@ -1,2 +1,7 @@
 fetch_stitch.js
 fetch_stitch_screens.js
+
+# Ferramentas locais de agente / preview (não pertencem ao app)
+.claude/
+.agents/
+skills-lock.json

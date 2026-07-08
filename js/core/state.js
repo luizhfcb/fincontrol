@@ -25,4 +25,7 @@ export const state = {
   editingTxId: null,
   // Feature: dia selecionado no mapa de calor de despesas
   heatmapSelectedDay: new Date().getDate(),
+  // Feature: blocos de relatório expansíveis (false = minimizado)
+  heatmapExpanded: false,
+  chartExpanded: false,
 };
