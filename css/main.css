@@ -2895,3 +2895,93 @@ body.logged-out .d-main {
     justify-content:flex-end;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   REDESIGN — bloco final e autoritativo para o app mobile
+   O arquivo acima tem várias regras @media(max-width:767px) duplicadas ao
+   longo do tempo, competindo entre si (algumas com !important). Em vez de
+   caçar cada uma, este bloco fica de propósito por último — assim ele é a
+   versão que realmente vale, sem precisar reescrever o arquivo inteiro.
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+  [data-theme="light"] {
+    --bg:#eef1ec;
+    --bg2:#ffffff;
+    --bg3:#e6ece5;
+    --card:#ffffff;
+    --card2:#f3f6f2;
+    --border:rgba(20,35,27,.10);
+    --border2:rgba(22,163,74,.22);
+    --text:#1b2019;
+    --text2:rgba(27,32,25,.62);
+    --text3:rgba(27,32,25,.40);
+    --accent:#18bf60;
+    --accent-strong:#06a84f;
+    --accent-bg:rgba(24,191,96,.10);
+    --green:#0f9d52;
+    --green-bg:rgba(15,157,82,.10);
+    --red:#e0323f;
+    --red-bg:rgba(224,50,63,.10);
+    --shadow-soft:0 10px 26px rgba(20,30,22,.12);
+  }
+
+  /* Respiro suficiente para o FAB nunca tampar o último item da lista */
+  .m-scroller { padding-bottom: calc(env(safe-area-inset-bottom,0px) + 150px) !important; }
+  .fab-wrap { bottom: calc(env(safe-area-inset-bottom,0px) + 96px) !important; }
+
+  /* Card de saldo com identidade própria — em vez de texto solto no fundo */
+  .m-balance-hero {
+    position: relative;
+    text-align: left;
+    padding: 22px 20px !important;
+    border-radius: 26px !important;
+    background: linear-gradient(160deg, rgba(24,191,96,.14), var(--card) 65%) !important;
+    border: 1px solid var(--border2) !important;
+    box-shadow: var(--shadow-soft) !important;
+    overflow: hidden;
+  }
+  [data-theme="dark"] .m-balance-hero {
+    background: linear-gradient(160deg, rgba(87,167,255,.14), var(--card) 65%) !important;
+  }
+
+  /* Cards de resumo: fundo neutro + faixa de cor à esquerda, no lugar do
+     preenchimento colorido inteiro (que ficava "gritando" na tela) */
+  .m-summary-card {
+    background: var(--card) !important;
+    border: 1px solid var(--border) !important;
+    border-left: 3px solid var(--border) !important;
+    box-shadow: var(--shadow-soft) !important;
+  }
+  .m-summary-card.income { border-left-color: var(--green) !important; }
+  .m-summary-card.expense { border-left-color: var(--red) !important; }
+  .m-summary-card.balance:has(strong.negative) { border-left-color: var(--red) !important; }
+  .m-summary-card.balance:has(strong.positive) { border-left-color: var(--green) !important; }
+
+  .m-summary-card.balance i { background: var(--accent-bg); color: var(--accent-strong); }
+  .m-summary-card.balance:has(strong.negative) i { background: var(--red-bg); color: var(--red); }
+  .m-summary-card.balance:has(strong.positive) i { background: var(--green-bg); color: var(--green); }
+
+  /* Transações: mesma lógica — cartão neutro, cor só no ícone/valor/faixa */
+  [data-theme="light"] .tx-card.income,
+  [data-theme="light"] .tx-card.expense,
+  [data-theme="dark"] .tx-card.income,
+  [data-theme="dark"] .tx-card.expense {
+    background: var(--card) !important;
+    border: 1px solid var(--border) !important;
+  }
+  .tx-card { border-left: 3px solid var(--border) !important; }
+  .tx-card.income { border-left-color: var(--green) !important; }
+  .tx-card.expense { border-left-color: var(--red) !important; }
+
+  /* Cards de conteúdo (gráfico, mapa de calor, listas) com elevação real */
+  .m-card, .chart-card, .expense-heatmap-card, .group-section, .m-stat-mini {
+    background: var(--card) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: var(--shadow-soft) !important;
+    border-radius: 20px !important;
+  }
+
+  .m-topbar { box-shadow: 0 4px 16px rgba(20,30,22,.06); }
+  .avatar-btn { box-shadow: 0 6px 16px rgba(24,191,96,.18); }
+}

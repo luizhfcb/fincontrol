@@ -1,0 +1,122 @@
+From 6d6bd62fbf8cee8295c46fb8eac44ebad911e314 Mon Sep 17 00:00:00 2001
+From: Claude <assistant@claude.local>
+Date: Wed, 8 Jul 2026 03:20:15 +0000
+Subject: [PATCH] Rework visual do mobile: cards neutros com faixa de cor, hero
+ de saldo com identidade, resolve cascata de CSS duplicada
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Problema encontrado: havia 5 blocos @media(max-width:767px) diferentes espalhados pelo arquivo, alguns com !important, brigando entre si — por isso patches anteriores (contraste, FAB) não estavam surtindo efeito nas telas reais, mesmo corretos no código.
+
+Solução: bloco final consolidado ao fim do arquivo, que vale por último e cobre:
+- Card de saldo com fundo em gradiente e sombra (tinha virado texto solto sem cartão)
+- Cards de resumo/transações: removido preenchimento colorido no cartão inteiro (verde/vermelho tomando a tela toda), agora fundo neutro + faixa de cor lateral + ícone colorido — o mesmo padrão usado por apps como Nubank/Oinc
+- Ícone/faixa do card Saldo do Mês agora reflete o sinal real (positivo/negativo) via :has(), não fica sempre verde
+- Espaço inferior do scroller e posição do FAB corrigidos de vez (o valor que realmente estava valendo era outro, mais raso, escondido nos blocos duplicados)
+- Paleta com mais contraste entre fundo e cartão
+---
+ css/main.css | 90 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 90 insertions(+)
+
+diff --git a/css/main.css b/css/main.css
+index bbd5d03..dfee99e 100644
+--- a/css/main.css
++++ b/css/main.css
+@@ -2895,3 +2895,93 @@ body.logged-out .d-main {
+     justify-content:flex-end;
+   }
+ }
++
++/* ══════════════════════════════════════════════════════════════════════════
++   REDESIGN — bloco final e autoritativo para o app mobile
++   O arquivo acima tem várias regras @media(max-width:767px) duplicadas ao
++   longo do tempo, competindo entre si (algumas com !important). Em vez de
++   caçar cada uma, este bloco fica de propósito por último — assim ele é a
++   versão que realmente vale, sem precisar reescrever o arquivo inteiro.
++   ══════════════════════════════════════════════════════════════════════════ */
++@media (max-width: 767px) {
++
++  [data-theme="light"] {
++    --bg:#eef1ec;
++    --bg2:#ffffff;
++    --bg3:#e6ece5;
++    --card:#ffffff;
++    --card2:#f3f6f2;
++    --border:rgba(20,35,27,.10);
++    --border2:rgba(22,163,74,.22);
++    --text:#1b2019;
++    --text2:rgba(27,32,25,.62);
++    --text3:rgba(27,32,25,.40);
++    --accent:#18bf60;
++    --accent-strong:#06a84f;
++    --accent-bg:rgba(24,191,96,.10);
++    --green:#0f9d52;
++    --green-bg:rgba(15,157,82,.10);
++    --red:#e0323f;
++    --red-bg:rgba(224,50,63,.10);
++    --shadow-soft:0 10px 26px rgba(20,30,22,.12);
++  }
++
++  /* Respiro suficiente para o FAB nunca tampar o último item da lista */
++  .m-scroller { padding-bottom: calc(env(safe-area-inset-bottom,0px) + 150px) !important; }
++  .fab-wrap { bottom: calc(env(safe-area-inset-bottom,0px) + 96px) !important; }
++
++  /* Card de saldo com identidade própria — em vez de texto solto no fundo */
++  .m-balance-hero {
++    position: relative;
++    text-align: left;
++    padding: 22px 20px !important;
++    border-radius: 26px !important;
++    background: linear-gradient(160deg, rgba(24,191,96,.14), var(--card) 65%) !important;
++    border: 1px solid var(--border2) !important;
++    box-shadow: var(--shadow-soft) !important;
++    overflow: hidden;
++  }
++  [data-theme="dark"] .m-balance-hero {
++    background: linear-gradient(160deg, rgba(87,167,255,.14), var(--card) 65%) !important;
++  }
++
++  /* Cards de resumo: fundo neutro + faixa de cor à esquerda, no lugar do
++     preenchimento colorido inteiro (que ficava "gritando" na tela) */
++  .m-summary-card {
++    background: var(--card) !important;
++    border: 1px solid var(--border) !important;
++    border-left: 3px solid var(--border) !important;
++    box-shadow: var(--shadow-soft) !important;
++  }
++  .m-summary-card.income { border-left-color: var(--green) !important; }
++  .m-summary-card.expense { border-left-color: var(--red) !important; }
++  .m-summary-card.balance:has(strong.negative) { border-left-color: var(--red) !important; }
++  .m-summary-card.balance:has(strong.positive) { border-left-color: var(--green) !important; }
++
++  .m-summary-card.balance i { background: var(--accent-bg); color: var(--accent-strong); }
++  .m-summary-card.balance:has(strong.negative) i { background: var(--red-bg); color: var(--red); }
++  .m-summary-card.balance:has(strong.positive) i { background: var(--green-bg); color: var(--green); }
++
++  /* Transações: mesma lógica — cartão neutro, cor só no ícone/valor/faixa */
++  [data-theme="light"] .tx-card.income,
++  [data-theme="light"] .tx-card.expense,
++  [data-theme="dark"] .tx-card.income,
++  [data-theme="dark"] .tx-card.expense {
++    background: var(--card) !important;
++    border: 1px solid var(--border) !important;
++  }
++  .tx-card { border-left: 3px solid var(--border) !important; }
++  .tx-card.income { border-left-color: var(--green) !important; }
++  .tx-card.expense { border-left-color: var(--red) !important; }
++
++  /* Cards de conteúdo (gráfico, mapa de calor, listas) com elevação real */
++  .m-card, .chart-card, .expense-heatmap-card, .group-section, .m-stat-mini {
++    background: var(--card) !important;
++    border: 1px solid var(--border) !important;
++    box-shadow: var(--shadow-soft) !important;
++    border-radius: 20px !important;
++  }
++
++  .m-topbar { box-shadow: 0 4px 16px rgba(20,30,22,.06); }
++  .avatar-btn { box-shadow: 0 6px 16px rgba(24,191,96,.18); }
++}
+-- 
+2.43.0
+
