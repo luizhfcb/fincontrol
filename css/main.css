@@ -137,14 +137,13 @@ body.logged-out #desktop-app{display:none!important}
 .avatar-btn{width:34px;height:34px;border-radius:50%;background:var(--accent-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;color:var(--text);font-weight:800;flex-shrink:0}
 
 .m-hero{flex-shrink:0;padding:14px;border-bottom:1px solid var(--border);background:var(--card)}
-.m-balance-hero{position:relative;padding:22px 18px 18px;margin-bottom:16px;text-align:center;border-radius:28px;border:1px solid var(--border2);background:linear-gradient(165deg,var(--accent-bg) 0%,var(--card) 55%,var(--card) 100%);box-shadow:var(--shadow-soft);overflow:hidden}
-.m-balance-hero::before{content:"";position:absolute;inset:auto auto 0 0;width:220px;height:220px;background:radial-gradient(circle,rgba(255,255,255,.10),transparent 72%);filter:blur(10px);pointer-events:none}
+.m-balance-hero{padding:12px 6px 6px;margin-bottom:12px;text-align:center}
 .m-balance-hero label{font-size:11px;font-weight:700;letter-spacing:.09em;color:var(--text2);display:block}
-.m-period-switch{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;position:relative}
+.m-period-switch{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px}
 .m-period-switch #monthLabel{font-size:13px;color:var(--text2);min-width:110px;text-align:center}
-.m-balance-row{display:flex;align-items:flex-end;justify-content:center;gap:12px;position:relative}
-.m-balance-hero .big-val{font-size:56px;line-height:1;margin-top:8px;letter-spacing:-.03em}
-.m-balance-hero p{margin-top:8px;color:var(--text2);font-weight:600;position:relative}
+.m-balance-row{display:flex;align-items:flex-end;justify-content:center;gap:12px}
+.m-balance-hero .big-val{font-size:56px;line-height:1;margin-top:8px}
+.m-balance-hero p{margin-top:8px;color:var(--text2);font-weight:600}
 .m-badge{padding:6px 10px;border-radius:999px;font-weight:800;font-size:13px}
 .m-badge.positive{background:var(--green-bg);color:var(--green)}
 .m-badge.negative{background:var(--red-bg);color:var(--red)}
@@ -156,7 +155,7 @@ body.logged-out #desktop-app{display:none!important}
 .m-mini{border-radius:18px;padding:14px 14px}
 .m-mini .val,.d-mini .val{font-size:22px;font-weight:900;letter-spacing:-.04em}
 
-.m-scroller{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 14px calc(env(safe-area-inset-bottom,0px) + 148px)}
+.m-scroller{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 14px calc(env(safe-area-inset-bottom,0px) + 82px)}
 .m-scroller::-webkit-scrollbar{display:none}
 .m-page{display:none}.m-page.active{display:block}
 
@@ -330,8 +329,7 @@ body.logged-out #desktop-app{display:none!important}
 .tx-action-btn.edit:hover { color: var(--accent); background: var(--accent-bg); }
 .tx-action-btn.delete:hover { color: var(--red); background: var(--red-bg); }
 
-.empty{text-align:center;color:var(--text3);font-size:14px;padding:2.4rem 1rem;display:flex;flex-direction:column;align-items:center;gap:10px;border:1.5px dashed var(--border);border-radius:18px;background:rgba(255,255,255,.015)}
-.empty::before{content:"";width:38px;height:38px;border-radius:12px;background:var(--accent-bg);border:1px solid var(--border);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238ec5ff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 3v18h18'/%3E%3Cpath d='M7 15l4-5 3 3 5-7'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;background-size:18px}
+.empty{text-align:center;color:var(--text3);font-size:14px;padding:2rem 0}
 
 .chart-card{padding:18px}
 .chart-layout{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:18px;align-items:center}
@@ -1707,14 +1705,14 @@ body.logged-out .d-main {
    ═══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 767px) {
   [data-theme="light"] {
-    --bg:#eef1ea;
+    --bg:#f7f8f4;
     --bg2:#ffffff;
-    --bg3:#e7ede6;
+    --bg3:#eef4ee;
     --card:#ffffff;
     --card2:#f4f7f3;
     --surface:#ffffff;
-    --border:rgba(20,35,27,.10);
-    --border2:rgba(22,163,74,.22);
+    --border:rgba(20,35,27,.08);
+    --border2:rgba(22,163,74,.18);
     --text:#1f2420;
     --text2:rgba(31,36,32,.64);
     --text3:rgba(31,36,32,.42);
@@ -1725,8 +1723,8 @@ body.logged-out .d-main {
     --green-bg:rgba(22,184,95,.10);
     --red:#e9414d;
     --red-bg:rgba(233,65,77,.10);
-    --shadow:0 18px 48px rgba(27,40,31,.16);
-    --shadow-soft:0 10px 28px rgba(27,40,31,.13);
+    --shadow:0 18px 48px rgba(27,40,31,.12);
+    --shadow-soft:0 8px 24px rgba(27,40,31,.08);
   }
 
   #mobile-app {
@@ -2410,6 +2408,91 @@ body.logged-out .d-main {
   overflow:hidden;
 }
 
+/* ── Blocos de relatório expansíveis (Accordion) ─────────────────────────── */
+.report-toggle {
+  cursor:pointer;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .12s ease;
+}
+.report-toggle:active {
+  transform:scale(.995);
+}
+
+/* Cabeçalho tocável (uma linha: título à esquerda, chevron à direita) */
+.report-head {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.report-card > .report-head {
+  font-size:15px;
+  font-weight:800;
+  color:var(--text);
+}
+
+/* Chevron em badge circular */
+.report-chevron {
+  width:30px;
+  height:30px;
+  padding:7px;
+  box-sizing:border-box;
+  border-radius:50%;
+  background:rgba(120,124,150,.14);
+  border:1px solid var(--border);
+  fill:none;
+  stroke:var(--text);
+  stroke-width:2.4;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  flex-shrink:0;
+  transition:transform .3s cubic-bezier(.4,0,.2,1), background .2s ease;
+}
+.report-toggle:hover .report-chevron {
+  background:rgba(120,124,150,.24);
+}
+.report-toggle[aria-expanded="false"] .report-chevron {
+  transform:rotate(-90deg);
+}
+
+/*
+ * Colapso via grid-template-rows: 0fr = altura ZERO real (sem reservar espaço),
+ * 1fr = altura natural. Anima suave. Filho precisa de overflow:hidden/min-height:0.
+ */
+.collapse-shell {
+  display:grid;
+  grid-template-rows:1fr;
+  transition:grid-template-rows .4s cubic-bezier(.4,0,.2,1);
+}
+.collapse-shell.collapsed {
+  grid-template-rows:0fr;
+}
+.collapse-inner {
+  overflow:hidden;
+  min-height:0;
+  transition:opacity .3s ease;
+}
+.collapse-shell.collapsed .collapse-inner {
+  opacity:0;
+}
+
+/* Espaço entre cabeçalho e corpo somente quando aberto */
+.report-card > .collapse-shell:not(.collapsed),
+#mExpenseHeatmap .collapse-shell:not(.collapsed) {
+  margin-top:14px;
+}
+
+/* Head do heatmap: gap controlado pelo shell, sem margem própria */
+.heatmap-head.report-head {
+  margin-bottom:0;
+}
+.heatmap-head.report-head h3 {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+
 .heatmap-head {
   display:flex;
   align-items:flex-start;
@@ -2896,92 +2979,2440 @@ body.logged-out .d-main {
   }
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   REDESIGN — bloco final e autoritativo para o app mobile
-   O arquivo acima tem várias regras @media(max-width:767px) duplicadas ao
-   longo do tempo, competindo entre si (algumas com !important). Em vez de
-   caçar cada uma, este bloco fica de propósito por último — assim ele é a
-   versão que realmente vale, sem precisar reescrever o arquivo inteiro.
-   ══════════════════════════════════════════════════════════════════════════ */
+/* Mobile premium polish: Inicio + Transacoes */
 @media (max-width: 767px) {
-
   [data-theme="light"] {
-    --bg:#eef1ec;
+    --bg:#f5f7f2;
     --bg2:#ffffff;
-    --bg3:#e6ece5;
+    --bg3:#edf3ec;
     --card:#ffffff;
-    --card2:#f3f6f2;
-    --border:rgba(20,35,27,.10);
-    --border2:rgba(22,163,74,.22);
-    --text:#1b2019;
-    --text2:rgba(27,32,25,.62);
-    --text3:rgba(27,32,25,.40);
-    --accent:#18bf60;
-    --accent-strong:#06a84f;
-    --accent-bg:rgba(24,191,96,.10);
-    --green:#0f9d52;
-    --green-bg:rgba(15,157,82,.10);
-    --red:#e0323f;
-    --red-bg:rgba(224,50,63,.10);
-    --shadow-soft:0 10px 26px rgba(20,30,22,.12);
+    --card2:#f7faf5;
+    --surface:#ffffff;
+    --border:rgba(24,45,33,.085);
+    --border2:rgba(20,154,79,.22);
+    --text:#26312a;
+    --text2:rgba(38,49,42,.64);
+    --text3:rgba(38,49,42,.42);
+    --accent:#16b85d;
+    --accent-strong:#078541;
+    --accent-bg:rgba(22,184,93,.095);
+    --green:#08964a;
+    --green-bg:rgba(8,150,74,.105);
+    --red:#d73a44;
+    --red-bg:rgba(215,58,68,.09);
+    --shadow-soft:0 14px 34px rgba(31,52,39,.085);
   }
 
-  /* Respiro suficiente para o FAB nunca tampar o último item da lista */
-  .m-scroller { padding-bottom: calc(env(safe-area-inset-bottom,0px) + 150px) !important; }
-  .fab-wrap { bottom: calc(env(safe-area-inset-bottom,0px) + 96px) !important; }
-
-  /* Card de saldo com identidade própria — em vez de texto solto no fundo */
-  .m-balance-hero {
-    position: relative;
-    text-align: left;
-    padding: 22px 20px !important;
-    border-radius: 26px !important;
-    background: linear-gradient(160deg, rgba(24,191,96,.14), var(--card) 65%) !important;
-    border: 1px solid var(--border2) !important;
-    box-shadow: var(--shadow-soft) !important;
-    overflow: hidden;
+  [data-theme="dark"] {
+    --bg:#07111d;
+    --bg2:#0b1624;
+    --bg3:#111f31;
+    --card:#0f1b2c;
+    --card2:#142238;
+    --surface:#101d2f;
+    --border:rgba(151,188,229,.105);
+    --border2:rgba(92,199,136,.24);
+    --text:#e8f1fb;
+    --text2:rgba(232,241,251,.68);
+    --text3:rgba(232,241,251,.44);
+    --accent:#5bd98e;
+    --accent-strong:#7be6a8;
+    --accent-bg:rgba(91,217,142,.12);
+    --green:#5bd98e;
+    --green-bg:rgba(91,217,142,.13);
+    --red:#ff8e96;
+    --red-bg:rgba(255,142,150,.12);
+    --shadow-soft:0 18px 44px rgba(0,0,0,.28);
   }
-  [data-theme="dark"] .m-balance-hero {
-    background: linear-gradient(160deg, rgba(87,167,255,.14), var(--card) 65%) !important;
+
+  #mobile-app {
+    background:
+      radial-gradient(circle at 18% -8%, rgba(22,184,93,.16), transparent 30%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg2) 48%, var(--bg) 100%);
   }
 
-  /* Cards de resumo: fundo neutro + faixa de cor à esquerda, no lugar do
-     preenchimento colorido inteiro (que ficava "gritando" na tela) */
+  [data-theme="dark"] #mobile-app {
+    background:
+      radial-gradient(circle at 18% -8%, rgba(91,217,142,.13), transparent 30%),
+      linear-gradient(180deg, #07111d 0%, #0a1422 52%, #07111d 100%);
+  }
+
+  .m-topbar {
+    background:rgba(255,255,255,.82);
+    border-bottom:1px solid rgba(24,45,33,.06);
+    box-shadow:0 10px 24px rgba(31,52,39,.06);
+    backdrop-filter:blur(18px);
+  }
+
+  [data-theme="dark"] .m-topbar {
+    background:rgba(7,17,29,.82);
+    border-bottom-color:rgba(151,188,229,.08);
+    box-shadow:none;
+  }
+
+  .m-scroller {
+    background:transparent;
+    padding:18px 16px calc(env(safe-area-inset-bottom,0px) + 136px);
+  }
+
+  .m-home-headline {
+    padding:2px 2px 0;
+    margin-bottom:16px;
+  }
+
+  .m-home-headline strong {
+    font-size:26px;
+    font-weight:780;
+    color:var(--text);
+  }
+
+  .m-greeting {
+    color:var(--accent-strong);
+    letter-spacing:.01em;
+  }
+
+  .m-period-switch {
+    padding:5px;
+    border-radius:18px;
+    background:rgba(255,255,255,.86);
+    border:1px solid var(--border);
+    box-shadow:0 12px 26px rgba(31,52,39,.07);
+  }
+
+  [data-theme="dark"] .m-period-switch {
+    background:rgba(15,27,44,.86);
+    box-shadow:none;
+  }
+
+  .m-summary-stack {
+    gap:12px;
+  }
+
   .m-summary-card {
-    background: var(--card) !important;
-    border: 1px solid var(--border) !important;
-    border-left: 3px solid var(--border) !important;
-    box-shadow: var(--shadow-soft) !important;
+    min-height:88px;
+    padding:18px 72px 18px 18px;
+    border-radius:24px;
+    box-shadow:var(--shadow-soft);
   }
-  .m-summary-card.income { border-left-color: var(--green) !important; }
-  .m-summary-card.expense { border-left-color: var(--red) !important; }
-  .m-summary-card.balance:has(strong.negative) { border-left-color: var(--red) !important; }
-  .m-summary-card.balance:has(strong.positive) { border-left-color: var(--green) !important; }
 
-  .m-summary-card.balance i { background: var(--accent-bg); color: var(--accent-strong); }
-  .m-summary-card.balance:has(strong.negative) i { background: var(--red-bg); color: var(--red); }
-  .m-summary-card.balance:has(strong.positive) i { background: var(--green-bg); color: var(--green); }
+  .m-summary-card.income,
+  .m-summary-card.balance {
+    background:linear-gradient(145deg, rgba(22,184,93,.11), rgba(255,255,255,.96) 58%);
+  }
 
-  /* Transações: mesma lógica — cartão neutro, cor só no ícone/valor/faixa */
+  .m-summary-card.expense {
+    background:linear-gradient(145deg, rgba(215,58,68,.105), rgba(255,255,255,.96) 58%);
+  }
+
+  [data-theme="dark"] .m-summary-card.income,
+  [data-theme="dark"] .m-summary-card.balance {
+    background:linear-gradient(145deg, rgba(91,217,142,.13), rgba(15,27,44,.98) 58%);
+  }
+
+  [data-theme="dark"] .m-summary-card.expense {
+    background:linear-gradient(145deg, rgba(255,142,150,.13), rgba(15,27,44,.98) 58%);
+  }
+
+  .m-summary-card span {
+    font-size:12px;
+    letter-spacing:.01em;
+  }
+
+  .m-summary-card strong {
+    font-size:25px;
+  }
+
+  .m-summary-card i {
+    right:18px;
+    width:40px;
+    height:40px;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.36);
+  }
+
+  .sec-title {
+    margin:22px 2px 12px;
+    font-size:19px;
+  }
+
+  .m-card,
+  .expense-heatmap-card,
+  .m-stat-mini {
+    border-radius:24px;
+    border:1px solid var(--border);
+    box-shadow:var(--shadow-soft);
+  }
+
+  .chart-card,
+  .expense-heatmap-card {
+    background:rgba(255,255,255,.88);
+  }
+
+  [data-theme="dark"] .chart-card,
+  [data-theme="dark"] .expense-heatmap-card {
+    background:rgba(15,27,44,.9);
+  }
+
+  #mp-transactions .sec-title {
+    margin-top:8px;
+    margin-bottom:14px;
+  }
+
+  .tx-controls-wrap {
+    margin-bottom:16px;
+  }
+
+  .tx-controls {
+    gap:10px;
+    padding:12px;
+    border:1px solid var(--border);
+    border-radius:24px;
+    background:rgba(255,255,255,.82);
+    box-shadow:var(--shadow-soft);
+  }
+
+  [data-theme="dark"] .tx-controls {
+    background:rgba(15,27,44,.9);
+  }
+
+  .tx-topbar {
+    margin-bottom:0;
+    gap:8px;
+  }
+
+  .dash-view-pill,
+  .tx-group-toggle {
+    min-height:40px;
+    border-radius:16px;
+    background:var(--card2);
+    border-color:var(--border);
+    color:var(--text);
+  }
+
+  .dash-view-pill.income,
+  .tx-type-pill.income {
+    color:var(--green);
+    background:var(--green-bg);
+    border-color:rgba(8,150,74,.18);
+  }
+
+  .dash-view-pill.expense,
+  .tx-type-pill.expense {
+    color:var(--red);
+    background:var(--red-bg);
+    border-color:rgba(215,58,68,.18);
+  }
+
+  .tx-group-toggle.active {
+    color:var(--accent-strong);
+    background:var(--accent-bg);
+    border-color:var(--border2);
+  }
+
+  .tx-search-wrap {
+    box-shadow:none;
+    background:transparent;
+  }
+
+  .tx-search-input {
+    min-height:44px;
+    border-radius:16px;
+    background:var(--card2) !important;
+    border-color:var(--border);
+  }
+
+  .tx-search-input:focus {
+    border-color:var(--border2);
+    box-shadow:0 0 0 4px var(--accent-bg);
+  }
+
+  .tx-flat-list {
+    gap:12px;
+  }
+
+  .tx-card {
+    padding:16px;
+    border-radius:24px;
+    box-shadow:var(--shadow-soft);
+  }
+
+  [data-theme="light"] .tx-card.income {
+    background:linear-gradient(145deg, rgba(22,184,93,.085), rgba(255,255,255,.98) 54%);
+  }
+
+  [data-theme="light"] .tx-card.expense {
+    background:linear-gradient(145deg, rgba(215,58,68,.075), rgba(255,255,255,.98) 54%);
+  }
+
+  [data-theme="dark"] .tx-card.income {
+    background:linear-gradient(145deg, rgba(91,217,142,.11), rgba(15,27,44,.98) 54%);
+  }
+
+  [data-theme="dark"] .tx-card.expense {
+    background:linear-gradient(145deg, rgba(255,142,150,.105), rgba(15,27,44,.98) 54%);
+  }
+
+  .tx-card-title .tx-name {
+    font-size:15px;
+    font-weight:720;
+  }
+
+  .tx-card-ico {
+    width:28px;
+    height:28px;
+    border-radius:12px;
+    background:rgba(255,255,255,.62);
+  }
+
+  [data-theme="dark"] .tx-card-ico {
+    background:rgba(255,255,255,.06);
+  }
+
+  .tx-card-middle,
+  .tx-card-date {
+    padding-left:37px;
+  }
+
+  .tx-cat-badge {
+    padding:6px 10px;
+    border-radius:999px;
+    background:rgba(255,255,255,.7);
+  }
+
+  [data-theme="dark"] .tx-cat-badge {
+    background:rgba(255,255,255,.06);
+  }
+
+  .tx-action-btn {
+    width:34px;
+    height:34px;
+    background:rgba(255,255,255,.52);
+  }
+
+  [data-theme="dark"] .tx-action-btn {
+    background:rgba(255,255,255,.055);
+  }
+
+  .m-bottomnav {
+    border-radius:26px;
+    background:rgba(255,255,255,.9);
+    box-shadow:0 -12px 34px rgba(31,52,39,.12);
+    backdrop-filter:blur(18px);
+  }
+
+  [data-theme="dark"] .m-bottomnav {
+    background:rgba(12,22,36,.92);
+    box-shadow:0 -18px 38px rgba(0,0,0,.26);
+  }
+
+  .nbtn {
+    border-radius:18px;
+  }
+
+  .nbtn.on {
+    background:var(--accent-bg);
+    color:var(--accent-strong);
+  }
+
+  .fab {
+    border-radius:24px;
+    background:linear-gradient(145deg,#2be27b,#06994a);
+    box-shadow:0 18px 34px rgba(6,153,74,.32), 0 0 0 8px rgba(255,255,255,.72);
+  }
+
+  [data-theme="dark"] .fab {
+    box-shadow:0 18px 34px rgba(6,153,74,.24), 0 0 0 8px rgba(7,17,29,.72);
+  }
+}
+
+/* Mobile Material neon direction: #29D6FF / #12384D / #081522 / #000 / #fff */
+@media (max-width: 767px) {
+  [data-theme="light"],
+  [data-theme="dark"] {
+    --bg:#000000;
+    --bg2:#081522;
+    --bg3:#12384D;
+    --card:#12384D;
+    --card2:#0b2233;
+    --surface:#12384D;
+    --border:rgba(41,214,255,.18);
+    --border2:rgba(41,214,255,.42);
+    --text:#FFFFFF;
+    --text2:rgba(255,255,255,.72);
+    --text3:rgba(255,255,255,.46);
+    --accent:#29D6FF;
+    --accent-strong:#29D6FF;
+    --accent-bg:rgba(41,214,255,.16);
+    --green:#29D6FF;
+    --green-bg:rgba(41,214,255,.14);
+    --red:#FFFFFF;
+    --red-bg:rgba(255,255,255,.08);
+    --amber:#29D6FF;
+    --amber-bg:rgba(41,214,255,.10);
+    --shadow:0 28px 70px rgba(0,0,0,.55);
+    --shadow-soft:0 16px 36px rgba(0,0,0,.34);
+  }
+
+  body,
+  #mobile-app {
+    color:var(--text);
+    background:
+      radial-gradient(circle at 20% -10%, rgba(41,214,255,.22), transparent 32%),
+      linear-gradient(180deg,#000000 0%,#081522 34%,#000000 100%) !important;
+  }
+
+  .m-topbar {
+    background:rgba(0,0,0,.74) !important;
+    border-bottom:1px solid rgba(41,214,255,.12) !important;
+    box-shadow:none !important;
+    backdrop-filter:blur(22px);
+  }
+
+  .m-topbar-inner {
+    padding:16px 0 14px;
+  }
+
+  .avatar-btn,
+  .icon-btn {
+    color:#FFFFFF !important;
+    background:#12384D !important;
+    border:1px solid rgba(41,214,255,.22) !important;
+    box-shadow:0 8px 22px rgba(0,0,0,.22);
+  }
+
+  .m-profile-copy strong {
+    color:#FFFFFF !important;
+    font-size:20px;
+    letter-spacing:-.03em;
+  }
+
+  .m-profile-copy span,
+  .m-profile-copy em,
+  .sync-indicator,
+  #mMonthSync {
+    color:rgba(255,255,255,.64) !important;
+  }
+
+  .sync-dot {
+    background:#29D6FF;
+    box-shadow:0 0 0 4px rgba(41,214,255,.14), 0 0 18px rgba(41,214,255,.55);
+  }
+
+  .m-scroller {
+    background:transparent !important;
+    padding:20px 16px calc(env(safe-area-inset-bottom,0px) + 138px);
+  }
+
+  .m-balance-hero {
+    padding:0;
+    margin-bottom:18px;
+  }
+
+  .m-home-headline {
+    align-items:flex-start;
+    text-align:left;
+    gap:12px;
+    margin-bottom:16px;
+    padding:0 2px;
+  }
+
+  .m-home-headline strong,
+  .sec-title,
+  [data-theme="light"] #mobile-app .m-home-headline strong,
+  [data-theme="light"] #mobile-app .sec-title {
+    color:#FFFFFF !important;
+  }
+
+  .m-home-headline strong {
+    font-size:28px;
+    font-weight:800;
+    line-height:1.05;
+  }
+
+  .m-greeting,
+  [data-theme="light"] #mobile-app .m-greeting {
+    color:#29D6FF !important;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  .m-period-switch,
+  .dash-view-pill,
+  .tx-group-toggle,
+  .tx-type-pill {
+    min-height:42px;
+    border-radius:999px;
+    background:#12384D !important;
+    border:1px solid rgba(41,214,255,.22) !important;
+    color:#FFFFFF !important;
+    box-shadow:0 10px 26px rgba(0,0,0,.28);
+  }
+
+  .m-period-switch {
+    width:100%;
+    justify-content:space-between;
+    margin:0 0 14px;
+    padding:6px;
+  }
+
+  .m-period-switch #monthLabel,
+  [data-theme="light"] #mobile-app #monthLabel {
+    color:#FFFFFF !important;
+    font-weight:700;
+  }
+
+  .mnbtn {
+    width:34px;
+    height:34px;
+    background:#081522 !important;
+    border:1px solid rgba(41,214,255,.16) !important;
+    color:#29D6FF !important;
+  }
+
+  .m-home-headline .dash-view-wrap {
+    width:100%;
+    justify-content:flex-start;
+  }
+
+  .dash-view-pill.income,
+  .dash-view-pill.expense,
+  .tx-type-pill.income,
+  .tx-type-pill.expense,
+  .tx-group-toggle.active {
+    background:#29D6FF !important;
+    border-color:#29D6FF !important;
+    color:#000000 !important;
+  }
+
+  .dvp-arrow path,
+  .dvp-svg path,
+  .dvp-svg polyline,
+  .tx-group-toggle svg path,
+  .tx-group-toggle svg rect {
+    stroke:currentColor;
+  }
+
+  .dash-view-dropdown {
+    background:#081522 !important;
+    border:1px solid rgba(41,214,255,.22) !important;
+    box-shadow:0 22px 48px rgba(0,0,0,.48) !important;
+  }
+
+  .dv-option {
+    color:rgba(255,255,255,.72) !important;
+  }
+
+  .dv-option:hover,
+  .dv-option.active {
+    background:rgba(41,214,255,.14) !important;
+    color:#FFFFFF !important;
+  }
+
+  .m-summary-stack {
+    gap:12px;
+  }
+
+  .m-summary-card,
+  .m-summary-card.income,
+  .m-summary-card.expense,
+  .m-summary-card.balance,
+  [data-theme="dark"] .m-summary-card.income,
+  [data-theme="dark"] .m-summary-card.expense,
+  [data-theme="dark"] .m-summary-card.balance {
+    min-height:92px;
+    padding:20px 74px 18px 18px;
+    border-radius:28px;
+    background:linear-gradient(145deg,rgba(18,56,77,.96),rgba(8,21,34,.94)) !important;
+    border:1px solid rgba(41,214,255,.2) !important;
+    box-shadow:0 18px 36px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.04) !important;
+  }
+
+  .m-summary-card span,
+  [data-theme="light"] #mobile-app .m-summary-card span {
+    color:rgba(255,255,255,.64) !important;
+    font-size:12px;
+    font-weight:600;
+  }
+
+  .m-summary-card strong,
+  .m-summary-card.expense strong,
+  .m-summary-card.balance strong,
+  .m-summary-card.balance strong.negative,
+  [data-theme="light"] #mobile-app .m-summary-card.income strong,
+  [data-theme="light"] #mobile-app .m-summary-card.balance strong.positive {
+    color:#FFFFFF !important;
+    font-size:26px;
+    font-weight:800;
+  }
+
+  .m-summary-card i,
+  .m-summary-card.expense i {
+    right:18px;
+    width:42px;
+    height:42px;
+    color:#000000 !important;
+    background:#29D6FF !important;
+    box-shadow:0 0 24px rgba(41,214,255,.42);
+  }
+
+  .sec-title {
+    margin:24px 2px 12px;
+    font-size:20px;
+    font-weight:750;
+  }
+
+  .m-card,
+  .chart-card,
+  .expense-heatmap-card,
+  .m-stat-mini,
+  .group-section,
+  .mobile-entry-card,
+  .mobile-module-hero,
+  [data-theme="light"] .m-card,
+  [data-theme="light"] .group-section,
+  [data-theme="light"] .m-stat-mini {
+    background:#12384D !important;
+    border:1px solid rgba(41,214,255,.18) !important;
+    border-radius:28px !important;
+    box-shadow:0 16px 34px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.04) !important;
+    color:#FFFFFF !important;
+  }
+
+  .m-stat-mini span,
+  [data-theme="light"] #mobile-app .legend-meta,
+  [data-theme="light"] #mobile-app .donut-hole span,
+  [data-theme="light"] #mobile-app .donut-hole small,
+  .legend-meta,
+  .donut-hole span,
+  .donut-hole small,
+  .heatmap-head span,
+  .heatmap-total small,
+  .heatmap-detail-top span,
+  .heatmap-list-row small {
+    color:rgba(255,255,255,.62) !important;
+  }
+
+  .m-stat-mini strong,
+  .legend-name,
+  .donut-hole strong,
+  .heatmap-head h3,
+  .heatmap-total strong,
+  .heatmap-detail-top strong,
+  .heatmap-list-row strong,
+  [data-theme="light"] #mobile-app .legend-name,
+  [data-theme="light"] #mobile-app .donut-hole strong {
+    color:#FFFFFF !important;
+  }
+
+  .legend-value,
+  .legend-value.positive,
+  .legend-value.negative,
+  [data-theme="light"] #mobile-app .legend-value.positive,
+  [data-theme="light"] #mobile-app .legend-value.negative {
+    color:#29D6FF !important;
+  }
+
+  .heatmap-day.level-0 {
+    background:#081522 !important;
+    color:rgba(255,255,255,.5) !important;
+  }
+
+  .heatmap-day.level-1,
+  .heatmap-day.level-2,
+  .heatmap-day.level-3,
+  .heatmap-day.level-4 {
+    background:#29D6FF !important;
+    color:#000000 !important;
+  }
+
+  #mp-transactions .sec-title {
+    margin-top:8px;
+  }
+
+  .tx-controls {
+    gap:12px;
+    padding:14px;
+    border-radius:28px;
+    background:#12384D !important;
+    border:1px solid rgba(41,214,255,.2) !important;
+    box-shadow:0 16px 34px rgba(0,0,0,.34) !important;
+  }
+
+  .tx-topbar {
+    gap:10px;
+  }
+
+  .tx-search-wrap {
+    background:transparent !important;
+    box-shadow:none !important;
+  }
+
+  .tx-search-icon,
+  .tx-search-clear {
+    color:rgba(255,255,255,.56) !important;
+  }
+
+  .tx-search-input,
+  [data-theme="light"] #mobile-app .tx-search-input {
+    min-height:48px;
+    background:#081522 !important;
+    border:1px solid rgba(41,214,255,.18) !important;
+    border-radius:18px;
+    color:#FFFFFF !important;
+    font-weight:600;
+  }
+
+  .tx-search-input::placeholder,
+  [data-theme="light"] #mobile-app .tx-search-input::placeholder {
+    color:rgba(255,255,255,.42) !important;
+  }
+
+  .tx-search-input:focus {
+    border-color:#29D6FF !important;
+    box-shadow:0 0 0 4px rgba(41,214,255,.14) !important;
+  }
+
+  #mAllTxList.m-card,
+  #mTxList.m-card {
+    background:transparent !important;
+    border:none !important;
+    box-shadow:none !important;
+  }
+
+  .tx-flat-list {
+    gap:12px;
+  }
+
+  .tx-card,
+  .tx-card.income,
+  .tx-card.expense,
   [data-theme="light"] .tx-card.income,
   [data-theme="light"] .tx-card.expense,
   [data-theme="dark"] .tx-card.income,
   [data-theme="dark"] .tx-card.expense {
-    background: var(--card) !important;
-    border: 1px solid var(--border) !important;
-  }
-  .tx-card { border-left: 3px solid var(--border) !important; }
-  .tx-card.income { border-left-color: var(--green) !important; }
-  .tx-card.expense { border-left-color: var(--red) !important; }
-
-  /* Cards de conteúdo (gráfico, mapa de calor, listas) com elevação real */
-  .m-card, .chart-card, .expense-heatmap-card, .group-section, .m-stat-mini {
-    background: var(--card) !important;
-    border: 1px solid var(--border) !important;
-    box-shadow: var(--shadow-soft) !important;
-    border-radius: 20px !important;
+    padding:16px;
+    border-radius:28px;
+    background:linear-gradient(145deg,rgba(18,56,77,.98),rgba(8,21,34,.96)) !important;
+    border:1px solid rgba(41,214,255,.18) !important;
+    box-shadow:0 16px 32px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.04) !important;
   }
 
-  .m-topbar { box-shadow: 0 4px 16px rgba(20,30,22,.06); }
-  .avatar-btn { box-shadow: 0 6px 16px rgba(24,191,96,.18); }
+  .tx-card-title .tx-name,
+  [data-theme="light"] #mobile-app .tx-card-title .tx-name {
+    color:#FFFFFF !important;
+    font-size:15px;
+    font-weight:720;
+  }
+
+  .tx-card-ico,
+  .tx-card-ico.income,
+  .tx-card-ico.expense,
+  [data-theme="light"] .tx-card-ico,
+  [data-theme="light"] .tx-card-ico.income,
+  [data-theme="light"] .tx-card-ico.expense {
+    width:30px;
+    height:30px;
+    border-radius:14px;
+    background:#29D6FF !important;
+    border:none !important;
+    color:#000000 !important;
+    box-shadow:0 0 22px rgba(41,214,255,.28);
+  }
+
+  .tx-card-ico svg,
+  .tx-card-ico.income svg,
+  .tx-card-ico.expense svg {
+    color:#000000 !important;
+  }
+
+  .tx-card-amt,
+  .tx-card-amt.positive,
+  .tx-card-amt.negative,
+  [data-theme="light"] #mobile-app .tx-card-amt.positive,
+  [data-theme="light"] #mobile-app .tx-card-amt.negative {
+    color:#FFFFFF !important;
+    font-weight:800;
+  }
+
+  .tx-card-middle,
+  .tx-card-date {
+    padding-left:40px;
+  }
+
+  .tx-cat-badge,
+  .tx-cat-badge.income,
+  .tx-cat-badge.expense,
+  [data-theme="light"] .tx-cat-badge.income,
+  [data-theme="light"] .tx-cat-badge.expense {
+    padding:6px 11px;
+    border-radius:999px;
+    background:rgba(41,214,255,.11) !important;
+    color:#29D6FF !important;
+    border:1px solid rgba(41,214,255,.16);
+  }
+
+  .tx-card-date,
+  [data-theme="light"] #mobile-app .tx-card-date {
+    color:rgba(255,255,255,.58) !important;
+  }
+
+  .tx-action-btn,
+  .tx-action-btn.delete {
+    width:36px;
+    height:36px;
+    color:rgba(255,255,255,.68) !important;
+    background:rgba(255,255,255,.06) !important;
+  }
+
+  .tx-action-btn:hover,
+  .tx-action-btn.delete:hover {
+    color:#000000 !important;
+    background:#29D6FF !important;
+  }
+
+  .group-head,
+  [data-theme="light"] .group-head {
+    background:#081522 !important;
+  }
+
+  .group-icon,
+  [data-theme="light"] .group-icon {
+    background:#29D6FF !important;
+    color:#000000 !important;
+    border:none !important;
+  }
+
+  .group-title,
+  .group-total {
+    color:#FFFFFF !important;
+  }
+
+  .group-meta {
+    color:rgba(255,255,255,.56) !important;
+  }
+
+  .m-bottomnav {
+    left:14px;
+    right:14px;
+    bottom:10px;
+    border-radius:30px;
+    background:rgba(8,21,34,.92) !important;
+    border:1px solid rgba(41,214,255,.18) !important;
+    box-shadow:0 -18px 42px rgba(0,0,0,.45) !important;
+    backdrop-filter:blur(22px);
+  }
+
+  .nbtn,
+  [data-theme="light"] .nbtn,
+  [data-theme="light"] #mobile-app .nbtn {
+    color:rgba(255,255,255,.54) !important;
+    border-radius:22px;
+  }
+
+  .nbtn.on,
+  .nbtn.on .ni,
+  [data-theme="light"] .nbtn.on,
+  [data-theme="light"] .nbtn.on .ni,
+  [data-theme="light"] #mobile-app .nbtn.on,
+  [data-theme="light"] #mobile-app .nbtn.on .ni {
+    color:#000000 !important;
+    background:#29D6FF !important;
+  }
+
+  .fab {
+    width:62px;
+    height:62px;
+    border-radius:24px;
+    color:#000000 !important;
+    background:#29D6FF !important;
+    box-shadow:0 20px 38px rgba(41,214,255,.34), 0 0 0 8px rgba(41,214,255,.12) !important;
+  }
+
+  .fab-label {
+    color:#FFFFFF !important;
+    background:#12384D !important;
+    border:1px solid rgba(41,214,255,.18) !important;
+  }
+
+  .fab-action,
+  .fab-action.fa-green,
+  .fab-action.fa-red,
+  .fab-action.fa-neutral {
+    color:#000000 !important;
+    background:#29D6FF !important;
+    box-shadow:0 12px 28px rgba(41,214,255,.28) !important;
+  }
+
+  .empty {
+    color:rgba(255,255,255,.58) !important;
+  }
 }
+
+/* Mobile Material neon: light theme correction */
+@media (max-width: 767px) {
+  [data-theme="light"] {
+    --bg:#F5F8FB;
+    --bg2:#FFFFFF;
+    --bg3:#EAF6FA;
+    --card:#FFFFFF;
+    --card2:#F0F8FB;
+    --surface:#FFFFFF;
+    --border:rgba(18,56,77,.12);
+    --border2:rgba(41,214,255,.42);
+    --text:#081522;
+    --text2:rgba(8,21,34,.68);
+    --text3:rgba(8,21,34,.44);
+    --accent:#29D6FF;
+    --accent-strong:#008EB3;
+    --accent-bg:rgba(41,214,255,.14);
+    --green:#008EB3;
+    --green-bg:rgba(41,214,255,.12);
+    --red:#12384D;
+    --red-bg:rgba(18,56,77,.08);
+    --shadow:0 24px 64px rgba(8,21,34,.14);
+    --shadow-soft:0 14px 34px rgba(8,21,34,.10);
+  }
+
+  [data-theme="light"] body,
+  [data-theme="light"] #mobile-app {
+    color:#081522 !important;
+    background:
+      radial-gradient(circle at 18% -8%, rgba(41,214,255,.28), transparent 32%),
+      linear-gradient(180deg,#FFFFFF 0%,#F5F8FB 42%,#FFFFFF 100%) !important;
+  }
+
+  [data-theme="light"] .m-topbar {
+    background:rgba(255,255,255,.86) !important;
+    border-bottom:1px solid rgba(18,56,77,.10) !important;
+    box-shadow:0 10px 26px rgba(8,21,34,.08) !important;
+  }
+
+  [data-theme="light"] .avatar-btn,
+  [data-theme="light"] .icon-btn {
+    color:#081522 !important;
+    background:#FFFFFF !important;
+    border-color:rgba(18,56,77,.14) !important;
+    box-shadow:0 8px 22px rgba(8,21,34,.10);
+  }
+
+  [data-theme="light"] .m-profile-copy strong,
+  [data-theme="light"] .m-home-headline strong,
+  [data-theme="light"] .sec-title,
+  [data-theme="light"] #mobile-app .m-profile-copy strong,
+  [data-theme="light"] #mobile-app .m-home-headline strong,
+  [data-theme="light"] #mobile-app .sec-title {
+    color:#081522 !important;
+  }
+
+  [data-theme="light"] .m-profile-copy span,
+  [data-theme="light"] .m-profile-copy em,
+  [data-theme="light"] #mMonthSync,
+  [data-theme="light"] #mobile-app .m-profile-copy span {
+    color:rgba(8,21,34,.64) !important;
+  }
+
+  [data-theme="light"] .m-greeting,
+  [data-theme="light"] #mobile-app .m-greeting {
+    color:#008EB3 !important;
+  }
+
+  [data-theme="light"] .m-period-switch,
+  [data-theme="light"] .dash-view-pill,
+  [data-theme="light"] .tx-group-toggle,
+  [data-theme="light"] .tx-type-pill {
+    color:#081522 !important;
+    background:#FFFFFF !important;
+    border-color:rgba(18,56,77,.12) !important;
+    box-shadow:0 10px 26px rgba(8,21,34,.08);
+  }
+
+  [data-theme="light"] .m-period-switch #monthLabel,
+  [data-theme="light"] #mobile-app #monthLabel {
+    color:#081522 !important;
+  }
+
+  [data-theme="light"] .mnbtn {
+    color:#081522 !important;
+    background:#EAF6FA !important;
+    border-color:rgba(18,56,77,.10) !important;
+  }
+
+  [data-theme="light"] .dash-view-pill.income,
+  [data-theme="light"] .dash-view-pill.expense,
+  [data-theme="light"] .tx-type-pill.income,
+  [data-theme="light"] .tx-type-pill.expense,
+  [data-theme="light"] .tx-group-toggle.active {
+    color:#000000 !important;
+    background:#29D6FF !important;
+    border-color:#29D6FF !important;
+  }
+
+  [data-theme="light"] .dash-view-dropdown {
+    background:#FFFFFF !important;
+    border-color:rgba(18,56,77,.12) !important;
+    box-shadow:0 22px 48px rgba(8,21,34,.14) !important;
+  }
+
+  [data-theme="light"] .dv-option {
+    color:rgba(8,21,34,.68) !important;
+  }
+
+  [data-theme="light"] .dv-option:hover,
+  [data-theme="light"] .dv-option.active {
+    color:#081522 !important;
+    background:rgba(41,214,255,.14) !important;
+  }
+
+  [data-theme="light"] .m-summary-card,
+  [data-theme="light"] .m-summary-card.income,
+  [data-theme="light"] .m-summary-card.expense,
+  [data-theme="light"] .m-summary-card.balance {
+    background:#FFFFFF !important;
+    border-color:rgba(18,56,77,.12) !important;
+    box-shadow:0 16px 34px rgba(8,21,34,.10) !important;
+  }
+
+  [data-theme="light"] .m-summary-card span,
+  [data-theme="light"] #mobile-app .m-summary-card span {
+    color:rgba(8,21,34,.64) !important;
+  }
+
+  [data-theme="light"] .m-summary-card strong,
+  [data-theme="light"] .m-summary-card.expense strong,
+  [data-theme="light"] .m-summary-card.balance strong,
+  [data-theme="light"] .m-summary-card.balance strong.negative,
+  [data-theme="light"] #mobile-app .m-summary-card.income strong,
+  [data-theme="light"] #mobile-app .m-summary-card.balance strong.positive {
+    color:#081522 !important;
+  }
+
+  [data-theme="light"] .m-summary-card i,
+  [data-theme="light"] .m-summary-card.expense i {
+    color:#000000 !important;
+    background:#29D6FF !important;
+    box-shadow:0 12px 26px rgba(41,214,255,.30);
+  }
+
+  [data-theme="light"] .m-card,
+  [data-theme="light"] .chart-card,
+  [data-theme="light"] .expense-heatmap-card,
+  [data-theme="light"] .m-stat-mini,
+  [data-theme="light"] .group-section,
+  [data-theme="light"] .mobile-entry-card,
+  [data-theme="light"] .mobile-module-hero {
+    color:#081522 !important;
+    background:#FFFFFF !important;
+    border-color:rgba(18,56,77,.12) !important;
+    box-shadow:0 16px 34px rgba(8,21,34,.10) !important;
+  }
+
+  [data-theme="light"] .m-stat-mini span,
+  [data-theme="light"] .legend-meta,
+  [data-theme="light"] .donut-hole span,
+  [data-theme="light"] .donut-hole small,
+  [data-theme="light"] .heatmap-head span,
+  [data-theme="light"] .heatmap-total small,
+  [data-theme="light"] .heatmap-detail-top span,
+  [data-theme="light"] .heatmap-list-row small,
+  [data-theme="light"] #mobile-app .legend-meta,
+  [data-theme="light"] #mobile-app .donut-hole span,
+  [data-theme="light"] #mobile-app .donut-hole small {
+    color:rgba(8,21,34,.58) !important;
+  }
+
+  [data-theme="light"] .m-stat-mini strong,
+  [data-theme="light"] .legend-name,
+  [data-theme="light"] .donut-hole strong,
+  [data-theme="light"] .heatmap-head h3,
+  [data-theme="light"] .heatmap-total strong,
+  [data-theme="light"] .heatmap-detail-top strong,
+  [data-theme="light"] .heatmap-list-row strong,
+  [data-theme="light"] #mobile-app .legend-name,
+  [data-theme="light"] #mobile-app .donut-hole strong {
+    color:#081522 !important;
+  }
+
+  [data-theme="light"] .legend-value,
+  [data-theme="light"] .legend-value.positive,
+  [data-theme="light"] .legend-value.negative,
+  [data-theme="light"] #mobile-app .legend-value.positive,
+  [data-theme="light"] #mobile-app .legend-value.negative {
+    color:#008EB3 !important;
+  }
+
+  [data-theme="light"] .heatmap-day.level-0 {
+    color:rgba(8,21,34,.58) !important;
+    background:#EAF6FA !important;
+  }
+
+  [data-theme="light"] .heatmap-day.level-1,
+  [data-theme="light"] .heatmap-day.level-2,
+  [data-theme="light"] .heatmap-day.level-3,
+  [data-theme="light"] .heatmap-day.level-4 {
+    color:#000000 !important;
+    background:#29D6FF !important;
+  }
+
+  [data-theme="light"] .tx-controls {
+    color:#081522 !important;
+    background:#FFFFFF !important;
+    border-color:rgba(18,56,77,.12) !important;
+    box-shadow:0 16px 34px rgba(8,21,34,.10) !important;
+  }
+
+  [data-theme="light"] .tx-search-icon,
+  [data-theme="light"] .tx-search-clear {
+    color:rgba(8,21,34,.48) !important;
+  }
+
+  [data-theme="light"] .tx-search-input,
+  [data-theme="light"] #mobile-app .tx-search-input {
+    color:#081522 !important;
+    background:#F0F8FB !important;
+    border-color:rgba(18,56,77,.12) !important;
+  }
+
+  [data-theme="light"] .tx-search-input::placeholder,
+  [data-theme="light"] #mobile-app .tx-search-input::placeholder {
+    color:rgba(8,21,34,.46) !important;
+  }
+
+  [data-theme="light"] .tx-card,
+  [data-theme="light"] .tx-card.income,
+  [data-theme="light"] .tx-card.expense {
+    background:#FFFFFF !important;
+    border-color:rgba(18,56,77,.12) !important;
+    box-shadow:0 16px 34px rgba(8,21,34,.10) !important;
+  }
+
+  [data-theme="light"] .tx-card-title .tx-name,
+  [data-theme="light"] #mobile-app .tx-card-title .tx-name,
+  [data-theme="light"] .tx-card-amt,
+  [data-theme="light"] .tx-card-amt.positive,
+  [data-theme="light"] .tx-card-amt.negative,
+  [data-theme="light"] #mobile-app .tx-card-amt.positive,
+  [data-theme="light"] #mobile-app .tx-card-amt.negative {
+    color:#081522 !important;
+  }
+
+  [data-theme="light"] .tx-card-ico,
+  [data-theme="light"] .tx-card-ico.income,
+  [data-theme="light"] .tx-card-ico.expense {
+    color:#000000 !important;
+    background:#29D6FF !important;
+  }
+
+  [data-theme="light"] .tx-cat-badge,
+  [data-theme="light"] .tx-cat-badge.income,
+  [data-theme="light"] .tx-cat-badge.expense {
+    color:#008EB3 !important;
+    background:rgba(41,214,255,.12) !important;
+    border-color:rgba(41,214,255,.24) !important;
+  }
+
+  [data-theme="light"] .tx-card-date,
+  [data-theme="light"] #mobile-app .tx-card-date {
+    color:rgba(8,21,34,.58) !important;
+  }
+
+  [data-theme="light"] .tx-action-btn,
+  [data-theme="light"] .tx-action-btn.delete {
+    color:rgba(8,21,34,.62) !important;
+    background:#F0F8FB !important;
+  }
+
+  [data-theme="light"] .tx-action-btn:hover,
+  [data-theme="light"] .tx-action-btn.delete:hover {
+    color:#000000 !important;
+    background:#29D6FF !important;
+  }
+
+  [data-theme="light"] .group-head {
+    background:#F0F8FB !important;
+  }
+
+  [data-theme="light"] .group-title,
+  [data-theme="light"] .group-total {
+    color:#081522 !important;
+  }
+
+  [data-theme="light"] .group-meta {
+    color:rgba(8,21,34,.56) !important;
+  }
+
+  [data-theme="light"] .m-bottomnav {
+    background:rgba(255,255,255,.92) !important;
+    border-color:rgba(18,56,77,.12) !important;
+    box-shadow:0 -16px 34px rgba(8,21,34,.12) !important;
+  }
+
+  [data-theme="light"] .nbtn,
+  [data-theme="light"] #mobile-app .nbtn {
+    color:rgba(8,21,34,.58) !important;
+  }
+
+  [data-theme="light"] .nbtn.on,
+  [data-theme="light"] .nbtn.on .ni,
+  [data-theme="light"] #mobile-app .nbtn.on,
+  [data-theme="light"] #mobile-app .nbtn.on .ni {
+    color:#000000 !important;
+    background:#29D6FF !important;
+  }
+
+  [data-theme="light"] .fab,
+  [data-theme="light"] .fab-action,
+  [data-theme="light"] .fab-action.fa-green,
+  [data-theme="light"] .fab-action.fa-red,
+  [data-theme="light"] .fab-action.fa-neutral {
+    color:#000000 !important;
+    background:#29D6FF !important;
+    box-shadow:0 18px 34px rgba(41,214,255,.34), 0 0 0 8px rgba(41,214,255,.12) !important;
+  }
+
+  [data-theme="light"] .fab-label {
+    color:#081522 !important;
+    background:#FFFFFF !important;
+    border-color:rgba(18,56,77,.12) !important;
+  }
+
+  [data-theme="light"] .empty {
+    color:rgba(8,21,34,.54) !important;
+  }
+}
+
+/* Mobile Material light refinement: cleaner surfaces, restrained neon */
+@media (max-width: 767px) {
+  [data-theme="light"] {
+    --bg:#F6F7F8;
+    --bg2:#FFFFFF;
+    --bg3:#EEF1F3;
+    --card:#FFFFFF;
+    --card2:#F4F6F7;
+    --surface:#FFFFFF;
+    --border:rgba(8,21,34,.10);
+    --border2:rgba(18,56,77,.18);
+    --text:#081522;
+    --text2:rgba(8,21,34,.66);
+    --text3:rgba(8,21,34,.42);
+    --accent:#29D6FF;
+    --accent-strong:#12384D;
+    --accent-bg:rgba(41,214,255,.12);
+    --green:#12384D;
+    --green-bg:rgba(18,56,77,.08);
+    --red:#12384D;
+    --red-bg:rgba(18,56,77,.08);
+    --shadow-soft:0 8px 24px rgba(8,21,34,.08);
+  }
+
+  [data-theme="light"] body,
+  [data-theme="light"] #mobile-app {
+    background:#F6F7F8 !important;
+  }
+
+  [data-theme="light"] .m-topbar {
+    background:rgba(246,247,248,.92) !important;
+    border-bottom:1px solid rgba(8,21,34,.08) !important;
+    box-shadow:none !important;
+  }
+
+  [data-theme="light"] .avatar-btn,
+  [data-theme="light"] .icon-btn {
+    background:#FFFFFF !important;
+    border-color:rgba(8,21,34,.10) !important;
+    box-shadow:0 4px 14px rgba(8,21,34,.08) !important;
+  }
+
+  [data-theme="light"] .sync-dot {
+    background:#29D6FF !important;
+    box-shadow:0 0 0 3px rgba(41,214,255,.18) !important;
+  }
+
+  [data-theme="light"] .m-scroller {
+    background:#F6F7F8 !important;
+  }
+
+  [data-theme="light"] .m-greeting,
+  [data-theme="light"] #mobile-app .m-greeting {
+    color:#12384D !important;
+  }
+
+  [data-theme="light"] .m-period-switch,
+  [data-theme="light"] .dash-view-pill,
+  [data-theme="light"] .tx-group-toggle,
+  [data-theme="light"] .tx-type-pill {
+    background:#FFFFFF !important;
+    border-color:rgba(8,21,34,.10) !important;
+    box-shadow:0 6px 18px rgba(8,21,34,.06) !important;
+  }
+
+  [data-theme="light"] .dash-view-pill.income,
+  [data-theme="light"] .dash-view-pill.expense,
+  [data-theme="light"] .tx-type-pill.income,
+  [data-theme="light"] .tx-type-pill.expense,
+  [data-theme="light"] .tx-group-toggle.active {
+    color:#081522 !important;
+    background:#EAFBFF !important;
+    border-color:rgba(41,214,255,.24) !important;
+    box-shadow:none !important;
+  }
+
+  [data-theme="light"] .m-summary-card,
+  [data-theme="light"] .m-summary-card.income,
+  [data-theme="light"] .m-summary-card.expense,
+  [data-theme="light"] .m-summary-card.balance,
+  [data-theme="light"] .m-card,
+  [data-theme="light"] .chart-card,
+  [data-theme="light"] .expense-heatmap-card,
+  [data-theme="light"] .m-stat-mini,
+  [data-theme="light"] .group-section,
+  [data-theme="light"] .tx-controls,
+  [data-theme="light"] .tx-card,
+  [data-theme="light"] .tx-card.income,
+  [data-theme="light"] .tx-card.expense {
+    background:#FFFFFF !important;
+    border-color:rgba(8,21,34,.10) !important;
+    box-shadow:0 8px 24px rgba(8,21,34,.07) !important;
+  }
+
+  [data-theme="light"] .m-summary-card i,
+  [data-theme="light"] .m-summary-card.expense i,
+  [data-theme="light"] .tx-card-ico,
+  [data-theme="light"] .tx-card-ico.income,
+  [data-theme="light"] .tx-card-ico.expense,
+  [data-theme="light"] .group-icon {
+    color:#081522 !important;
+    background:#EAFBFF !important;
+    border:1px solid rgba(41,214,255,.20) !important;
+    box-shadow:none !important;
+  }
+
+  [data-theme="light"] .m-summary-card i svg,
+  [data-theme="light"] .tx-card-ico svg {
+    color:#12384D !important;
+  }
+
+  [data-theme="light"] .chart-card {
+    padding:22px 16px 18px !important;
+    border-radius:28px !important;
+  }
+
+  [data-theme="light"] .chart-layout {
+    display:grid;
+    gap:18px;
+  }
+
+  [data-theme="light"] .donut-shell {
+    padding-top:0;
+  }
+
+  [data-theme="light"] .donut-chart {
+    width:184px;
+    height:184px;
+    box-shadow:none !important;
+  }
+
+  [data-theme="light"] .donut-chart::after {
+    inset:20px;
+    background:#FFFFFF !important;
+    border:1px solid rgba(8,21,34,.08) !important;
+  }
+
+  [data-theme="light"] .donut-hole span,
+  [data-theme="light"] #mobile-app .donut-hole span {
+    color:rgba(8,21,34,.48) !important;
+    font-size:10px;
+    letter-spacing:.10em;
+  }
+
+  [data-theme="light"] .donut-hole strong,
+  [data-theme="light"] #mobile-app .donut-hole strong {
+    color:#081522 !important;
+    font-size:21px;
+  }
+
+  [data-theme="light"] .donut-hole small,
+  [data-theme="light"] #mobile-app .donut-hole small {
+    color:rgba(8,21,34,.46) !important;
+  }
+
+  [data-theme="light"] .chart-highlight {
+    display:none !important;
+  }
+
+  [data-theme="light"] .donut-legend {
+    gap:8px;
+  }
+
+  [data-theme="light"] .legend-item {
+    min-height:58px;
+    padding:10px 2px !important;
+    background:transparent !important;
+    border:none !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+  }
+
+  [data-theme="light"] .legend-item + .legend-item {
+    border-top:1px solid rgba(8,21,34,.08) !important;
+  }
+
+  [data-theme="light"] .legend-dot {
+    width:11px;
+    height:11px;
+  }
+
+  [data-theme="light"] .legend-name,
+  [data-theme="light"] #mobile-app .legend-name {
+    color:#081522 !important;
+    font-size:15px;
+    font-weight:700;
+  }
+
+  [data-theme="light"] .legend-meta,
+  [data-theme="light"] #mobile-app .legend-meta {
+    color:rgba(8,21,34,.48) !important;
+  }
+
+  [data-theme="light"] .legend-value,
+  [data-theme="light"] .legend-value.positive,
+  [data-theme="light"] .legend-value.negative,
+  [data-theme="light"] #mobile-app .legend-value.positive,
+  [data-theme="light"] #mobile-app .legend-value.negative {
+    color:#12384D !important;
+    font-size:14px;
+    font-weight:800;
+  }
+
+  [data-theme="light"] .expense-heatmap-card {
+    padding:18px 16px !important;
+  }
+
+  [data-theme="light"] .heatmap-head h3,
+  [data-theme="light"] .heatmap-total strong,
+  [data-theme="light"] .heatmap-detail-top strong {
+    color:#081522 !important;
+  }
+
+  [data-theme="light"] .heatmap-day.level-0 {
+    color:rgba(8,21,34,.55) !important;
+    background:#EEF1F3 !important;
+  }
+
+  [data-theme="light"] .heatmap-day.level-1 {
+    color:#12384D !important;
+    background:#DDF5FB !important;
+  }
+
+  [data-theme="light"] .heatmap-day.level-2 {
+    color:#12384D !important;
+    background:#BFEAF4 !important;
+  }
+
+  [data-theme="light"] .heatmap-day.level-3,
+  [data-theme="light"] .heatmap-day.level-4 {
+    color:#081522 !important;
+    background:#89DDEC !important;
+  }
+
+  [data-theme="light"] .heatmap-day.selected {
+    box-shadow:0 0 0 2px #FFFFFF, 0 0 0 4px rgba(18,56,77,.20) !important;
+  }
+
+  [data-theme="light"] .tx-search-input,
+  [data-theme="light"] #mobile-app .tx-search-input {
+    background:#F4F6F7 !important;
+    border-color:rgba(8,21,34,.08) !important;
+  }
+
+  [data-theme="light"] .tx-cat-badge,
+  [data-theme="light"] .tx-cat-badge.income,
+  [data-theme="light"] .tx-cat-badge.expense {
+    color:#12384D !important;
+    background:#F4F6F7 !important;
+    border-color:rgba(8,21,34,.08) !important;
+  }
+
+  [data-theme="light"] .tx-action-btn,
+  [data-theme="light"] .tx-action-btn.delete {
+    background:#F4F6F7 !important;
+  }
+
+  [data-theme="light"] .m-bottomnav {
+    background:rgba(255,255,255,.94) !important;
+    border-color:rgba(8,21,34,.10) !important;
+    box-shadow:0 -10px 28px rgba(8,21,34,.10) !important;
+  }
+
+  [data-theme="light"] .nbtn.on,
+  [data-theme="light"] .nbtn.on .ni,
+  [data-theme="light"] #mobile-app .nbtn.on,
+  [data-theme="light"] #mobile-app .nbtn.on .ni {
+    color:#081522 !important;
+    background:#EAFBFF !important;
+  }
+
+  [data-theme="light"] .fab,
+  [data-theme="light"] .fab-action,
+  [data-theme="light"] .fab-action.fa-green,
+  [data-theme="light"] .fab-action.fa-red,
+  [data-theme="light"] .fab-action.fa-neutral {
+    background:#29D6FF !important;
+    color:#081522 !important;
+    box-shadow:0 12px 26px rgba(41,214,255,.28) !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Cards de resumo — hierarquia por cor (paleta pastel + texto/ícone fortes).
+   Tokens já são theme-aware (var(--green/red/accent-strong) mudam por tema),
+   então uma regra serve claro e escuro. Prefixo #mobile-app .m-summary-stack
+   dá especificidade suficiente p/ vencer os overrides monocromáticos acima.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Receitas — verde suave */
+#mobile-app .m-summary-stack .m-summary-card.income {
+  background:var(--green-bg) !important;
+  border-color:color-mix(in srgb, var(--green) 30%, transparent) !important;
+  box-shadow:0 10px 26px color-mix(in srgb, var(--green) 12%, transparent) !important;
+}
+#mobile-app .m-summary-stack .m-summary-card.income strong {
+  color:var(--green) !important;
+}
+#mobile-app .m-summary-stack .m-summary-card.income i {
+  background:var(--green-bg) !important;
+  color:var(--green) !important;
+  border:1px solid color-mix(in srgb, var(--green) 26%, transparent) !important;
+  box-shadow:none !important;
+}
+#mobile-app .m-summary-stack .m-summary-card.income i svg {
+  color:var(--green) !important;
+}
+
+/* Despesas + Saldo negativo — vermelho/rosa suave (alerta) */
+#mobile-app .m-summary-stack .m-summary-card.expense,
+#mobile-app .m-summary-stack .m-summary-card.balance.is-negative {
+  background:var(--red-bg) !important;
+  border-color:color-mix(in srgb, var(--red) 32%, transparent) !important;
+  box-shadow:0 10px 26px color-mix(in srgb, var(--red) 12%, transparent) !important;
+}
+#mobile-app .m-summary-stack .m-summary-card.expense strong,
+#mobile-app .m-summary-stack .m-summary-card.balance.is-negative strong {
+  color:var(--red) !important;
+}
+#mobile-app .m-summary-stack .m-summary-card.expense i,
+#mobile-app .m-summary-stack .m-summary-card.balance.is-negative i {
+  background:var(--red-bg) !important;
+  color:var(--red) !important;
+  border:1px solid color-mix(in srgb, var(--red) 28%, transparent) !important;
+  box-shadow:none !important;
+}
+#mobile-app .m-summary-stack .m-summary-card.expense i svg,
+#mobile-app .m-summary-stack .m-summary-card.balance.is-negative i svg {
+  color:var(--red) !important;
+}
+
+/* Saldo positivo/zero — azul de marca (padrão do .balance; is-negative sobrepõe).
+   Base sem is-* garante o estilo mesmo antes do JS marcar o card. */
+#mobile-app .m-summary-stack .m-summary-card.balance {
+  background:var(--accent-bg) !important;
+  border-color:color-mix(in srgb, var(--accent-strong) 30%, transparent) !important;
+  box-shadow:0 10px 26px color-mix(in srgb, var(--accent-strong) 12%, transparent) !important;
+}
+#mobile-app .m-summary-stack .m-summary-card.balance strong {
+  color:var(--accent-strong) !important;
+}
+#mobile-app .m-summary-stack .m-summary-card.balance i {
+  background:var(--accent-bg) !important;
+  color:var(--accent-strong) !important;
+  border:1px solid color-mix(in srgb, var(--accent-strong) 26%, transparent) !important;
+  box-shadow:none !important;
+}
+#mobile-app .m-summary-stack .m-summary-card.balance i svg {
+  color:var(--accent-strong) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Light-mobile (max-width:767px): o tema achata --green/--red/--accent-strong
+   em um único teal monocromático, então o bloco pastel acima renderiza cinza.
+   Aqui reintroduzimos pastéis literais SÓ para os 3 cards de resumo — mesma
+   especificidade + ordem posterior vencem tudo. Border-radius/espaçamento
+   herdados; só a paleta muda.
+   ════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  /* Receitas — verde suave */
+  [data-theme="light"] #mobile-app .m-summary-stack .m-summary-card.income {
+    background:rgba(10,143,78,.10) !important;
+    border-color:rgba(10,143,78,.28) !important;
+    box-shadow:0 8px 24px rgba(10,143,78,.10) !important;
+  }
+  [data-theme="light"] #mobile-app .m-summary-stack .m-summary-card.income strong {
+    color:#0a8f4e !important;
+  }
+  [data-theme="light"] #mobile-app .m-summary-stack .m-summary-card.income i {
+    background:rgba(10,143,78,.12) !important;
+    color:#0a8f4e !important;
+    border:1px solid rgba(10,143,78,.26) !important;
+  }
+  [data-theme="light"] #mobile-app .m-summary-stack .m-summary-card.income i svg {
+    color:#0a8f4e !important;
+  }
+
+  /* Despesas + saldo negativo — vermelho/rosa suave (alerta) */
+  [data-theme="light"] #mobile-app .m-summary-stack .m-summary-card.expense,
+  [data-theme="light"] #mobile-app .m-summary-stack .m-summary-card.balance.is-negative {
+    background:rgba(196,28,28,.09) !important;
+    border-color:rgba(196,28,28,.26) !important;
+    box-shadow:0 8px 24px rgba(196,28,28,.10) !important;
+  }
+  [data-theme="light"] #mobile-app .m-summary-stack .m-summary-card.expense strong,
+  [data-theme="light"] #mobile-app .m-summary-stack .m-summary-card.balance.is-negative strong {
+    color:#c41c1c !important;
+  }
+  [data-theme="light"] #mobile-app .m-summary-stack .m-summary-card.expense i,
+  [data-theme="light"] #mobile-app .m-summary-stack .m-summary-card.balance.is-negative i {
+    background:rgba(196,28,28,.11) !important;
+    color:#c41c1c !important;
+    border:1px solid rgba(196,28,28,.24) !important;
+  }
+  [data-theme="light"] #mobile-app .m-summary-stack .m-summary-card.expense i svg,
+  [data-theme="light"] #mobile-app .m-summary-stack .m-summary-card.balance.is-negative i svg {
+    color:#c41c1c !important;
+  }
+
+  /* Saldo positivo/zero — azul de marca (neutro, distinto dos outros dois).
+     Base .balance cobre o estado antes do JS; .is-negative acima sobrepõe. */
+  [data-theme="light"] #mobile-app .m-summary-stack .m-summary-card.balance {
+    background:rgba(41,214,255,.14) !important;
+    border-color:rgba(41,214,255,.34) !important;
+    box-shadow:0 8px 24px rgba(41,214,255,.14) !important;
+  }
+  [data-theme="light"] #mobile-app .m-summary-stack .m-summary-card.balance strong {
+    color:#0f6fb0 !important;
+  }
+  [data-theme="light"] #mobile-app .m-summary-stack .m-summary-card.balance i {
+    background:rgba(41,214,255,.18) !important;
+    color:#0f6fb0 !important;
+    border:1px solid rgba(41,214,255,.30) !important;
+  }
+  [data-theme="light"] #mobile-app .m-summary-stack .m-summary-card.balance i svg {
+    color:#0f6fb0 !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Dashboard mobile — redesign de hierarquia.
+   Saldo do Mês promovido a card-herói (numeral display + badge de variação +
+   barra de fluxo receitas × despesas); Receitas/Despesas viram cards 2-up.
+   Tipografia: Archivo variável (eixo wdth) só em numerais e títulos — corpo
+   continua system. Tokens --fin-* próprios: imunes ao achatamento de
+   --green/--red que os temas mobile fazem acima.
+   ════════════════════════════════════════════════════════════════════════ */
+
+#mobile-app,
+#desktop-app {
+  --fin-display:'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fin-green:#0a8f4e;  --fin-green-soft:rgba(10,143,78,.12);
+  --fin-red:#c41c1c;    --fin-red-soft:rgba(196,28,28,.10);
+  --fin-blue:#0f6fb0;
+  --fin-track:rgba(8,21,34,.08);
+  --fin-bar-idle:rgba(8,21,34,.12);
+}
+[data-theme="dark"] #mobile-app,
+[data-theme="dark"] #desktop-app {
+  --fin-green:#5bd98e;  --fin-green-soft:rgba(91,217,142,.16);
+  --fin-red:#ff8e96;    --fin-red-soft:rgba(255,142,150,.14);
+  --fin-blue:#6ec4ff;
+  --fin-track:rgba(255,255,255,.10);
+  --fin-bar-idle:rgba(255,255,255,.16);
+}
+
+/* ── Tipografia de título e período ─────────────────────────────────────── */
+#mobile-app .m-home-headline strong {
+  font-family:var(--fin-display);
+  font-stretch:113%;
+  font-weight:800;
+  font-size:30px;
+  letter-spacing:-.035em;
+}
+#mobile-app .m-greeting {
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+#mobile-app .m-period-switch #monthLabel {
+  font-family:var(--fin-display);
+  font-stretch:104%;
+  font-weight:700;
+  font-variant-numeric:tabular-nums;
+}
+#mobile-app .sec-title,
+#mobile-app .report-head > span {
+  font-family:var(--fin-display);
+  font-stretch:108%;
+}
+
+/* ── Grade: herói full-width em cima, Receitas/Despesas 2-up embaixo ────── */
+#mobile-app .m-summary-stack {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+#mobile-app .m-summary-stack .m-summary-card.balance {
+  grid-column:1 / -1;
+}
+
+/* ── Card-herói: Saldo do Mês ───────────────────────────────────────────── */
+#mobile-app .m-summary-stack .m-summary-card.balance {
+  min-height:0;
+  padding:20px 20px 18px;
+}
+#mobile-app .m-summary-stack .m-summary-card.balance > span {
+  margin-bottom:10px;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+#mobile-app .m-summary-stack .m-balance-line {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+#mobile-app .m-summary-stack .m-summary-card.balance strong {
+  font-family:var(--fin-display);
+  font-stretch:112%;
+  font-weight:800;
+  font-size:clamp(30px, 9vw, 38px);
+  line-height:1;
+  letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+#mobile-app .m-summary-stack .m-summary-card.balance i {
+  top:16px;
+  right:16px;
+  transform:none;
+  width:34px;
+  height:34px;
+  font-size:16px;
+}
+
+/* Badge de variação vs mês anterior (cores próprias: temas achatam --green) */
+#mobile-app .m-summary-card .m-badge {
+  padding:4px 9px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+}
+#mobile-app .m-summary-card .m-badge.positive {
+  background:var(--fin-green-soft) !important;
+  color:var(--fin-green) !important;
+}
+#mobile-app .m-summary-card .m-badge.negative {
+  background:var(--fin-red-soft) !important;
+  color:var(--fin-red) !important;
+}
+
+/* Barra de fluxo: proporção receitas × despesas — assinatura da tela */
+#mobile-app .m-flow {
+  display:flex;
+  gap:3px;
+  height:10px;
+  margin-top:14px;
+  border-radius:999px;
+  overflow:hidden;
+  background:var(--fin-track);
+}
+#mobile-app .m-flow div {
+  height:100%;
+  min-width:0;
+  border-radius:999px;
+  transition:width .5s cubic-bezier(.22,1,.36,1);
+}
+#mobile-app .m-flow-income  { background:var(--fin-green); }
+#mobile-app .m-flow-expense { background:var(--fin-red); }
+#mobile-app .m-flow.is-empty div { width:0 !important; }
+#mobile-app .m-flow-caption {
+  margin:8px 0 0;
+  font-size:12px;
+  font-weight:600;
+  color:var(--text2);
+}
+
+/* ── Cards compactos 2-up: Receitas / Despesas ──────────────────────────── */
+#mobile-app .m-summary-stack .m-summary-card.income,
+#mobile-app .m-summary-stack .m-summary-card.expense {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  min-height:0;
+  padding:16px;
+}
+#mobile-app .m-summary-stack .m-summary-card.income i,
+#mobile-app .m-summary-stack .m-summary-card.expense i {
+  position:static;
+  transform:none;
+  order:-1;
+  width:30px;
+  height:30px;
+  margin-bottom:10px;
+  font-size:15px;
+}
+#mobile-app .m-summary-stack .m-summary-card.income span,
+#mobile-app .m-summary-stack .m-summary-card.expense span {
+  margin-bottom:5px;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+#mobile-app .m-summary-stack .m-summary-card.income strong,
+#mobile-app .m-summary-stack .m-summary-card.expense strong {
+  font-family:var(--fin-display);
+  font-stretch:106%;
+  font-weight:800;
+  font-size:clamp(17px, 5.4vw, 21px);
+  letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+
+/* ── Piso de qualidade: foco visível + movimento reduzido ───────────────── */
+#mobile-app .mnbtn:focus-visible,
+#mobile-app .nbtn:focus-visible,
+#mobile-app .icon-btn:focus-visible,
+#mobile-app .dash-view-pill:focus-visible,
+#mobile-app .report-toggle:focus-visible {
+  outline:2px solid #29D6FF;
+  outline-offset:2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  #mobile-app .m-flow div { transition:none; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Transações — rework "extrato": resumo do conjunto + linhas densas agrupadas
+   por dia com net diário. Numerais Archivo tabulares, verde/vermelho fortes
+   (tokens --fin-*). Substitui o card triplo pesado (.tx-card) por .tx-row.
+   Estilos base (sem prefixo) valem mobile e desktop.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── Tira de resumo do conjunto exibido ─────────────────────────────────── */
+.tx-summary {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+  padding:14px 16px;
+  border-radius:16px;
+  background:var(--card2);
+  border:1px solid var(--border);
+}
+.tx-summary-count { display:flex; align-items:baseline; gap:6px; }
+.tx-summary-count strong {
+  font-family:var(--fin-display);
+  font-stretch:110%;
+  font-weight:800;
+  font-size:22px;
+  letter-spacing:-.02em;
+  color:var(--text);
+  font-variant-numeric:tabular-nums;
+}
+.tx-summary-count span { font-size:12px; font-weight:600; color:var(--text2); }
+.tx-summary-flows {
+  display:flex;
+  gap:14px;
+  font-family:var(--fin-display);
+  font-variant-numeric:tabular-nums;
+  font-weight:700;
+  font-size:13px;
+  white-space:nowrap;
+}
+.tx-sum-in  { color:var(--fin-green); }
+.tx-sum-out { color:var(--fin-red); }
+
+/* ── Ledger: cabeçalho de dia + net diário ──────────────────────────────── */
+.tx-ledger { display:flex; flex-direction:column; }
+.tx-day {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:16px 4px 8px;
+}
+.tx-day:first-child { margin-top:2px; }
+.tx-day-label {
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.1em;
+  color:var(--text3);
+  text-transform:uppercase;
+}
+.tx-day-net {
+  font-family:var(--fin-display);
+  font-variant-numeric:tabular-nums;
+  font-size:12px;
+  font-weight:700;
+}
+.tx-day-net.positive { color:var(--fin-green); }
+.tx-day-net.negative { color:var(--fin-red); }
+.tx-day-rows { display:flex; flex-direction:column; gap:8px; }
+
+/* ── Linha de transação ─────────────────────────────────────────────────── */
+.tx-row {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:var(--card);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow-soft);
+  cursor:pointer;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.tx-row:hover { transform:translateY(-1px); box-shadow:0 8px 22px rgba(0,0,0,.10); }
+.tx-row-ico {
+  flex-shrink:0;
+  width:38px;
+  height:38px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.tx-row-ico.income  { background:var(--fin-green-soft); color:var(--fin-green); }
+.tx-row-ico.expense { background:var(--fin-red-soft);   color:var(--fin-red); }
+.tx-row-ico svg { width:16px; height:16px; stroke-width:2.4; fill:none; stroke:currentColor; }
+.tx-row-body { flex:1 1 auto; min-width:0; }
+.tx-row-desc {
+  display:block;
+  font-size:14.5px;
+  font-weight:700;
+  color:var(--text);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.tx-row-sub {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-top:2px;
+  font-size:12px;
+  color:var(--text2);
+}
+.tx-row-cat {
+  font-weight:600;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  max-width:58%;
+}
+.tx-row-dot  { color:var(--text3); }
+.tx-row-time { color:var(--text3); font-variant-numeric:tabular-nums; flex-shrink:0; }
+.tx-row-right {
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  gap:6px;
+  flex-shrink:0;
+}
+.tx-row-amt {
+  font-family:var(--fin-display);
+  font-stretch:104%;
+  font-weight:800;
+  font-size:15px;
+  letter-spacing:-.01em;
+  white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+.tx-row-amt.positive { color:var(--fin-green); }
+.tx-row-amt.negative { color:var(--fin-red); }
+.tx-row-actions { display:flex; gap:2px; margin-left:2px; }
+.tx-row-actions .tx-action-btn {
+  width:28px;
+  height:28px;
+  padding:0;
+  line-height:0;
+  color:var(--text3);
+}
+.tx-row-actions .tx-action-btn svg { width:15px; height:15px; }
+.tx-row-actions .tx-action-btn.edit:hover   { color:var(--accent); background:transparent; }
+.tx-row-actions .tx-action-btn.delete:hover { color:var(--fin-red); background:transparent; }
+
+/* Dentro de grupo por categoria: a categoria já está no cabeçalho */
+.group-list .tx-row-cat,
+.group-list .tx-row-dot { display:none; }
+
+/* Armadura de cor semântica: os temas mobile achatam textos para #12384D com
+   !important; estas regras (id + [data-theme] + 2 classes, últimas no arquivo)
+   garantem verde/vermelho nos valores. Tokens --fin-* já corrigem por tema. */
+[data-theme] #mobile-app .tx-row-amt.positive,
+[data-theme] #mobile-app .tx-day-net.positive,
+[data-theme] #mobile-app .tx-sum-in {
+  color:var(--fin-green) !important;
+}
+[data-theme] #mobile-app .tx-row-amt.negative,
+[data-theme] #mobile-app .tx-day-net.negative,
+[data-theme] #mobile-app .tx-sum-out {
+  color:var(--fin-red) !important;
+}
+[data-theme] #mobile-app .tx-row-ico.income {
+  background:var(--fin-green-soft) !important;
+  color:var(--fin-green) !important;
+}
+[data-theme] #mobile-app .tx-row-ico.expense {
+  background:var(--fin-red-soft) !important;
+  color:var(--fin-red) !important;
+}
+[data-theme] #mobile-app .tx-summary-count strong { color:var(--text) !important; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Mapa de Calor — restaura a intensidade graduada. Os temas mobile achatavam
+   os níveis 1-4 numa única cor cyan (perdendo a "intensidade dinâmica").
+   Escala de calor vermelha: mais gasto = mais forte/escuro. id + [data-theme]
+   + 2 classes + !important vencem os overrides monocromáticos.
+   ════════════════════════════════════════════════════════════════════════ */
+[data-theme] #mobile-app .heatmap-day.level-0 {
+  background:rgba(8,21,34,.05) !important;
+  color:var(--text3) !important;
+}
+[data-theme] #mobile-app .heatmap-day.level-1 {
+  background:rgba(196,28,28,.14) !important;
+  color:#7a1a1a !important;
+}
+[data-theme] #mobile-app .heatmap-day.level-2 {
+  background:rgba(196,28,28,.30) !important;
+  color:#7a1a1a !important;
+}
+[data-theme] #mobile-app .heatmap-day.level-3 {
+  background:rgba(196,28,28,.58) !important;
+  color:#fff !important;
+}
+[data-theme] #mobile-app .heatmap-day.level-4 {
+  background:#c41c1c !important;
+  color:#fff !important;
+}
+[data-theme="dark"] #mobile-app .heatmap-day.level-0 {
+  background:rgba(255,255,255,.05) !important;
+  color:var(--text3) !important;
+}
+[data-theme="dark"] #mobile-app .heatmap-day.level-1 {
+  background:rgba(255,142,150,.16) !important;
+  color:#ffd7da !important;
+}
+[data-theme="dark"] #mobile-app .heatmap-day.level-2 {
+  background:rgba(233,65,77,.34) !important;
+  color:#ffe3e5 !important;
+}
+[data-theme="dark"] #mobile-app .heatmap-day.level-3 {
+  background:rgba(233,65,77,.62) !important;
+  color:#fff !important;
+}
+[data-theme="dark"] #mobile-app .heatmap-day.level-4 {
+  background:#e9414d !important;
+  color:#fff !important;
+}
+/* Dia selecionado: anel de marca, legível sobre qualquer nível */
+[data-theme] #mobile-app .heatmap-day.selected {
+  outline:2px solid var(--fin-blue) !important;
+  outline-offset:1px;
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--fin-blue) 22%, transparent) !important;
+}
+/* Numerais do heatmap em Archivo tabular (coerência com o resto) */
+#mobile-app .heatmap-total strong,
+#mobile-app .heatmap-detail-top strong {
+  font-family:var(--fin-display);
+  font-variant-numeric:tabular-nums;
+  font-stretch:108%;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Gráficos de comportamento — barras CSS puras (alturas via % inline).
+   Mobile-first, minimalista. Barra de destaque em azul de marca; demais idle.
+   ════════════════════════════════════════════════════════════════════════ */
+.fin-chart-card { padding:18px 18px 16px; }
+.fin-chart-head {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:2px;
+}
+.fin-chart-head span {
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--text3);
+}
+.fin-chart-head h3 {
+  margin:2px 0 0;
+  font-family:var(--fin-display);
+  font-stretch:110%;
+  font-weight:800;
+  font-size:18px;
+  letter-spacing:-.02em;
+  color:var(--text);
+}
+.fin-chart-avg { text-align:right; flex-shrink:0; }
+.fin-chart-avg small {
+  display:block;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--text3);
+}
+.fin-chart-avg strong {
+  font-family:var(--fin-display);
+  font-variant-numeric:tabular-nums;
+  font-weight:800;
+  font-size:15px;
+  color:var(--text);
+}
+.fin-chart-note {
+  margin:0 0 16px;
+  font-size:13px;
+  font-weight:600;
+  color:var(--text2);
+}
+.fin-chart-note strong { color:var(--fin-blue); font-weight:800; }
+
+.fin-bars {
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:6px;
+}
+.fin-bar {
+  flex:1 1 0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+}
+.fin-bar-cap {
+  font-size:10px;
+  font-weight:700;
+  color:var(--text3);
+  font-variant-numeric:tabular-nums;
+  height:12px;
+  line-height:12px;
+  white-space:nowrap;
+}
+.fin-bar-track {
+  width:100%;
+  height:104px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+}
+.fin-bar-fill {
+  width:66%;
+  max-width:26px;
+  min-height:3px;
+  border-radius:7px 7px 3px 3px;
+  background:var(--fin-bar-idle);
+  transition:height .45s cubic-bezier(.22,1,.36,1);
+}
+.fin-bar.is-peak .fin-bar-fill {
+  background:linear-gradient(180deg, var(--fin-blue), color-mix(in srgb, var(--fin-blue) 78%, #000));
+}
+.fin-bar-label {
+  font-size:11px;
+  font-weight:700;
+  color:var(--text3);
+  text-transform:capitalize;
+}
+.fin-bar.is-peak .fin-bar-label { color:var(--fin-blue); font-weight:800; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fin-bar-fill { transition:none; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Topo + saudação: boas-vindas com marca, saudação centralizada e navegação
+   de mês compacta. id-scoped, últimas no arquivo → vencem a cascata anterior.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Topbar: "Bem-vindo ao FinControl" (marca em destaque) */
+#mobile-app .m-profile-copy strong {
+  font-size:15px;
+  line-height:1.18;
+  letter-spacing:-.01em;
+}
+[data-theme] #mobile-app .m-profile-copy strong em {
+  font-style:normal;
+  color:var(--accent) !important;
+}
+
+/* Saudação centralizada (BOM DIA / Resumo do mês + pill Visão Geral) */
+#mobile-app .m-home-headline {
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  gap:10px;
+}
+#mobile-app .m-home-headline > div { width:100%; }
+#mobile-app .m-home-headline .dash-view-wrap {
+  width:100%;
+  justify-content:center;
+}
+
+/* Navegação de mês: menor e centralizada */
+#mobile-app .m-period-switch {
+  margin-left:auto;
+  margin-right:auto;
+  justify-content:center;
+  gap:6px;
+  padding:4px;
+}
+#mobile-app .mnbtn {
+  width:26px;
+  height:26px;
+  font-size:13px;
+}
+#mobile-app .m-period-switch #monthLabel {
+  min-width:auto;
+  padding:0 6px;
+  font-size:12px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Cards de resumo no TEMA ESCURO — mesma paleta pastel do claro.
+   No dark os tokens --green-bg/--red-bg estão achatados (green=cyan, red=branco);
+   por isso usamos --fin-* (verde/vermelho reais por tema). id + [data-theme=dark]
+   + 3 classes + !important vencem o bloco monocromático navy.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Receitas — verde suave */
+[data-theme="dark"] #mobile-app .m-summary-stack .m-summary-card.income {
+  background:var(--fin-green-soft) !important;
+  border-color:color-mix(in srgb, var(--fin-green) 34%, transparent) !important;
+  box-shadow:0 14px 30px rgba(0,0,0,.34) !important;
+}
+[data-theme="dark"] #mobile-app .m-summary-stack .m-summary-card.income strong {
+  color:var(--fin-green) !important;
+}
+[data-theme="dark"] #mobile-app .m-summary-stack .m-summary-card.income i {
+  background:var(--fin-green-soft) !important;
+  color:var(--fin-green) !important;
+  border:1px solid color-mix(in srgb, var(--fin-green) 30%, transparent) !important;
+  box-shadow:none !important;
+}
+[data-theme="dark"] #mobile-app .m-summary-stack .m-summary-card.income i svg { color:var(--fin-green) !important; }
+
+/* Despesas + Saldo negativo — vermelho/rosa suave (alerta) */
+[data-theme="dark"] #mobile-app .m-summary-stack .m-summary-card.expense,
+[data-theme="dark"] #mobile-app .m-summary-stack .m-summary-card.balance.is-negative {
+  background:var(--fin-red-soft) !important;
+  border-color:color-mix(in srgb, var(--fin-red) 34%, transparent) !important;
+  box-shadow:0 14px 30px rgba(0,0,0,.34) !important;
+}
+[data-theme="dark"] #mobile-app .m-summary-stack .m-summary-card.expense strong,
+[data-theme="dark"] #mobile-app .m-summary-stack .m-summary-card.balance.is-negative strong {
+  color:var(--fin-red) !important;
+}
+[data-theme="dark"] #mobile-app .m-summary-stack .m-summary-card.expense i,
+[data-theme="dark"] #mobile-app .m-summary-stack .m-summary-card.balance.is-negative i {
+  background:var(--fin-red-soft) !important;
+  color:var(--fin-red) !important;
+  border:1px solid color-mix(in srgb, var(--fin-red) 32%, transparent) !important;
+  box-shadow:none !important;
+}
+[data-theme="dark"] #mobile-app .m-summary-stack .m-summary-card.expense i svg,
+[data-theme="dark"] #mobile-app .m-summary-stack .m-summary-card.balance.is-negative i svg { color:var(--fin-red) !important; }
+
+/* Saldo positivo/zero — azul de marca */
+[data-theme="dark"] #mobile-app .m-summary-stack .m-summary-card.balance {
+  background:color-mix(in srgb, var(--fin-blue) 16%, transparent) !important;
+  border-color:color-mix(in srgb, var(--fin-blue) 34%, transparent) !important;
+  box-shadow:0 14px 30px rgba(0,0,0,.34) !important;
+}
+[data-theme="dark"] #mobile-app .m-summary-stack .m-summary-card.balance strong { color:var(--fin-blue) !important; }
+[data-theme="dark"] #mobile-app .m-summary-stack .m-summary-card.balance i {
+  background:color-mix(in srgb, var(--fin-blue) 18%, transparent) !important;
+  color:var(--fin-blue) !important;
+  border:1px solid color-mix(in srgb, var(--fin-blue) 30%, transparent) !important;
+  box-shadow:none !important;
+}
+[data-theme="dark"] #mobile-app .m-summary-stack .m-summary-card.balance i svg { color:var(--fin-blue) !important; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Nova Transação (modal) + FAB — rework: ícones SVG no padrão do app,
+   controle de modo suave (não gradientes fortes), botão flutuante menor.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Título em Archivo */
+#modalOverlay .modal-title {
+  font-family:var(--fin-display);
+  font-stretch:110%;
+  font-weight:800;
+  letter-spacing:-.02em;
+}
+
+/* Controle de modo: ícone + rótulo alinhados */
+#modalOverlay .modal-mode { gap:8px; }
+#modalOverlay .mmBtn {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:12px 8px;
+  border-radius:14px;
+  font-weight:700;
+}
+#modalOverlay .mmBtn .mm-ico { width:16px; height:16px; flex-shrink:0; }
+/* Estados ativos suaves (paleta --fin, coerente com os cards) */
+#modalOverlay .mmBtn.on.income {
+  background:var(--fin-green-soft) !important;
+  color:var(--fin-green) !important;
+  border-color:color-mix(in srgb, var(--fin-green) 36%, transparent) !important;
+}
+#modalOverlay .mmBtn.on.expense {
+  background:var(--fin-red-soft) !important;
+  color:var(--fin-red) !important;
+  border-color:color-mix(in srgb, var(--fin-red) 36%, transparent) !important;
+}
+#modalOverlay .mmBtn.on.audio {
+  background:color-mix(in srgb, var(--fin-blue) 16%, transparent) !important;
+  color:var(--fin-blue) !important;
+  border-color:color-mix(in srgb, var(--fin-blue) 36%, transparent) !important;
+}
+
+/* Valor e confirmação com numerais/tipografia coerentes */
+#modalOverlay .finput.amt { font-family:var(--fin-display); font-variant-numeric:tabular-nums; }
+#modalOverlay .btn-confirm {
+  font-family:var(--fin-display);
+  font-stretch:104%;
+  letter-spacing:.01em;
+  border-radius:14px;
+}
+#modalOverlay .btn-cancel { border-radius:14px; }
+
+/* Chip de categoria selecionado coerente com a marca */
+#modalOverlay .ctag.on {
+  background:color-mix(in srgb, var(--accent) 16%, transparent);
+  border-color:color-mix(in srgb, var(--accent) 36%, transparent);
+  color:var(--text);
+  font-weight:700;
+}
+
+/* Mic com ícone SVG */
+#modalOverlay .mic-outer .mic-ico { width:30px; height:30px; }
+
+/* FAB menor e limpo (sem anel gordo) */
+#fabBtn {
+  width:52px !important;
+  height:52px !important;
+  border-radius:16px !important;
+  background:#29D6FF !important;
+  color:#04222e !important;
+  box-shadow:0 10px 24px rgba(41,214,255,.32) !important;
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+}
+#fabBtn .fab-plus { width:22px; height:22px; }
+.fab-action svg { width:18px; height:18px; }
+
+/* Tokens --fin-* no :root: modal e FAB ficam FORA de #mobile-app, então
+   precisam dos tokens em escopo global (senão viram inválidos). */
+:root {
+  --fin-display:'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fin-green:#0a8f4e;  --fin-green-soft:rgba(10,143,78,.12);
+  --fin-red:#c41c1c;    --fin-red-soft:rgba(196,28,28,.10);
+  --fin-blue:#0f6fb0;
+}
+[data-theme="dark"] {
+  --fin-green:#5bd98e;  --fin-green-soft:rgba(91,217,142,.16);
+  --fin-red:#ff8e96;    --fin-red-soft:rgba(255,142,150,.14);
+  --fin-blue:#6ec4ff;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Seletor de categoria (modal) — gatilho + dropdown, no lugar da lista de chips.
+   Abre para CIMA (o modal é uma folha inferior). Fora de #mobile-app → :root.
+   ════════════════════════════════════════════════════════════════════════ */
+#modalOverlay .cats { display:block; margin-bottom:14px; }
+.cat-select { position:relative; width:100%; }
+.cat-trigger {
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:13px 14px;
+  border-radius:14px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  text-align:left;
+}
+.cat-trigger:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.cat-trigger-label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cat-trigger-chevron {
+  width:18px; height:18px; flex-shrink:0;
+  color:var(--text3);
+  transition:transform .2s ease;
+}
+.cat-select:has(.cat-dropdown.open) .cat-trigger-chevron { transform:rotate(180deg); }
+.cat-select:has(.cat-dropdown.open) .cat-trigger { border-color:var(--accent); }
+
+.cat-dropdown {
+  position:absolute;
+  left:0; right:0;
+  bottom:calc(100% + 6px);
+  z-index:60;
+  display:none;
+  flex-direction:column;
+  gap:2px;
+  padding:6px;
+  max-height:46vh;
+  overflow-y:auto;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:14px;
+  box-shadow:0 18px 40px rgba(0,0,0,.28);
+}
+.cat-dropdown.open { display:flex; }
+.cat-option {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  width:100%;
+  padding:11px 12px;
+  border:none;
+  border-radius:10px;
+  background:none;
+  color:var(--text2);
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  text-align:left;
+}
+.cat-option:hover { background:var(--accent-bg); color:var(--text); }
+.cat-option .cat-check { width:16px; height:16px; flex-shrink:0; color:var(--accent); opacity:0; }
+.cat-option.on { color:var(--text); background:color-mix(in srgb, var(--accent) 12%, transparent); }
+.cat-option.on .cat-check { opacity:1; }
+.cat-option-new {
+  margin-top:4px;
+  padding-top:12px;
+  border-top:1px solid var(--border);
+  border-radius:0 0 10px 10px;
+  color:var(--accent);
+  font-weight:700;
+}
+.cat-option-new svg { width:16px; height:16px; flex-shrink:0; }

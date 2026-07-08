@@ -2,12 +2,12 @@ import { initAuth, loginGoogle, confirmLogout, executeLogout } from './services/
 import { handleMic } from './services/audio.js';
 import { initTheme, toggleTheme } from './services/theme.js';
 import { removeTransaction } from './services/transactions.js';
-import { pickCategory, openInlineCatInput, cancelInlineCatInput, saveInlineCategory } from './ui/categories.js';
+import { pickCategory, openInlineCatInput, cancelInlineCatInput, saveInlineCategory, toggleCatDropdown } from './ui/categories.js';
 import { initDesktopSidebar, toggleDesktopSidebar, updateResponsiveAppView } from './ui/layout.js';
 import { initModules, toggleBillPaid, addSubscription, removeSubscription, editSubscription, addStockItem, removeStockItem, changeStockQty, addLimit, removeLimit, editLimit, addBill, removeBill, editBill, addCategory, editCategory, removeCategory } from './ui/modules.js';
 import { closeModal, closeModalOutside, confirmTx, confirmTxAudio, openModal, setModalType, editTx } from './ui/modal.js';
 import { changeMonth, closeFab, goDesktopPage, goMobilePage, toggleFab } from './ui/navigation.js';
-import { setTxSearch, setTxFilter, setTxGrouped, openTxHistory, closeTxHistory, setDashView, toggleDashViewDropdown, selectExpenseHeatmapDay } from './ui/render.js';
+import { setTxSearch, setTxFilter, setTxGrouped, openTxHistory, closeTxHistory, setDashView, toggleDashViewDropdown, selectExpenseHeatmapDay, toggleReportBlock } from './ui/render.js';
 
 window.loginGoogle = loginGoogle;
 window.confirmLogout = confirmLogout;
@@ -22,6 +22,7 @@ window.setModalType = setModalType;
 window.confirmTx = confirmTx;
 window.confirmTxAudio = confirmTxAudio;
 window.pickCat = pickCategory;
+window.toggleCatDropdown = toggleCatDropdown;
 window.openInlineCatInput = openInlineCatInput;
 window.cancelInlineCatInput = cancelInlineCatInput;
 window.saveInlineCategory = saveInlineCategory;
@@ -60,6 +61,7 @@ window.toggleDashViewDropdown = toggleDashViewDropdown;
 // Feature: Agrupamento de transações
 window.setTxGrouped = setTxGrouped;
 window.selectExpenseHeatmapDay = selectExpenseHeatmapDay;
+window.toggleReportBlock = toggleReportBlock;
 
 initTheme();
 initDesktopSidebar();

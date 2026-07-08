@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-BR" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="darkreader-lock">
 <meta name="theme-color" content="#07111d">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -11,7 +12,10 @@
 <link rel="shortcut icon" href="./favicon.svg">
 <link rel="apple-touch-icon" href="./icon-192.svg">
 <link rel="manifest" href="./manifest.json">
-<link rel="stylesheet" href="./css/main.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<link rel="stylesheet" href="./css/main.css?v=20260708n">
 <title>FinControl</title>
 </head>
 <body>
@@ -89,7 +93,7 @@
       <div class="m-profile-mini">
         <div class="avatar-btn" id="mAvatar" onclick="confirmLogout()">?</div>
         <div class="m-profile-copy">
-          <strong>Dashboard</strong>
+          <strong>Bem-vindo ao <em>FinControl</em></strong>
           <span><span class="sync-dot" id="mSyncDot"></span><em id="mMonthSync">Março 2026 • Sincronizado</em></span>
         </div>
       </div>
@@ -117,33 +121,49 @@
         <label id="mBalanceLabel">SALDO TOTAL</label>
         <div class="m-balance-row">
           <div class="big-val positive" id="mBalance">R$ 0,00</div>
-          <span class="m-badge" id="mBalanceDelta">+0%</span>
         </div>
         <p id="mPeriodLabel">—</p>
         <div class="m-summary-stack" aria-label="Resumo financeiro do mês">
+          <article class="m-summary-card balance">
+            <span>Saldo do Mês</span>
+            <div class="m-balance-line">
+              <strong id="mBalanceCard">R$ 0,00</strong>
+              <span class="m-badge" id="mBalanceDelta">+0%</span>
+            </div>
+            <div class="m-flow" role="img" aria-label="Proporção entre receitas e despesas do mês">
+              <div class="m-flow-income" id="mFlowIncome"></div>
+              <div class="m-flow-expense" id="mFlowExpense"></div>
+            </div>
+            <p class="m-flow-caption" id="mFlowCaption">—</p>
+            <i aria-hidden="true">$</i>
+          </article>
           <article class="m-summary-card income">
-            <span>Total Receitas</span>
+            <span>Receitas</span>
             <strong id="mIncome">R$ 0,00</strong>
             <i aria-hidden="true">↗</i>
           </article>
           <article class="m-summary-card expense">
-            <span>Total Despesas</span>
+            <span>Despesas</span>
             <strong id="mExpense">R$ 0,00</strong>
             <i aria-hidden="true">↘</i>
           </article>
-          <article class="m-summary-card balance">
-            <span>Saldo do Mês</span>
-            <strong id="mBalanceCard">R$ 0,00</strong>
-            <i aria-hidden="true">$</i>
-          </article>
         </div>
       </div>
-      <div class="sec-title" style="justify-content: center;">Gastos por Categoria</div>
-      <div class="m-card chart-card" id="mBarChart"><div class="empty">Sem gastos neste mês</div></div>
+      <div class="m-card report-card" id="mChartCard">
+        <div class="report-head report-toggle" id="mChartHeader" role="button" tabindex="0" aria-expanded="false" aria-controls="mBarChart" onclick="toggleReportBlock('chart')">
+          <span>Gastos por Categoria</span>
+          <svg class="report-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="collapse-shell collapsed" id="mChartBody">
+          <div class="collapse-inner" id="mBarChart"><div class="empty">Sem gastos neste mês</div></div>
+        </div>
+      </div>
 
       <div class="m-card expense-heatmap-card" id="mExpenseHeatmap"><div class="empty">Carregando mapa de calor...</div></div>
 
-      <div class="m-card grouped-list" id="mTxList" style="margin-top: 12px;"><div class="empty">Nenhum lançamento neste mês</div></div>
+      <div class="m-card fin-chart-card" id="mWeekdayChart"><div class="empty">Carregando comportamento…</div></div>
+      <div class="m-card fin-chart-card" id="mSixMonthChart"><div class="empty">Carregando tendência…</div></div>
+
 
 
       <div class="m-mobile-stats">
@@ -412,9 +432,9 @@
     <div class="modal-handle"></div>
     <div class="modal-title">Nova Transação</div>
     <div class="modal-mode">
-      <button class="mmBtn on income" id="mmIncome" onclick="setModalType('income')">💰 Entrada</button>
-      <button class="mmBtn expense" id="mmExpense" onclick="setModalType('expense')">💸 Gasto</button>
-      <button class="mmBtn audio" id="mmAudio" onclick="setModalType('audio')">🎙️ Áudio</button>
+      <button class="mmBtn on income" id="mmIncome" onclick="setModalType('income')"><svg class="mm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span>Entrada</span></button>
+      <button class="mmBtn expense" id="mmExpense" onclick="setModalType('expense')"><svg class="mm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg><span>Gasto</span></button>
+      <button class="mmBtn audio" id="mmAudio" onclick="setModalType('audio')"><svg class="mm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg><span>Áudio</span></button>
     </div>
     <div id="modal-text">
       <div class="finput-row">
@@ -422,10 +442,13 @@
         <input class="finput amt" id="mVal" type="number" inputmode="decimal" placeholder="R$"/>
       </div>
       <div>
+        <label class="gfm-label">Categoria</label>
+        <div class="cats" id="mCatRow"></div>
+      </div>
+      <div>
         <label class="gfm-label" for="mDate">Data</label>
         <input class="finput" id="mDate" type="date"/>
       </div>
-      <div class="cats" id="mCatRow"></div>
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
         <button class="btn-confirm income" id="mConfirmBtn" onclick="confirmTx()">+ Confirmar Entrada</button>
@@ -433,7 +456,7 @@
     </div>
     <div id="modal-audio" style="display:none">
       <div class="audio-center">
-        <div class="mic-outer" id="micBtn" onclick="handleMic()">🎙️</div>
+        <div class="mic-outer" id="micBtn" onclick="handleMic()"><svg class="mic-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg></div>
         <div class="mic-hint" id="micHint">Toque para gravar</div>
         <div class="mic-timer" id="micTimer"></div>
       </div>
@@ -485,11 +508,11 @@
 
 <div class="fab-wrap" id="fabWrap">
   <div class="fab-menu" id="fabMenu">
-    <div class="fab-item"><span class="fab-label">Gravar Áudio</span><button class="fab-action fa-neutral" onclick="openModal('audio')">🎙️</button></div>
-    <div class="fab-item"><span class="fab-label">Adicionar Gasto</span><button class="fab-action fa-red" onclick="openModal('expense')">💸</button></div>
-    <div class="fab-item"><span class="fab-label">Adicionar Entrada</span><button class="fab-action fa-green" onclick="openModal('income')">💰</button></div>
+    <div class="fab-item"><span class="fab-label">Gravar Áudio</span><button class="fab-action fa-neutral" onclick="openModal('audio')" aria-label="Gravar áudio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg></button></div>
+    <div class="fab-item"><span class="fab-label">Adicionar Gasto</span><button class="fab-action fa-red" onclick="openModal('expense')" aria-label="Adicionar gasto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg></button></div>
+    <div class="fab-item"><span class="fab-label">Adicionar Entrada</span><button class="fab-action fa-green" onclick="openModal('income')" aria-label="Adicionar entrada"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></button></div>
   </div>
-  <button class="fab" id="fabBtn" onclick="toggleFab()">+</button>
+  <button class="fab" id="fabBtn" onclick="toggleFab()" aria-label="Adicionar transação"><svg class="fab-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -497,7 +520,7 @@
 <!-- Modal: Histórico Detalhado por Descrição -->
 <div class="modal-overlay" id="txHistoryModal" onclick="if(event.target===this) closeTxHistory()"></div>
 
-<script type="module" src="./js/main.js"></script>
+<script type="module" src="./js/main.js?v=20260708b"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

@@ -5,14 +5,14 @@ import { renderModules } from './modules.js';
 
 // ─── Paleta de cores para receitas ───────────────────────────────────────────
 const INCOME_PALETTE = [
-  '#22c55e', '#16a34a', '#15803d', '#14532d',
-  '#4ade80', '#86efac', '#34d399', '#059669',
+  '#29D6FF', '#12384D', '#6DDFF6', '#7A8B96',
+  '#A7DDE9', '#081522', '#AAB7C0', '#4BA9C4',
 ];
 
 const EXPENSE_PALETTE = [
-  '#e35d6a', '#f0a35e', '#d7bf55', '#8aa7d6',
-  '#8fc7b5', '#b58bd6', '#d78bb1', '#9aa4b2',
-  '#c96f55', '#6fa8a0', '#a894d6', '#d29a6a',
+  '#12384D', '#29D6FF', '#7A8B96', '#A7DDE9',
+  '#081522', '#4BA9C4', '#AAB7C0', '#6DDFF6',
+  '#5A6B76', '#D7E6EC', '#1C526C', '#8EC7D6',
 ];
 
 // ─── SVGs das visões do dashboard ────────────────────────────────────
@@ -116,9 +116,36 @@ export function refreshUI() {
   if (mobileBalanceCard) {
     mobileBalanceCard.textContent = formatCurrency(balance);
     mobileBalanceCard.className = balance >= 0 ? 'positive' : 'negative';
+    // Marca o card de saldo p/ estilo condicional (negativo = alerta / >=0 = marca)
+    const balanceArticle = mobileBalanceCard.closest('.m-summary-card.balance');
+    if (balanceArticle) {
+      balanceArticle.classList.toggle('is-negative', balance < 0);
+      balanceArticle.classList.toggle('is-positive', balance >= 0);
+    }
   }
   setText('mBalanceLabel', balanceLabel);
   setText('dBalanceLabel', balanceLabel);
+
+  // ── Barra de fluxo (proporção receitas × despesas no card de saldo) ────────
+  const flowIncome  = document.getElementById('mFlowIncome');
+  const flowExpense = document.getElementById('mFlowExpense');
+  if (flowIncome && flowExpense) {
+    const flowTotal = income + expense;
+    const incomePct = flowTotal > 0 ? (income / flowTotal) * 100 : 0;
+    flowIncome.style.width  = `${incomePct.toFixed(1)}%`;
+    flowExpense.style.width = `${flowTotal > 0 ? (100 - incomePct).toFixed(1) : 0}%`;
+    flowIncome.parentElement.classList.toggle('is-empty', flowTotal <= 0);
+  }
+  const flowCaption = document.getElementById('mFlowCaption');
+  if (flowCaption) {
+    if (income <= 0 && expense <= 0) {
+      flowCaption.textContent = 'Sem lançamentos neste mês';
+    } else if (income <= 0) {
+      flowCaption.textContent = 'Nenhuma receita registrada';
+    } else {
+      flowCaption.textContent = `Despesas somam ${Math.round((expense / income) * 100)}% das receitas`;
+    }
+  }
 
   // ── Métricas secundárias ───────────────────────────────────────────────────
   setText('mIncome', formatCurrency(income));
@@ -163,10 +190,10 @@ export function refreshUI() {
 
   renderExpenseHeatmap('mExpenseHeatmap', monthlyTransactions);
   renderExpenseHeatmap('dExpenseHeatmap', monthlyTransactions);
-  renderMobileSpotlight('mTxList', highestExpense, expense);
   renderTransactionsPage(monthlyTransactions);
   renderDonutCharts(sortedCategories, chartTotal, chartIsIncome);
-  renderSixMonthChart('mSixMonthChart', state.transactions);
+  renderWeekdayChart('mWeekdayChart', monthlyTransactions);
+  renderMonthlyTrend('mSixMonthChart', state.transactions);
   renderSixMonthChart('dSixMonthChart', state.transactions);
   renderModules();
 }
@@ -233,6 +260,29 @@ export function toggleDashViewDropdown(dropId) {
   if (pill) pill.setAttribute('aria-expanded', String(isOpen));
 }
 
+// Expande/recolhe blocos de relatório (mobile). Estados independentes em state.
+export function toggleReportBlock(key) {
+  const cfg = {
+    heatmap: {
+      prop: 'heatmapExpanded',
+      header: '#mExpenseHeatmap .report-head',
+      body: '#mExpenseHeatmap .collapse-shell',
+    },
+    chart: {
+      prop: 'chartExpanded',
+      header: '#mChartHeader',
+      body: '#mChartBody',
+    },
+  }[key];
+  if (!cfg) return;
+
+  const expanded = state[cfg.prop] = !state[cfg.prop];
+  const header = document.querySelector(cfg.header);
+  const body = document.querySelector(cfg.body);
+  if (header) header.setAttribute('aria-expanded', String(expanded));
+  if (body) body.classList.toggle('collapsed', !expanded);
+}
+
 export function selectExpenseHeatmapDay(day) {
   state.heatmapSelectedDay = Number(day) || 1;
   const monthlyTransactions = state.transactions.filter(
@@ -275,6 +325,71 @@ function renderTxList(containerId, transactions) {
   }
 }
 
+const TX_WEEKDAYS = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
+
+function txDayKey(value) {
+  const d = new Date(value);
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+function txDayLabel(value) {
+  const d = new Date(value);
+  const day = String(d.getDate()).padStart(2, '0');
+  const mon = MONTHS[d.getMonth()].slice(0, 3).toUpperCase();
+  return `${day} ${mon} · ${TX_WEEKDAYS[d.getDay()]}`;
+}
+
+function txTime(value) {
+  return new Date(value).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+
+/** Tira de resumo do conjunto exibido: contagem + entradas/saídas. */
+function txSummaryHtml(list) {
+  const income  = list.filter((t) => t.type === 'income').reduce((s, t)  => s + t.val, 0);
+  const expense = list.filter((t) => t.type === 'expense').reduce((s, t) => s + t.val, 0);
+  const n = list.length;
+  return `
+    <div class="tx-summary">
+      <div class="tx-summary-count">
+        <strong>${n}</strong>
+        <span>${n === 1 ? 'lançamento' : 'lançamentos'}</span>
+      </div>
+      <div class="tx-summary-flows">
+        <span class="tx-sum-in">↗ ${formatCurrency(income)}</span>
+        <span class="tx-sum-out">↘ ${formatCurrency(expense)}</span>
+      </div>
+    </div>`;
+}
+
+/** Linha compacta de transação (estilo extrato). Usada na lista plana e agrupada. */
+function txRowHtml(transaction) {
+  const safeDesc = escapeHtml(transaction.desc).replace(/'/g, "\\'");
+  const isIncome = transaction.type === 'income';
+  return `
+    <div class="tx-row tx-item-clickable ${transaction.type}" onclick="openTxHistory('${safeDesc}')">
+      <div class="tx-row-ico ${transaction.type}">${txTypeIcon(transaction.type)}</div>
+      <div class="tx-row-body">
+        <span class="tx-row-desc">${escapeHtml(transaction.desc)}</span>
+        <span class="tx-row-sub">
+          <span class="tx-row-cat">${escapeHtml(transaction.cat || 'Outros')}</span>
+          <span class="tx-row-dot" aria-hidden="true">·</span>
+          <span class="tx-row-time">${txTime(transaction.date)}</span>
+        </span>
+      </div>
+      <div class="tx-row-right">
+        <span class="tx-row-amt ${isIncome ? 'positive' : 'negative'}">${isIncome ? '+' : '−'} ${formatCurrency(transaction.val)}</span>
+        <span class="tx-row-actions">
+          <button class="tx-action-btn edit" onclick="event.stopPropagation(); window.editTx ? window.editTx('${transaction.id}') : alert('Em breve')" aria-label="Editar" title="Editar">
+            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
+          <button class="tx-action-btn delete" onclick="event.stopPropagation(); delTx('${transaction.id}')" aria-label="Excluir" title="Excluir">
+            <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          </button>
+        </span>
+      </div>
+    </div>`;
+}
+
 function renderFlatTxList(container, transactions, query) {
   const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
   if (!sorted.length) {
@@ -284,43 +399,32 @@ function renderFlatTxList(container, transactions, query) {
     container.innerHTML = `<div class="empty">${msg}</div>`;
     return;
   }
-  container.innerHTML = `<div class="tx-flat-list">${sorted.map((t) => renderFlatTxItem(t)).join('')}</div>`;
-}
 
-function renderFlatTxItem(transaction) {
-  const safeDesc = escapeHtml(transaction.desc).replace(/'/g, "\\'");
-  return `
-    <div class="tx-card tx-item-clickable ${transaction.type}" onclick="openTxHistory('${safeDesc}')">
-      <div class="tx-card-top">
-        <div class="tx-card-title">
-          <div class="tx-card-ico ${transaction.type}">${txTypeIcon(transaction.type)}</div>
-          <span class="tx-name">${escapeHtml(transaction.desc)}</span>
-        </div>
-        <div class="tx-card-amt ${transaction.type === 'income' ? 'positive' : 'negative'}">
-          ${transaction.type === 'income' ? '+' : '−'} ${formatCurrency(transaction.val)}
-        </div>
+  // Agrupa por dia mantendo a ordem decrescente
+  const days = [];
+  const byKey = new Map();
+  for (const t of sorted) {
+    const key = txDayKey(t.date);
+    if (!byKey.has(key)) {
+      const group = { date: t.date, items: [] };
+      byKey.set(key, group);
+      days.push(group);
+    }
+    byKey.get(key).items.push(t);
+  }
+
+  const daysHtml = days.map((g) => {
+    const net    = g.items.reduce((s, t) => s + (t.type === 'income' ? t.val : -t.val), 0);
+    const netCls = net >= 0 ? 'positive' : 'negative';
+    return `
+      <div class="tx-day">
+        <span class="tx-day-label">${txDayLabel(g.date)}</span>
+        <span class="tx-day-net ${netCls}">${net >= 0 ? '+' : '−'} ${formatCurrency(Math.abs(net))}</span>
       </div>
-      
-      <div class="tx-card-middle">
-        <span class="tx-cat-badge ${transaction.type}">
-          ${catGroupIcon()}
-          ${escapeHtml(transaction.cat || 'Outros')}
-        </span>
-      </div>
-      
-      <div class="tx-card-bottom">
-        <div class="tx-card-date">${formatDateTime(transaction.date)}</div>
-        <div class="tx-card-actions">
-          <button class="tx-action-btn edit" onclick="event.stopPropagation(); window.editTx ? window.editTx('${transaction.id}') : alert('Em breve')" aria-label="Editar" title="Editar">
-            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-          </button>
-          <button class="tx-action-btn delete" onclick="event.stopPropagation(); delTx('${transaction.id}')" aria-label="Excluir" title="Excluir">
-            <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
+      <div class="tx-day-rows">${g.items.map((t) => txRowHtml(t)).join('')}</div>`;
+  }).join('');
+
+  container.innerHTML = `${txSummaryHtml(sorted)}<div class="tx-ledger">${daysHtml}</div>`;
 }
 
 // ─── Controles da aba de Transações ─────────────────────────────────────────
@@ -527,26 +631,6 @@ export function closeTxHistory() {
 
 // ─── Funções Auxiliares ───────────────────────────────────────────────────────
 
-function renderMobileSpotlight(containerId, highestExpense, totalExpense) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  if (!highestExpense) {
-    container.innerHTML = '<div class="empty">Nenhum lançamento neste mês</div>';
-    return;
-  }
-  const percent = Math.max(18, Math.min(100, Math.round((highestExpense.val / Math.max(totalExpense, 1)) * 100)));
-  container.innerHTML = `
-    <div class="m-top-expense">
-      <div>
-        <small>Maior transação</small>
-        <strong>${formatCurrency(highestExpense.val)}</strong>
-      </div>
-      <span>${escapeHtml(highestExpense.desc)}</span>
-    </div>
-    <div class="m-top-expense-bar"><i style="width:${percent}%"></i></div>
-  `;
-}
-
 function getMonthPeriodLabel(year, month) {
   const start = new Date(year, month, 1);
   const end   = new Date(year, month + 1, 0);
@@ -642,17 +726,29 @@ function renderExpenseHeatmap(containerId, transactions) {
   const biggest = selectedExpenses[0];
   const others = selectedExpenses.slice(1);
 
+  // Só o bloco mobile é colapsável; o desktop mantém o layout completo.
+  const collapsible = containerId === 'mExpenseHeatmap';
+  const expanded = !!state.heatmapExpanded;
+  const headAttrs = collapsible
+    ? ` report-head report-toggle" role="button" tabindex="0" onclick="toggleReportBlock('heatmap')" aria-expanded="${expanded}"`
+    : '"';
+  const chevron = collapsible
+    ? '<svg class="report-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>'
+    : '';
+
   container.innerHTML = `
-    <div class="heatmap-head">
+    <div class="heatmap-head${headAttrs}>
       <div>
         <span>Despesas por dia</span>
-        <h3>Mapa de Calor</h3>
+        <h3>Mapa de Calor${chevron}</h3>
       </div>
       <div class="heatmap-total">
         <small>Total Gasto no Mês</small>
         <strong>${formatCurrency(totalMonth)}</strong>
       </div>
     </div>
+    <div class="${collapsible ? `collapse-shell${expanded ? '' : ' collapsed'}` : ''}">
+    <div class="${collapsible ? 'collapse-inner' : 'heatmap-body'}">
     <div class="heatmap-weekdays" aria-hidden="true">
       <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
     </div>
@@ -698,7 +794,116 @@ function renderExpenseHeatmap(containerId, transactions) {
         </div>
       ` : '<div class="heatmap-empty">Nenhuma despesa registrada nesse dia.</div>'}
     </div>
+    </div>
+    </div>
   `;
+}
+
+// ─── Gráfico: Gasto médio por dia da semana ──────────────────────────────────
+
+const WEEKDAY_LETTER = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+const WEEKDAY_FULL   = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+// "aos domingos/sábados" (masc.) · "às segundas..." (fem., dia de feira)
+const WEEKDAY_PHRASE = [
+  'aos domingos', 'às segundas', 'às terças', 'às quartas',
+  'às quintas', 'às sextas', 'aos sábados',
+];
+
+function renderWeekdayChart(containerId, monthlyTransactions) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  const expenses = monthlyTransactions.filter((t) => t.type === 'expense');
+  const daysInMonth = new Date(state.currentYear, state.currentMonth + 1, 0).getDate();
+
+  // Ocorrências de cada dia da semana no mês (p/ tirar a média por ocorrência)
+  const occurrences = [0, 0, 0, 0, 0, 0, 0];
+  for (let d = 1; d <= daysInMonth; d++) {
+    occurrences[new Date(state.currentYear, state.currentMonth, d).getDay()]++;
+  }
+
+  const totals = [0, 0, 0, 0, 0, 0, 0];
+  expenses.forEach((t) => { totals[new Date(t.date).getDay()] += Number(t.val) || 0; });
+
+  const averages = totals.map((sum, i) => (occurrences[i] ? sum / occurrences[i] : 0));
+  const maxAvg   = Math.max(...averages, 0);
+  const peak     = maxAvg > 0 ? averages.indexOf(maxAvg) : -1;
+
+  const bars = averages.map((avg, i) => {
+    const pct = maxAvg ? Math.max(4, Math.round((avg / maxAvg) * 100)) : 0;
+    return `
+      <div class="fin-bar${i === peak ? ' is-peak' : ''}" title="${WEEKDAY_FULL[i]}: ${formatCurrency(avg)} em média">
+        <div class="fin-bar-track"><div class="fin-bar-fill" style="height:${pct}%"></div></div>
+        <span class="fin-bar-label">${WEEKDAY_LETTER[i]}</span>
+      </div>`;
+  }).join('');
+
+  const note = peak >= 0
+    ? `Você gasta mais <strong>${WEEKDAY_PHRASE[peak]}</strong>`
+    : 'Sem despesas neste mês';
+
+  container.innerHTML = `
+    <div class="fin-chart-head">
+      <div><span>Comportamento</span><h3>Gasto médio por dia</h3></div>
+    </div>
+    <p class="fin-chart-note">${note}</p>
+    <div class="fin-bars fin-bars-7">${bars}</div>`;
+}
+
+// ─── Gráfico: Tendência de despesas dos últimos 6 meses ───────────────────────
+
+function renderMonthlyTrend(containerId, allTransactions) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  const buckets = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(state.currentYear, state.currentMonth - i, 1);
+    buckets.push({ y: d.getFullYear(), m: d.getMonth(), label: MONTHS[d.getMonth()].slice(0, 3), expense: 0 });
+  }
+  const idx = new Map(buckets.map((b, i) => [`${b.y}-${b.m}`, i]));
+
+  allTransactions.forEach((t) => {
+    if (t.type !== 'expense') return;
+    const d = new Date(t.date);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    if (idx.has(key)) buckets[idx.get(key)].expense += Number(t.val) || 0;
+  });
+
+  const values  = buckets.map((b) => b.expense);
+  const maxVal  = Math.max(...values, 0);
+  const current = values[values.length - 1];
+  const average = values.reduce((s, v) => s + v, 0) / buckets.length;
+
+  let note;
+  if (maxVal === 0) {
+    note = 'Sem despesas nos últimos meses';
+  } else if (current < average) {
+    note = 'Você gastou <strong>menos</strong> que a média neste mês';
+  } else if (current > average) {
+    note = 'Você gastou <strong>mais</strong> que a média neste mês';
+  } else {
+    note = 'Gasto em linha com a média';
+  }
+
+  const bars = buckets.map((b, i) => {
+    const pct   = maxVal ? Math.max(4, Math.round((b.expense / maxVal) * 100)) : 0;
+    const isCur = i === buckets.length - 1;
+    return `
+      <div class="fin-bar${isCur ? ' is-peak' : ''}" title="${b.label}: ${formatCurrency(b.expense)}">
+        <div class="fin-bar-cap">${b.expense > 0 ? formatCompactCurrency(b.expense) : ''}</div>
+        <div class="fin-bar-track"><div class="fin-bar-fill" style="height:${pct}%"></div></div>
+        <span class="fin-bar-label">${b.label}</span>
+      </div>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="fin-chart-head">
+      <div><span>Tendência</span><h3>Últimos 6 meses</h3></div>
+      <div class="fin-chart-avg"><small>Média/mês</small><strong>${formatCompactCurrency(average)}</strong></div>
+    </div>
+    <p class="fin-chart-note">${note}</p>
+    <div class="fin-bars fin-bars-6">${bars}</div>`;
 }
 
 function getHeatmapTone(total, maxTotal) {
@@ -731,7 +936,7 @@ function renderGroupedTransactions(container, transactions) {
   });
 
   const groups = [...grouped.values()].sort((a, b) => new Date(b.latestDate) - new Date(a.latestDate));
-  container.innerHTML = groups.map((g) => renderGroupSection(g)).join('');
+  container.innerHTML = txSummaryHtml(transactions) + groups.map((g) => renderGroupSection(g)).join('');
 }
 
 function renderGroupSection(group) {
@@ -752,45 +957,9 @@ function renderGroupSection(group) {
         <div class="group-total ${cls}">${prefix} ${formatCurrency(Math.abs(group.total))}</div>
       </summary>
       <div class="group-list">
-        ${group.transactions.map((t) => renderTransactionItem(t)).join('')}
+        ${group.transactions.map((t) => txRowHtml(t)).join('')}
       </div>
     </details>
-  `;
-}
-
-function renderTransactionItem(transaction) {
-  const safeDesc = escapeHtml(transaction.desc).replace(/'/g, "\\'");
-  return `
-    <div class="tx-card tx-item-clickable" onclick="openTxHistory('${safeDesc}')">
-      <div class="tx-card-top">
-        <div class="tx-card-title">
-          <div class="tx-card-ico ${transaction.type}">${txTypeIcon(transaction.type)}</div>
-          <span class="tx-name">${escapeHtml(transaction.desc)}</span>
-        </div>
-        <div class="tx-card-amt ${transaction.type === 'income' ? 'positive' : 'negative'}">
-          ${transaction.type === 'income' ? '+' : '-'} ${formatCurrency(transaction.val)}
-        </div>
-      </div>
-      
-      <div class="tx-card-middle">
-        <span class="tx-cat-badge">
-          ${catGroupIcon()}
-          ${escapeHtml(transaction.cat || 'Outros')}
-        </span>
-      </div>
-      
-      <div class="tx-card-bottom">
-        <div class="tx-card-date">${formatDateTime(transaction.date)}</div>
-        <div class="tx-card-actions">
-          <button class="tx-action-btn edit" onclick="event.stopPropagation(); window.editTx ? window.editTx('${transaction.id}') : alert('Em breve')" aria-label="Editar" title="Editar">
-            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-          </button>
-          <button class="tx-action-btn delete" onclick="event.stopPropagation(); delTx('${transaction.id}')" aria-label="Excluir" title="Excluir">
-            <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
   `;
 }
 

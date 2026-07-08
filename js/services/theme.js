@@ -8,9 +8,16 @@ function renderThemeIcon(theme) {
   return `<svg viewBox="0 0 24 24" aria-hidden="true">${path}</svg>`;
 }
 
+// Cores da status bar do celular por tema (casam com o fundo do topbar)
+const THEME_COLORS = { dark: '#07111d', light: '#f6f7f8' };
+
 export function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   localStorage.setItem(THEME_KEY, theme);
+
+  // Status bar (Android/Chrome PWA) acompanha o tema
+  const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+  if (metaThemeColor) metaThemeColor.setAttribute('content', THEME_COLORS[theme] || THEME_COLORS.dark);
 
   document.querySelectorAll('#mThemeBtn, #dThemeBtn').forEach((button) => {
     button.innerHTML = renderThemeIcon(theme);
