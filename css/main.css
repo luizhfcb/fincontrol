@@ -32,9 +32,9 @@
   --surface:#ffffff;
   --border:rgba(0,0,0,0.08);
   --border2:rgba(0,99,151,0.20);
-  --text:#0d1117;
-  --text2:rgba(13,17,23,0.62);
-  --text3:rgba(13,17,23,0.38);
+  --text:#1F2937;
+  --text2:#6B7280;
+  --text3:rgba(31,41,55,0.45);
   --accent:#0066cc;
   --accent-strong:#004a99;
   --accent-bg:rgba(0,102,204,0.08);
@@ -51,7 +51,7 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{min-height:100%;width:100%;background:var(--bg);overflow-x:hidden;transition:background .25s,color .25s}
 body{overflow-y:auto}
-body{color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg)}
+body{color:var(--text);font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);font-weight:400}
 [data-theme="light"] body{background:var(--bg)}
 button,input{font:inherit}
 
@@ -150,7 +150,7 @@ body.logged-out #desktop-app{display:none!important}
 .m-saldo-card,.m-mini,.m-card,.d-panel,.d-hero,.d-mini{background:var(--card);border:1px solid var(--border);box-shadow:var(--shadow-soft)}
 .m-saldo-card{border-radius:22px;padding:18px 16px;margin-bottom:10px;text-align:center}
 .m-saldo-card label,.m-mini label,.d-hero-main label,.d-mini label,.stat-info label,.d-stat-info label,.modal-title small{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px;font-weight:700}
-.big-val{font-size:30px;font-weight:900;letter-spacing:-.05em}
+.big-val{font-size:30px;font-weight:700;letter-spacing:-.03em}
 .m-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .m-mini{border-radius:18px;padding:14px 14px}
 .m-mini .val,.d-mini .val{font-size:22px;font-weight:900;letter-spacing:-.04em}
@@ -189,18 +189,26 @@ body.logged-out #desktop-app{display:none!important}
 .m-top-expense-bar i{display:block;height:100%;background:linear-gradient(90deg,#77c4ff,#3498db);border-radius:999px}
 
 .grouped-list{display:grid;gap:12px}
-.group-section{border:1px solid var(--border);border-radius:18px;background:rgba(255,255,255,.02);overflow:hidden}
-.group-section[open]{box-shadow:var(--shadow-soft)}
-.group-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid transparent;background:rgba(255,255,255,.03);cursor:pointer;list-style:none}
+.group-section{border:1px solid var(--border);border-radius:16px;background:var(--card);box-shadow:var(--shadow-soft);overflow:hidden;transition:box-shadow .18s ease}
+.group-section[open]{box-shadow:0 8px 24px rgba(0,0,0,.10)}
+.group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid transparent;background:transparent;cursor:pointer;list-style:none;transition:background .15s ease}
+.group-head:hover{background:var(--card2)}
 .group-head::-webkit-details-marker{display:none}
 .group-head::marker{content:"";font-size:0}
-.group-section[open] .group-head{border-bottom-color:var(--border)}
-.group-title-wrap{display:flex;align-items:center;gap:12px;min-width:0}
-.group-icon{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--accent-bg);border:1px solid var(--border);flex-shrink:0}
-.group-title{font-size:14px;font-weight:800}
-.group-meta{font-size:11px;color:var(--text3);margin-top:2px}
-.group-total{font-size:13px;font-weight:900;white-space:nowrap}
-.group-list{padding:4px 14px 10px}
+.group-section[open] .group-head{border-bottom-color:var(--border);background:var(--card2)}
+.group-title-wrap{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+.group-title-text{min-width:0}
+.group-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb, currentColor 15%, transparent);border:1px solid color-mix(in srgb, currentColor 28%, transparent);flex-shrink:0}
+.group-title{font-size:14.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.group-meta{font-size:11.5px;color:var(--text2);margin-top:1px;font-weight:400}
+.group-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.group-total{font-size:14px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.group-total.positive{color:var(--fin-green)}
+.group-total.negative{color:var(--fin-red)}
+.group-chevron{width:16px;height:16px;flex-shrink:0;fill:none;stroke:var(--text3);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s ease}
+.group-section[open] .group-chevron{transform:rotate(180deg)}
+.group-list{padding:2px 0}
+.group-list .tx-swipe + .tx-swipe{border-top:1px solid color-mix(in srgb, var(--border) 55%, transparent)}
 .tx-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
 .tx-item:last-child{border-bottom:none}
 .tx-ico,.d-tx-ico{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--accent-bg);border:1px solid var(--border)}
@@ -886,7 +894,6 @@ body.desktop-sidebar-collapsed .d-main{margin-left:var(--sidebar-width-collapsed
   .legend-value{font-size:16px}
   .m-profile-copy strong{font-size:24px}
   .m-balance-hero .big-val{font-size:48px}
-  .group-head{align-items:flex-start;flex-direction:column}
 }
 
 @media(min-width:768px){
@@ -1565,8 +1572,8 @@ body.logged-out .d-main {
 }
 
 [data-theme="light"] .group-icon {
-  background: var(--bg3);
-  border-color: var(--border);
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  border-color: color-mix(in srgb, currentColor 26%, transparent);
 }
 
 [data-theme="light"] .tx-ico {
@@ -1681,7 +1688,7 @@ body.logged-out .d-main {
 [data-theme="light"] .tx-ico { background: var(--bg3); border-color: var(--border); }
 [data-theme="light"] .tx-ico.income { background: var(--green-bg); }
 [data-theme="light"] .tx-ico.expense { background: var(--red-bg); }
-[data-theme="light"] .group-icon { background: var(--bg3); border-color: var(--border); }
+[data-theme="light"] .group-icon { background: color-mix(in srgb, currentColor 14%, transparent); border-color: color-mix(in srgb, currentColor 26%, transparent); }
 
 /* ── Login page ────────────────────────────────────────────────────────────── */
 [data-theme="light"] .login-hero,
@@ -2165,7 +2172,7 @@ body.logged-out .d-main {
 /* Ajuste tipográfico mobile: menos peso visual, mais próximo de app financeiro nativo */
 @media (max-width: 767px) {
   body {
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;
+    font-family:'Poppins',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     font-weight:400;
   }
 
@@ -2614,9 +2621,9 @@ body.logged-out .d-main {
 .heatmap-highlight {
   margin-top:12px;
   padding:14px;
-  border:1px solid rgba(233,65,77,.14);
+  border:1px solid rgba(255,90,95,.30);
   border-radius:18px;
-  background:rgba(233,65,77,.045);
+  background:rgba(255,90,95,.10);
 }
 
 .heatmap-highlight > small {
@@ -2695,6 +2702,116 @@ body.logged-out .d-main {
   color:var(--text2);
   text-align:center;
   font-size:13px;
+}
+
+/* ── Detalhes do dia — cabeçalho rico (estilo Zap Gastos) ────────────────── */
+.heatmap-detail-top { align-items:flex-start; }
+.day-head-info { display:flex; flex-direction:column; gap:2px; min-width:0; }
+.day-head-title {
+  color:var(--text) !important;
+  font-size:15px !important;
+  font-weight:800 !important;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+/* Light: vence o override muted de .heatmap-detail-top span (specificity maior) */
+[data-theme="light"] .heatmap-detail-top .day-head-title { color:#081522 !important; }
+.day-head-count {
+  color:var(--text2);
+  font-size:12px;
+  font-weight:600;
+}
+
+/* Selo de dia típico (multiplicador) */
+.day-typical-badge {
+  display:inline-block;
+  margin-top:10px;
+  padding:6px 13px;
+  border-radius:999px;
+  background:rgba(255,90,95,.20);
+  border:1px solid rgba(255,90,95,.35);
+  color:#ff6b6b;
+  font-size:12.5px;
+  font-weight:800;
+  letter-spacing:.01em;
+}
+[data-theme="light"] .day-typical-badge {
+  color:#d61f2b;
+  background:rgba(233,65,77,.12);
+  border-color:rgba(233,65,77,.26);
+}
+
+/* Título de seção reutilizável (COMPOSIÇÃO / TRANSAÇÕES) */
+.day-section-title {
+  display:block;
+  margin:16px 0 10px;
+  color:var(--text3);
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+/* Ícone de categoria (emoji) em círculo neutro — estilo Zap Gastos */
+.heatmap-detail .day-ico {
+  width:38px;
+  height:38px;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:var(--card2);
+  border:1px solid var(--border);
+  font-size:18px;
+  line-height:1;
+}
+
+/* ── Gráfico de composição: barra segmentada + legenda ──────────────────── */
+.day-compo-bar {
+  display:flex;
+  width:100%;
+  height:12px;
+  border-radius:999px;
+  overflow:hidden;
+  background:var(--card2);
+  gap:2px;
+}
+.day-compo-seg {
+  height:100%;
+  min-width:3px;
+  transition:width .35s cubic-bezier(.22,1,.36,1);
+}
+.day-compo-seg:first-child { border-radius:999px 0 0 999px; }
+.day-compo-seg:last-child  { border-radius:0 999px 999px 0; }
+.day-compo-legend {
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:8px 14px;
+  margin-top:12px;
+}
+.dcl-item { display:flex; align-items:center; gap:7px; min-width:0; font-size:12px; }
+.dcl-dot {
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  flex-shrink:0;
+}
+.dcl-name {
+  color:var(--text2);
+  font-weight:600;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  flex:1;
+  min-width:0;
+}
+.dcl-val {
+  color:var(--text);
+  font-weight:700;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+  flex-shrink:0;
 }
 
 @media (max-width: 767px) {
@@ -3771,25 +3888,25 @@ body.logged-out .d-main {
     background:#29D6FF !important;
   }
 
-  .group-head,
-  [data-theme="light"] .group-head {
-    background:#081522 !important;
+  .group-section[open] .group-head,
+  [data-theme="light"] .group-section[open] .group-head {
+    background:var(--card2) !important;
   }
 
   .group-icon,
   [data-theme="light"] .group-icon {
-    background:#29D6FF !important;
-    color:#000000 !important;
-    border:none !important;
+    background:color-mix(in srgb, currentColor 16%, transparent) !important;
+    border:1px solid color-mix(in srgb, currentColor 30%, transparent) !important;
   }
 
-  .group-title,
-  .group-total {
-    color:#FFFFFF !important;
+  .group-title {
+    color:var(--text) !important;
   }
+  .group-total.positive { color:var(--fin-green) !important; }
+  .group-total.negative { color:var(--fin-red) !important; }
 
   .group-meta {
-    color:rgba(255,255,255,.56) !important;
+    color:var(--text2) !important;
   }
 
   .m-bottomnav {
@@ -4611,7 +4728,7 @@ body.logged-out .d-main {
 
 #mobile-app,
 #desktop-app {
-  --fin-display:'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fin-display:'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --fin-green:#0a8f4e;  --fin-green-soft:rgba(10,143,78,.12);
   --fin-red:#c41c1c;    --fin-red-soft:rgba(196,28,28,.10);
   --fin-blue:#0f6fb0;
@@ -4836,16 +4953,46 @@ body.logged-out .d-main {
 .tx-sum-in  { color:var(--fin-green); }
 .tx-sum-out { color:var(--fin-red); }
 
-/* ── Ledger: cabeçalho de dia + net diário ──────────────────────────────── */
-.tx-ledger { display:flex; flex-direction:column; }
+/* ── Ledger: um container (card) por dia ─────────────────────────────────── */
+.tx-ledger { display:flex; flex-direction:column; gap:14px; }
+
+/* Card do dia: agrupa cabeçalho + lista do dia. Única borda externa. */
+.tx-day-card {
+  border-radius:16px;
+  background:var(--card);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow-soft);
+  overflow:hidden;
+}
+
 .tx-day {
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:10px;
-  margin:16px 4px 8px;
+  width:100%;
+  padding:12px 16px;
+  background:var(--card2);
+  border:none;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;
+  text-align:left;
+  transition:background .15s ease;
+  -webkit-tap-highlight-color:transparent;
 }
-.tx-day:first-child { margin-top:2px; }
+.tx-day:hover { background:color-mix(in srgb, var(--card2) 82%, var(--text)); }
+.tx-day-main { display:flex; align-items:center; gap:8px; min-width:0; }
+.tx-day-chevron {
+  width:16px;
+  height:16px;
+  flex-shrink:0;
+  fill:none;
+  stroke:var(--text3);
+  stroke-width:2.4;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  transition:transform .2s ease;
+}
 .tx-day-label {
   font-size:11px;
   font-weight:800;
@@ -4853,30 +5000,111 @@ body.logged-out .d-main {
   color:var(--text3);
   text-transform:uppercase;
 }
+.tx-day-count {
+  min-width:18px;
+  height:18px;
+  padding:0 5px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:9px;
+  background:color-mix(in srgb, var(--text3) 22%, transparent);
+  color:var(--text2);
+  font-size:10px;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+}
 .tx-day-net {
   font-family:var(--fin-display);
   font-variant-numeric:tabular-nums;
   font-size:12px;
   font-weight:700;
+  flex-shrink:0;
 }
 .tx-day-net.positive { color:var(--fin-green); }
 .tx-day-net.negative { color:var(--fin-red); }
-.tx-day-rows { display:flex; flex-direction:column; gap:8px; }
+.tx-day-rows {
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  max-height:2000px;
+  transition:max-height .3s ease, opacity .2s ease;
+}
 
-/* ── Linha de transação ─────────────────────────────────────────────────── */
+/* Estado recolhido: gira o chevron, esconde as linhas do dia */
+.tx-day-card.collapsed .tx-day { border-bottom:none; }
+.tx-day-card.collapsed .tx-day-chevron { transform:rotate(-90deg); }
+.tx-day-card.collapsed .tx-day-rows {
+  max-height:0;
+  opacity:0;
+  pointer-events:none;
+}
+
+/* ── Swipe-to-action: trilho + camadas de ação reveladas ao deslizar ─────── */
+.tx-swipe {
+  position:relative;
+  overflow:hidden;
+  touch-action:pan-y;            /* deixa scroll vertical; horizontal é nosso */
+}
+/* Divisória bem sutil entre itens do mesmo dia */
+.tx-day-rows .tx-swipe + .tx-swipe {
+  border-top:1px solid color-mix(in srgb, var(--border) 55%, transparent);
+}
+.tx-swipe-action {
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:72px;
+  display:flex;
+  align-items:center;
+}
+.tx-swipe-action.edit {
+  left:0;
+  justify-content:flex-start;
+  padding-left:16px;
+  background:color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.tx-swipe-action.delete {
+  right:0;
+  justify-content:flex-end;
+  padding-right:16px;
+  background:var(--fin-red);
+}
+.tx-swipe-btn {
+  width:40px;
+  height:40px;
+  padding:0;
+  border:none;
+  border-radius:12px;
+  background:transparent;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.tx-swipe-btn svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+.tx-swipe-btn.edit   { color:var(--accent); }
+.tx-swipe-btn.delete { color:#fff; }
+
+/* ── Linha de transação: item plano que desliza sobre as ações ──────────── */
 .tx-row {
+  position:relative;
+  z-index:1;
   display:flex;
   align-items:center;
   gap:12px;
-  padding:12px 14px;
-  border-radius:14px;
-  background:var(--card);
-  border:1px solid var(--border);
-  box-shadow:var(--shadow-soft);
+  padding:12px 16px;
+  background:var(--card);        /* opaco: cobre as ações quando fechado */
+  border:none;
+  border-radius:0;
+  box-shadow:none;
   cursor:pointer;
-  transition:transform .15s ease, box-shadow .15s ease;
+  transition:transform .25s cubic-bezier(.22,.61,.36,1), background .15s ease;
 }
-.tx-row:hover { transform:translateY(-1px); box-shadow:0 8px 22px rgba(0,0,0,.10); }
+.tx-swipe.dragging .tx-row { transition:background .15s ease; }
+.tx-swipe.open-left  .tx-row { transform:translateX(-72px); }
+.tx-swipe.open-right .tx-row { transform:translateX(72px); }
+.tx-row:hover { background:var(--card2); }
 .tx-row-ico {
   flex-shrink:0;
   width:38px;
@@ -5134,6 +5362,59 @@ body.logged-out .d-main {
 }
 .fin-bar.is-peak .fin-bar-label { color:var(--fin-blue); font-weight:800; }
 
+/* ── Barras interativas: cursor, foco, destaque do selecionado ──────────── */
+.fin-bar { cursor:pointer; border-radius:8px; transition:background .15s ease; }
+.fin-bar:hover { background:color-mix(in srgb, var(--fin-blue) 8%, transparent); }
+.fin-bar:focus-visible { outline:2px solid var(--fin-blue); outline-offset:2px; }
+.fin-bar:hover .fin-bar-fill { filter:brightness(1.06); }
+.fin-bar.active .fin-bar-fill {
+  background:linear-gradient(180deg, var(--fin-blue), color-mix(in srgb, var(--fin-blue) 78%, #000));
+  box-shadow:0 0 0 2px color-mix(in srgb, var(--fin-blue) 35%, transparent);
+}
+.fin-bar.active .fin-bar-label { color:var(--fin-blue); font-weight:800; }
+
+.sixm-bar:focus-visible { outline:2px solid var(--fin-blue); outline-offset:2px; }
+.sixm-bar.active { box-shadow:0 0 0 2px color-mix(in srgb, var(--fin-blue) 45%, transparent); filter:brightness(1.1); }
+
+/* ── Texto dinâmico com o valor exato da barra clicada ──────────────────── */
+.fin-bar-readout {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:14px;
+  padding:0 14px;
+  max-height:0;
+  opacity:0;
+  overflow:hidden;
+  border-radius:12px;
+  background:var(--card2);
+  border:1px solid transparent;
+  transition:max-height .25s ease, opacity .2s ease, padding .25s ease;
+}
+.fin-bar-readout.show {
+  max-height:60px;
+  opacity:1;
+  padding:12px 14px;
+  border-color:var(--border);
+}
+.fin-bar-readout .fbr-label {
+  font-size:12px;
+  font-weight:700;
+  color:var(--text2);
+  text-transform:capitalize;
+}
+.fin-bar-readout .fbr-value {
+  font-family:var(--fin-display);
+  font-variant-numeric:tabular-nums;
+  font-weight:800;
+  font-size:15px;
+  color:var(--text);
+  white-space:nowrap;
+}
+.fin-bar-readout .fbr-value.income  { color:var(--fin-green); }
+.fin-bar-readout .fbr-value.expense { color:var(--fin-red); }
+
 @media (prefers-reduced-motion: reduce) {
   .fin-bar-fill { transition:none; }
 }
@@ -5327,7 +5608,7 @@ body.logged-out .d-main {
 /* Tokens --fin-* no :root: modal e FAB ficam FORA de #mobile-app, então
    precisam dos tokens em escopo global (senão viram inválidos). */
 :root {
-  --fin-display:'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fin-display:'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --fin-green:#0a8f4e;  --fin-green-soft:rgba(10,143,78,.12);
   --fin-red:#c41c1c;    --fin-red-soft:rgba(196,28,28,.10);
   --fin-blue:#0f6fb0;
@@ -5416,3 +5697,59 @@ body.logged-out .d-main {
   font-weight:700;
 }
 .cat-option-new svg { width:16px; height:16px; flex-shrink:0; }
+
+/* ════════════════════════════════════════════════════════════════════════
+   REFINAMENTO TIPOGRÁFICO — hierarquia mais suave e elegante
+   Regra geral: menos negrito, cinzas em vez de preto, tracking nos maiúsculos.
+   Bloco no fim do arquivo p/ vencer os overrides de tema/responsivo por ordem.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* 1) Nomes de transação e categorias → Medium (500) */
+.tx-row-desc,
+.tx-row-cat,
+.heatmap-highlight-row strong,
+.heatmap-list-row strong {
+  font-weight:500;
+}
+/* Subtítulos/categorias secundárias em cinza médio */
+.tx-row-sub,
+.heatmap-list-row small,
+.heatmap-highlight-row small {
+  font-weight:400;
+  color:var(--text2);
+}
+
+/* 2) Títulos de seção → SemiBold (600), não Black/ExtraBold */
+.sec-title,
+#mobile-app .sec-title,
+#desktop-app .sec-title,
+#mp-transactions .sec-title,
+[data-theme="light"] .sec-title,
+[data-theme="light"] #mobile-app .sec-title,
+.day-section-title,
+.fin-chart-head h3,
+.heatmap-head h3,
+[data-theme="light"] .heatmap-head h3,
+#monthLabel, #dMonthLabel {
+  font-weight:600;
+}
+
+/* 3) Valores financeiros e saldo → Bold (700). Reduz os 800/900 espalhados. */
+.tx-row-amt,
+.tx-day-net,
+.tx-summary-count strong,
+.big-val,
+.heatmap-detail-top strong,
+.heatmap-highlight-row b,
+.heatmap-list-row b {
+  font-weight:700;
+}
+
+/* 4) Cabeçalhos e datas em maiúsculas → leve tracking + peso contido */
+.tx-day-label {
+  font-weight:600;
+  letter-spacing:.14em;
+}
+.day-section-title {
+  letter-spacing:.14em;
+}

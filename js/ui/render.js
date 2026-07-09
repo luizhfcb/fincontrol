@@ -15,6 +15,27 @@ const EXPENSE_PALETTE = [
   '#5A6B76', '#D7E6EC', '#1C526C', '#8EC7D6',
 ];
 
+// Cores vívidas e distintas p/ composição do dia — legíveis em tema claro E escuro
+const COMPO_PALETTE = [
+  '#29D6FF', '#FF6B6B', '#FFD166', '#06D6A0',
+  '#A78BFA', '#F78C6B', '#4ADE80', '#F472B6',
+  '#38BDF8', '#FBBF24', '#22D3EE', '#FB7185',
+];
+
+/** Monograma: 1ª letra útil da descrição (fallback #). */
+function txMonogram(desc) {
+  const s = (desc || '').trim();
+  return s ? s[0].toUpperCase() : '#';
+}
+
+/** Cor da categoria: mapa fixo p/ conhecidas, hash estável p/ dinâmicas. */
+function catColor(name) {
+  if (CATEGORY_COLORS[name]) return CATEGORY_COLORS[name];
+  let h = 0;
+  for (let i = 0; i < (name || '').length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return COMPO_PALETTE[h % COMPO_PALETTE.length];
+}
+
 // ─── SVGs das visões do dashboard ────────────────────────────────────
 const DVP_ICONS = {
   all:     '<svg class="dvp-svg" viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>',
@@ -325,6 +346,110 @@ function renderTxList(containerId, transactions) {
   }
 }
 
+/* ─── Swipe-to-action nas linhas de transação ───────────────────────────────
+   Desliza esquerda -> revela Excluir; direita -> revela Editar. Vanilla JS.
+   Delegação de pointer no document, registrada 1x. */
+const SWIPE_REVEAL = 72;   // px que a linha abre em cada lado
+const SWIPE_TRIGGER = 40;  // px mínimo pra "abrir"; abaixo disso volta ao lugar
+let swipe = null;          // gesto ativo { el, row, startX, startY, dx, axis, moved }
+let swipeJustEnded = 0;    // timestamp: suprime o click sintético pós-arraste
+
+function closeSwipe(el) {
+  if (el) el.classList.remove('open-left', 'open-right');
+}
+function closeAllSwipes(except) {
+  document.querySelectorAll('.tx-swipe.open-left, .tx-swipe.open-right')
+    .forEach((el) => { if (el !== except) closeSwipe(el); });
+}
+
+function onSwipeStart(e) {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  const target = e.target;
+  if (target.closest('.tx-swipe-action')) return; // clique no botão revelado
+  const el = target.closest('.tx-swipe');
+  closeAllSwipes(el);
+  if (!el) return;
+  swipe = {
+    el,
+    row: el.querySelector('.tx-row'),
+    startX: e.clientX,
+    startY: e.clientY,
+    dx: 0,
+    axis: null,   // 'x' | 'y' após decidir direção
+    moved: false,
+  };
+}
+
+function onSwipeMove(e) {
+  if (!swipe) return;
+  const dx = e.clientX - swipe.startX;
+  const dy = e.clientY - swipe.startY;
+
+  if (!swipe.axis) {
+    if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+    swipe.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+    if (swipe.axis === 'x') {
+      swipe.el.classList.add('dragging');
+      // já pode ter começado aberto: soma offset atual
+      if (swipe.el.classList.contains('open-left'))  swipe.startX += SWIPE_REVEAL;
+      if (swipe.el.classList.contains('open-right')) swipe.startX -= SWIPE_REVEAL;
+    }
+  }
+  if (swipe.axis !== 'x') return; // scroll vertical: deixa passar
+
+  e.preventDefault();
+  swipe.moved = true;
+  // resistência além do limite de revelação
+  let d = e.clientX - swipe.startX;
+  if (d < -SWIPE_REVEAL) d = -SWIPE_REVEAL + (d + SWIPE_REVEAL) * 0.25;
+  if (d >  SWIPE_REVEAL) d =  SWIPE_REVEAL + (d - SWIPE_REVEAL) * 0.25;
+  swipe.dx = d;
+  swipe.row.style.transform = `translateX(${d}px)`;
+}
+
+function onSwipeEnd() {
+  if (!swipe) return;
+  const { el, row, dx, axis, moved } = swipe;
+  if (axis === 'x') {
+    el.classList.remove('dragging');
+    row.style.transform = '';
+    closeSwipe(el);
+    if (dx <= -SWIPE_TRIGGER)      el.classList.add('open-left');  // revela excluir
+    else if (dx >= SWIPE_TRIGGER)  el.classList.add('open-right'); // revela editar
+    if (moved) swipeJustEnded = Date.now();
+  }
+  swipe = null;
+}
+
+function initTxSwipe() {
+  if (window.__txSwipeInit) return;
+  window.__txSwipeInit = true;
+  document.addEventListener('pointerdown', onSwipeStart, { passive: true });
+  document.addEventListener('pointermove', onSwipeMove, { passive: false });
+  document.addEventListener('pointerup', onSwipeEnd, { passive: true });
+  document.addEventListener('pointercancel', onSwipeEnd, { passive: true });
+}
+initTxSwipe();
+
+/** Clique na linha: se estava aberta (ou acabou de deslizar), só fecha. */
+window.onTxRowClick = function (event, safeDesc) {
+  const el = event.currentTarget.closest('.tx-swipe');
+  if (el && (el.classList.contains('open-left') || el.classList.contains('open-right'))) {
+    closeSwipe(el);
+    return;
+  }
+  if (Date.now() - swipeJustEnded < 350) return; // ignorar clique pós-arraste
+  openTxHistory(safeDesc);
+};
+
+/** Expande/recolhe o container de um dia ao clicar no cabeçalho. */
+window.toggleTxDay = function (btn) {
+  const card = btn.closest('.tx-day-card');
+  if (!card) return;
+  const collapsed = card.classList.toggle('collapsed');
+  btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+};
+
 const TX_WEEKDAYS = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
 
 function txDayKey(value) {
@@ -336,7 +461,7 @@ function txDayLabel(value) {
   const d = new Date(value);
   const day = String(d.getDate()).padStart(2, '0');
   const mon = MONTHS[d.getMonth()].slice(0, 3).toUpperCase();
-  return `${day} ${mon} · ${TX_WEEKDAYS[d.getDay()]}`;
+  return `${day} ${mon} - ${TX_WEEKDAYS[d.getDay()]}`;
 }
 
 function txTime(value) {
@@ -366,26 +491,30 @@ function txRowHtml(transaction) {
   const safeDesc = escapeHtml(transaction.desc).replace(/'/g, "\\'");
   const isIncome = transaction.type === 'income';
   return `
-    <div class="tx-row tx-item-clickable ${transaction.type}" onclick="openTxHistory('${safeDesc}')">
-      <div class="tx-row-ico ${transaction.type}">${txTypeIcon(transaction.type)}</div>
-      <div class="tx-row-body">
-        <span class="tx-row-desc">${escapeHtml(transaction.desc)}</span>
-        <span class="tx-row-sub">
-          <span class="tx-row-cat">${escapeHtml(transaction.cat || 'Outros')}</span>
-          <span class="tx-row-dot" aria-hidden="true">·</span>
-          <span class="tx-row-time">${txTime(transaction.date)}</span>
-        </span>
+    <div class="tx-swipe">
+      <div class="tx-swipe-action edit" aria-hidden="true">
+        <button class="tx-swipe-btn edit" onclick="event.stopPropagation(); window.editTx ? window.editTx('${transaction.id}') : alert('Em breve')" aria-label="Editar" title="Editar" tabindex="-1">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </button>
       </div>
-      <div class="tx-row-right">
-        <span class="tx-row-amt ${isIncome ? 'positive' : 'negative'}">${isIncome ? '+' : '−'} ${formatCurrency(transaction.val)}</span>
-        <span class="tx-row-actions">
-          <button class="tx-action-btn edit" onclick="event.stopPropagation(); window.editTx ? window.editTx('${transaction.id}') : alert('Em breve')" aria-label="Editar" title="Editar">
-            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-          </button>
-          <button class="tx-action-btn delete" onclick="event.stopPropagation(); delTx('${transaction.id}')" aria-label="Excluir" title="Excluir">
-            <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-          </button>
-        </span>
+      <div class="tx-swipe-action delete" aria-hidden="true">
+        <button class="tx-swipe-btn delete" onclick="event.stopPropagation(); delTx('${transaction.id}')" aria-label="Excluir" title="Excluir" tabindex="-1">
+          <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        </button>
+      </div>
+      <div class="tx-row ${transaction.type}" onclick="onTxRowClick(event, '${safeDesc}')">
+        <div class="tx-row-ico ${transaction.type}">${txTypeIcon(transaction.type)}</div>
+        <div class="tx-row-body">
+          <span class="tx-row-desc">${escapeHtml(transaction.desc)}</span>
+          <span class="tx-row-sub">
+            <span class="tx-row-cat">${escapeHtml(transaction.cat || 'Outros')}</span>
+            <span class="tx-row-dot" aria-hidden="true">·</span>
+            <span class="tx-row-time">${txTime(transaction.date)}</span>
+          </span>
+        </div>
+        <div class="tx-row-right">
+          <span class="tx-row-amt ${isIncome ? 'positive' : 'negative'}">${isIncome ? '+' : '−'} ${formatCurrency(transaction.val)}</span>
+        </div>
       </div>
     </div>`;
 }
@@ -416,12 +545,19 @@ function renderFlatTxList(container, transactions, query) {
   const daysHtml = days.map((g) => {
     const net    = g.items.reduce((s, t) => s + (t.type === 'income' ? t.val : -t.val), 0);
     const netCls = net >= 0 ? 'positive' : 'negative';
+    const count = g.items.length;
     return `
-      <div class="tx-day">
-        <span class="tx-day-label">${txDayLabel(g.date)}</span>
-        <span class="tx-day-net ${netCls}">${net >= 0 ? '+' : '−'} ${formatCurrency(Math.abs(net))}</span>
-      </div>
-      <div class="tx-day-rows">${g.items.map((t) => txRowHtml(t)).join('')}</div>`;
+      <div class="tx-day-card">
+        <button type="button" class="tx-day" onclick="toggleTxDay(this)" aria-expanded="true">
+          <span class="tx-day-main">
+            <svg class="tx-day-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            <span class="tx-day-label">${txDayLabel(g.date)}</span>
+            <span class="tx-day-count">${count}</span>
+          </span>
+          <span class="tx-day-net ${netCls}">${net >= 0 ? '+' : '−'} ${formatCurrency(Math.abs(net))}</span>
+        </button>
+        <div class="tx-day-rows">${g.items.map((t) => txRowHtml(t)).join('')}</div>
+      </div>`;
   }).join('');
 
   container.innerHTML = `${txSummaryHtml(sorted)}<div class="tx-ledger">${daysHtml}</div>`;
@@ -671,8 +807,16 @@ function renderSixMonthChart(containerId, allTransactions) {
           ${d.income > 0 ? formatCompactCurrency(d.income) : ''}
         </div>
         <div style="height:120px;width:100%;display:flex;gap:4px;align-items:flex-end;justify-content:center">
-          <div style="height:${incPct}%;width:16px;background:var(--green);border-radius:4px 4px 0 0;transition:height .3s"></div>
-          <div style="height:${expPct}%;width:16px;background:var(--red);border-radius:4px 4px 0 0;transition:height .3s"></div>
+          <div class="sixm-bar" role="button" tabindex="0"
+               data-label="${d.label} · Receitas" data-value="${formatCurrency(d.income)}" data-tone="income"
+               onclick="selectSixMonthBar(this)" onkeydown="${BAR_KEY_SIXM}"
+               title="${d.label} · Receitas: ${formatCurrency(d.income)}"
+               style="height:${incPct}%;width:16px;background:var(--green);border-radius:4px 4px 0 0;transition:height .3s;cursor:pointer"></div>
+          <div class="sixm-bar" role="button" tabindex="0"
+               data-label="${d.label} · Despesas" data-value="${formatCurrency(d.expense)}" data-tone="expense"
+               onclick="selectSixMonthBar(this)" onkeydown="${BAR_KEY_SIXM}"
+               title="${d.label} · Despesas: ${formatCurrency(d.expense)}"
+               style="height:${expPct}%;width:16px;background:var(--red);border-radius:4px 4px 0 0;transition:height .3s;cursor:pointer"></div>
         </div>
         <div style="font-size:9px;color:var(--text3);height:12px;font-weight:bold;white-space:nowrap">
           ${d.expense > 0 ? formatCompactCurrency(d.expense) : ''}
@@ -683,8 +827,9 @@ function renderSixMonthChart(containerId, allTransactions) {
   }).join('');
 
   container.innerHTML = `
-    <div style="padding:24px;background:var(--card);border-radius:24px;border:1px solid var(--border)">
+    <div data-sixmonth style="padding:24px;background:var(--card);border-radius:24px;border:1px solid var(--border)">
       <div style="display:flex;justify-content:space-between;align-items:flex-end">${barsHTML}</div>
+      <div class="fin-bar-readout" aria-live="polite"></div>
       <div style="display:flex;justify-content:center;gap:20px;margin-top:20px;font-size:13px;font-weight:bold;color:var(--text2)">
         <div style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:var(--green)"></span> Receitas</div>
         <div style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:var(--red)"></span> Despesas</div>
@@ -726,6 +871,48 @@ function renderExpenseHeatmap(containerId, transactions) {
   const biggest = selectedExpenses[0];
   const others = selectedExpenses.slice(1);
 
+  // ── Métricas do dia (estilo "Zap Gastos") ──────────────────────────────
+  const selectedDow = new Date(state.currentYear, state.currentMonth, selectedDay).getDay();
+  const activeDays   = days.filter((d) => d.total > 0).length;
+  const dailyAvg     = activeDays ? totalMonth / activeDays : 0;
+  const multiplier   = dailyAvg ? selected.total / dailyAvg : 0;
+  const txCount      = selected.transactions.length;
+
+  // Composição: fatia de cada despesa no total do dia (cores distintas)
+  const compo = selected.total > 0
+    ? selectedExpenses.map((t, i) => ({
+        t,
+        pct: (t.val / selected.total) * 100,
+        color: COMPO_PALETTE[i % COMPO_PALETTE.length],
+      }))
+    : [];
+  // Cor por transação (índice = ordem em selectedExpenses) p/ ícones da lista
+  const colorFor = (i) => COMPO_PALETTE[i % COMPO_PALETTE.length];
+
+  const compoBarHtml = compo.map((c) => `
+    <span class="day-compo-seg" style="width:${c.pct.toFixed(2)}%;background:${c.color}"
+          title="${escapeHtml(c.t.desc)}: ${formatCurrency(c.t.val)} (${c.pct.toFixed(0)}%)"></span>
+  `).join('');
+
+  const compoLegendHtml = compo.map((c) => `
+    <div class="dcl-item">
+      <span class="dcl-dot" style="background:${c.color}"></span>
+      <span class="dcl-name">${escapeHtml(c.t.desc)}</span>
+      <span class="dcl-val">${formatCurrency(c.t.val)}</span>
+    </div>
+  `).join('');
+
+  const compositionHtml = compo.length ? `
+    <div class="day-compo">
+      <span class="day-section-title">Composição</span>
+      <div class="day-compo-bar">${compoBarHtml}</div>
+      <div class="day-compo-legend">${compoLegendHtml}</div>
+    </div>` : '';
+
+  const badgeHtml = multiplier > 1
+    ? `<span class="day-typical-badge">${multiplier.toFixed(1)}x o seu dia típico</span>`
+    : '';
+
   // Só o bloco mobile é colapsável; o desktop mantém o layout completo.
   const collapsible = containerId === 'mExpenseHeatmap';
   const expanded = !!state.heatmapExpanded;
@@ -765,14 +952,18 @@ function renderExpenseHeatmap(containerId, transactions) {
     </div>
     <div class="heatmap-detail">
       <div class="heatmap-detail-top">
-        <span>Dia ${String(selectedDay).padStart(2, '0')}</span>
+        <div class="day-head-info">
+          <span class="day-head-title">Dia ${selectedDay} • ${WEEKDAY_FULL[selectedDow].toUpperCase()}</span>
+          <small class="day-head-count">${txCount} ${txCount === 1 ? 'transação' : 'transações'}</small>
+        </div>
         <strong>${formatCurrency(selected.total)}</strong>
       </div>
+      ${badgeHtml}
       ${biggest ? `
         <div class="heatmap-highlight">
           <small>Maior compra do dia</small>
           <div class="heatmap-highlight-row">
-            <span>${CATEGORY_ICONS[biggest.cat] || '💸'}</span>
+            <span class="day-ico">${CATEGORY_ICONS[biggest.cat] || '💸'}</span>
             <div>
               <strong>${escapeHtml(biggest.desc)}</strong>
               <small>${escapeHtml(biggest.cat || 'Outros')}</small>
@@ -780,17 +971,19 @@ function renderExpenseHeatmap(containerId, transactions) {
             <b>${formatCurrency(biggest.val)}</b>
           </div>
         </div>
+        ${compositionHtml}
         <div class="heatmap-list">
-          ${others.map((transaction) => `
+          <span class="day-section-title">Transações</span>
+          ${selectedExpenses.map((transaction, i) => `
             <div class="heatmap-list-row">
-              <span>${CATEGORY_ICONS[transaction.cat] || '💸'}</span>
+              <span class="day-ico">${CATEGORY_ICONS[transaction.cat] || '💸'}</span>
               <div>
                 <strong>${escapeHtml(transaction.desc)}</strong>
-                <small>${formatDateTime(transaction.date)}</small>
+                <small>${escapeHtml(transaction.cat || 'Outros')} · ${formatDateTime(transaction.date)}</small>
               </div>
               <b>${formatCurrency(transaction.val)}</b>
             </div>
-          `).join('') || '<div class="heatmap-empty">Nenhuma outra despesa nesse dia.</div>'}
+          `).join('')}
         </div>
       ` : '<div class="heatmap-empty">Nenhuma despesa registrada nesse dia.</div>'}
     </div>
@@ -798,6 +991,48 @@ function renderExpenseHeatmap(containerId, transactions) {
     </div>
   `;
 }
+
+/** Clique numa barra: mostra valor exato num texto dinâmico abaixo do gráfico. */
+window.selectChartBar = function (bar) {
+  const wrap = bar.closest('.fin-bars');
+  if (!wrap) return;
+  const readout = wrap.parentElement.querySelector('.fin-bar-readout');
+  const wasActive = bar.classList.contains('active');
+  wrap.querySelectorAll('.fin-bar.active').forEach((b) => b.classList.remove('active'));
+  if (wasActive) {
+    if (readout) readout.classList.remove('show');
+    return;
+  }
+  bar.classList.add('active');
+  if (!readout) return;
+  const tone = bar.dataset.tone ? ` ${bar.dataset.tone}` : '';
+  readout.innerHTML = `
+    <span class="fbr-label">${bar.dataset.label || ''}</span>
+    <span class="fbr-value${tone}">${bar.dataset.value || ''}</span>`;
+  readout.classList.add('show');
+};
+
+const BAR_KEY = "if(event.key==='Enter'||event.key===' '){event.preventDefault();selectChartBar(this)}";
+const BAR_KEY_SIXM = "if(event.key==='Enter'||event.key===' '){event.preventDefault();selectSixMonthBar(this)}";
+
+/** Clique numa barra do gráfico de 6 meses (receita/despesa) -> valor exato. */
+window.selectSixMonthBar = function (bar) {
+  const card = bar.closest('[data-sixmonth]');
+  if (!card) return;
+  const readout = card.querySelector('.fin-bar-readout');
+  const active  = card.querySelector('.sixm-bar.active');
+  if (active) active.classList.remove('active');
+  if (active === bar) {
+    if (readout) readout.classList.remove('show');
+    return;
+  }
+  bar.classList.add('active');
+  if (!readout) return;
+  readout.innerHTML = `
+    <span class="fbr-label">${bar.dataset.label || ''}</span>
+    <span class="fbr-value ${bar.dataset.tone || ''}">${bar.dataset.value || ''}</span>`;
+  readout.classList.add('show');
+};
 
 // ─── Gráfico: Gasto médio por dia da semana ──────────────────────────────────
 
@@ -832,7 +1067,10 @@ function renderWeekdayChart(containerId, monthlyTransactions) {
   const bars = averages.map((avg, i) => {
     const pct = maxAvg ? Math.max(4, Math.round((avg / maxAvg) * 100)) : 0;
     return `
-      <div class="fin-bar${i === peak ? ' is-peak' : ''}" title="${WEEKDAY_FULL[i]}: ${formatCurrency(avg)} em média">
+      <div class="fin-bar${i === peak ? ' is-peak' : ''}" role="button" tabindex="0"
+           data-label="${WEEKDAY_FULL[i]}" data-value="${formatCurrency(avg)} em média" data-tone="expense"
+           onclick="selectChartBar(this)" onkeydown="${BAR_KEY}"
+           title="${WEEKDAY_FULL[i]}: ${formatCurrency(avg)} em média">
         <div class="fin-bar-track"><div class="fin-bar-fill" style="height:${pct}%"></div></div>
         <span class="fin-bar-label">${WEEKDAY_LETTER[i]}</span>
       </div>`;
@@ -847,7 +1085,8 @@ function renderWeekdayChart(containerId, monthlyTransactions) {
       <div><span>Comportamento</span><h3>Gasto médio por dia</h3></div>
     </div>
     <p class="fin-chart-note">${note}</p>
-    <div class="fin-bars fin-bars-7">${bars}</div>`;
+    <div class="fin-bars fin-bars-7">${bars}</div>
+    <div class="fin-bar-readout" aria-live="polite"></div>`;
 }
 
 // ─── Gráfico: Tendência de despesas dos últimos 6 meses ───────────────────────
@@ -890,7 +1129,10 @@ function renderMonthlyTrend(containerId, allTransactions) {
     const pct   = maxVal ? Math.max(4, Math.round((b.expense / maxVal) * 100)) : 0;
     const isCur = i === buckets.length - 1;
     return `
-      <div class="fin-bar${isCur ? ' is-peak' : ''}" title="${b.label}: ${formatCurrency(b.expense)}">
+      <div class="fin-bar${isCur ? ' is-peak' : ''}" role="button" tabindex="0"
+           data-label="${MONTHS[b.m]} ${b.y}" data-value="${formatCurrency(b.expense)}" data-tone="expense"
+           onclick="selectChartBar(this)" onkeydown="${BAR_KEY}"
+           title="${b.label}: ${formatCurrency(b.expense)}">
         <div class="fin-bar-cap">${b.expense > 0 ? formatCompactCurrency(b.expense) : ''}</div>
         <div class="fin-bar-track"><div class="fin-bar-fill" style="height:${pct}%"></div></div>
         <span class="fin-bar-label">${b.label}</span>
@@ -903,7 +1145,8 @@ function renderMonthlyTrend(containerId, allTransactions) {
       <div class="fin-chart-avg"><small>Média/mês</small><strong>${formatCompactCurrency(average)}</strong></div>
     </div>
     <p class="fin-chart-note">${note}</p>
-    <div class="fin-bars fin-bars-6">${bars}</div>`;
+    <div class="fin-bars fin-bars-6">${bars}</div>
+    <div class="fin-bar-readout" aria-live="polite"></div>`;
 }
 
 function getHeatmapTone(total, maxTotal) {
@@ -946,15 +1189,18 @@ function renderGroupSection(group) {
     <details class="group-section">
       <summary class="group-head">
         <div class="group-title-wrap">
-          <div class="group-icon" style="color:${CATEGORY_COLORS[group.category] || 'var(--text)'}">
+          <div class="group-icon" style="color:${catColor(group.category)}">
             ${catGroupIcon()}
           </div>
-          <div>
+          <div class="group-title-text">
             <div class="group-title">${escapeHtml(group.category)}</div>
             <div class="group-meta">${group.transactions.length} ${group.transactions.length === 1 ? 'lançamento' : 'lançamentos'}</div>
           </div>
         </div>
-        <div class="group-total ${cls}">${prefix} ${formatCurrency(Math.abs(group.total))}</div>
+        <div class="group-right">
+          <div class="group-total ${cls}">${prefix} ${formatCurrency(Math.abs(group.total))}</div>
+          <svg class="group-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
       </summary>
       <div class="group-list">
         ${group.transactions.map((t) => txRowHtml(t)).join('')}
