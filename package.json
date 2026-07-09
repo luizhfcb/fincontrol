@@ -1,0 +1,14 @@
+{
+  "name": "fincontrol",
+  "version": "1.0.0",
+  "description": "Controle financeiro pessoal — vanilla JS + Firebase",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "serve": "npx serve ."
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
