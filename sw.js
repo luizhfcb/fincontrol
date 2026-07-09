@@ -1,28 +1,43 @@
-const CACHE_NAME = 'fincontrol-static-v15';
+const CACHE_NAME = 'fincontrol-static-v16';
 const GOOGLE_HOSTS = ['firebase', 'gstatic', 'googleapis', 'google.com'];
 
 const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
+  './favicon.svg',
   './icon-192.svg',
   './icon-512.svg',
   './css/main.css',
   './js/main.js',
   './js/config/firebase.js',
   './js/core/constants.js',
+  './js/core/feedback-validation.mjs',
   './js/core/state.js',
+  './js/core/subscription-sync.mjs',
   './js/core/utils.js',
   './js/services/auth.js',
   './js/services/audio.js',
+  './js/services/feedback.js',
   './js/services/theme.js',
   './js/services/transactions.js',
   './js/ui/categories.js',
+  './js/ui/charts.js',
+  './js/ui/desktop-module-templates.mjs',
   './js/ui/feedback.js',
+  './js/ui/feedback-modal.js',
+  './js/ui/heatmap.js',
   './js/ui/layout.js',
+  './js/ui/mobile-module-templates.mjs',
   './js/ui/modal.js',
+  './js/ui/modules.js',
   './js/ui/navigation.js',
+  './js/ui/onboarding.js',
   './js/ui/render.js',
+  './js/ui/tx-history.js',
+  './js/ui/tx-list.js',
+  './js/ui/tx-swipe.js',
+  './js/ui/ui-helpers.js',
 ].map((asset) => new URL(asset, self.location).toString());
 
 self.addEventListener('install', (event) => {
