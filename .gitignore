@@ -5,3 +5,10 @@ fetch_stitch_screens.js
 .claude/
 .agents/
 skills-lock.json
+
+# Dependências
+node_modules/
+
+# Credenciais e backups — NUNCA commitar
+serviceAccountKey.json
+backups/
