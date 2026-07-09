@@ -3,6 +3,7 @@ import { state } from '../core/state.js';
 import { setText } from '../core/utils.js';
 import { renderModules } from './modules.js';
 import { refreshUI } from './render.js';
+import { maybeSwipeHint } from './onboarding.js';
 
 export function toggleFab() {
   document.getElementById('fabMenu')?.classList.toggle('show');
@@ -22,6 +23,10 @@ export function goMobilePage(name) {
   document.getElementById('fabWrap')?.classList.toggle('hidden', ['limits', 'subscriptions', 'bills', 'stock'].includes(name));
   document.querySelector('.m-scroller')?.scrollTo({ top: 0 });
   closeFab();
+  if (name === 'transactions') {
+    // Ensina o gesto de swipe na primeira vez que a lista é aberta.
+    setTimeout(maybeSwipeHint, 350);
+  }
 }
 
 export function goDesktopPage(name) {

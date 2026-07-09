@@ -3,7 +3,7 @@ import { buildModuleTransactionDocId, getDueSubscriptionPosts } from '../core/su
 import { formatCurrency } from '../core/utils.js';
 import { showToast } from './feedback.js';
 import { db, deleteDoc, doc, onSnapshot, setDoc, updateDoc } from '../config/firebase.js';
-import { DEFAULT_WATER_CATEGORIES } from '../core/constants.js';
+import { DEFAULT_CATEGORIES } from '../core/constants.js';
 import {
   renderDesktopBillsModule,
   renderDesktopLimitsModule,
@@ -17,8 +17,13 @@ import {
   renderMobileSubscriptionsModule,
 } from './mobile-module-templates.mjs';
 import { escapeHtml } from './render.js';
+import { maybeStartOnboarding } from './onboarding.js';
 
-const STORAGE_KEY = 'fincontrol_modules_v1';
+const STORAGE_KEY_BASE = 'fincontrol_modules_v1';
+/** Key de cache local scoped por usuário — evita vazamento de dados entre contas no mesmo device. */
+function storageKey() {
+  return state.currentUser ? `${STORAGE_KEY_BASE}_${state.currentUser.uid}` : STORAGE_KEY_BASE;
+}
 const MODULES_DOC_TYPE = 'modules_state';
 const MODULES_COLLECTION = 'transactions';
 const pendingModuleRefs = new Set();
@@ -29,6 +34,7 @@ const defaultData = {
   subscriptions: [],
   stockItems: [],
   bills: [],
+  onboarding: {},
 };
 
 export function initModules() {
@@ -45,11 +51,9 @@ export function initModules() {
   const docRef = doc(db, MODULES_COLLECTION, `${state.currentUser.uid}_modules`);
   state.unsubscribeModules = onSnapshot(docRef, async (snapshot) => {
     if (!snapshot.exists()) {
-      state.modules = loadData();
-      // Seed de categorias padrão da distribuidora para usuários novos
-      if (!state.modules.categories || state.modules.categories.length === 0) {
-        state.modules.categories = DEFAULT_WATER_CATEGORIES.map((c) => ({ ...c }));
-      }
+      // Usuário novo começa do zero — nunca herda cache local de outra conta.
+      state.modules = cloneDefaults();
+      state.modules.categories = DEFAULT_CATEGORIES.map((c) => ({ ...c }));
       await setDoc(docRef, {
         uid: state.currentUser.uid,
         _docType: MODULES_DOC_TYPE,
@@ -62,6 +66,15 @@ export function initModules() {
     }
     state.modulesDocId = snapshot.id;
     state.modules = { ...cloneDefaults(), ...snapshot.data() };
+    // Conta existente sem categorias: semeia defaults e persiste pra página e modal baterem.
+    if (!state.modules.categories || state.modules.categories.length === 0) {
+      state.modules.categories = DEFAULT_CATEGORIES.map((c) => ({ ...c }));
+      await setDoc(docRef, {
+        uid: state.currentUser.uid,
+        _docType: MODULES_DOC_TYPE,
+        ...state.modules,
+      });
+    }
     persistLocal();
     renderModules();
   }, () => {
@@ -73,7 +86,7 @@ export function initModules() {
 
 function loadData() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey());
     if (!raw) return cloneDefaults();
     const parsed = JSON.parse(raw);
     return {
@@ -92,7 +105,7 @@ function loadData() {
 const cloneDefaults = () => JSON.parse(JSON.stringify(defaultData));
 
 function persistLocal() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.modules));
+  localStorage.setItem(storageKey(), JSON.stringify(state.modules));
 }
 
 async function persist() {
@@ -116,6 +129,7 @@ export const persistModules = persist;
 
 export function renderModules() {
   if (!state.modules) return;
+  maybeStartOnboarding();
   processDueSubscriptions();
   renderLimits();
   renderSubscriptions();
@@ -544,7 +558,7 @@ export function addCategory() {
   openModuleForm({
     title: 'Nova categoria',
     fields: [
-      { name: 'name', label: 'Nome da categoria', placeholder: 'Ex: Combustível, Motorista 1, Caminhão A…', required: true },
+      { name: 'name', label: 'Nome da categoria', placeholder: 'Ex: Alimentação, Transporte, Lazer…', required: true },
       { name: 'type', label: 'Tipo (income = receita / expense = despesa)', placeholder: 'expense' },
     ],
     confirmLabel: 'Criar categoria',

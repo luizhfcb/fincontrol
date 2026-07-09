@@ -1,4 +1,4 @@
-import { DEFAULT_WATER_CATEGORIES } from '../core/constants.js';
+import { DEFAULT_CATEGORIES } from '../core/constants.js';
 import { state } from '../core/state.js';
 import { showToast } from './feedback.js';
 
@@ -9,7 +9,7 @@ import { showToast } from './feedback.js';
 function getCategories() {
   const dynamic = state.modules?.categories;
   if (dynamic && dynamic.length > 0) return dynamic;
-  return DEFAULT_WATER_CATEGORIES;
+  return DEFAULT_CATEGORIES;
 }
 
 /** Escapa texto para uso seguro em HTML/atributos. */
@@ -161,7 +161,7 @@ export async function saveInlineCategory(rowId) {
 
   // Se ainda usando defaults, migra para state.modules
   if (state.modules.categories.length === 0) {
-    state.modules.categories.push(...DEFAULT_WATER_CATEGORIES.map((c) => ({ ...c })));
+    state.modules.categories.push(...DEFAULT_CATEGORIES.map((c) => ({ ...c })));
   }
 
   state.modules.categories.push({

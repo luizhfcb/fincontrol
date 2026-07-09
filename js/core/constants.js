@@ -58,16 +58,12 @@ export const CATEGORY_COLORS = {
   Outros: '#9CA3AF',
 };
 
-/** Categorias pré-definidas para distribuidora de água */
-export const DEFAULT_WATER_CATEGORIES = [
-  { id: 'dw-1',  name: 'Combustível',   type: 'expense' },
-  { id: 'dw-2',  name: 'Manutenção',    type: 'expense' },
-  { id: 'dw-3',  name: 'Motorista 1',   type: 'expense' },
-  { id: 'dw-4',  name: 'Motorista 2',   type: 'expense' },
-  { id: 'dw-5',  name: 'Caminhão A',    type: 'expense' },
-  { id: 'dw-6',  name: 'Caminhão B',    type: 'expense' },
-  { id: 'dw-7',  name: 'Fornecedor',    type: 'expense' },
-  { id: 'dw-8',  name: 'Venda de Água', type: 'income'  },
-  { id: 'dw-9',  name: 'Entrega',       type: 'income'  },
-  { id: 'dw-10', name: 'Outros',        type: 'expense' },
+/** Categorias genéricas pré-definidas para contas novas */
+export const DEFAULT_CATEGORIES = [
+  { id: 'dc-1', name: 'Alimentação', type: 'expense' },
+  { id: 'dc-2', name: 'Transporte',  type: 'expense' },
+  { id: 'dc-3', name: 'Saúde',       type: 'expense' },
+  { id: 'dc-4', name: 'Lazer',       type: 'expense' },
+  { id: 'dc-5', name: 'Casa',        type: 'expense' },
+  { id: 'dc-6', name: 'Outros',      type: 'expense' },
 ];

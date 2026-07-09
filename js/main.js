@@ -6,6 +6,8 @@ import { pickCategory, openInlineCatInput, cancelInlineCatInput, saveInlineCateg
 import { initDesktopSidebar, toggleDesktopSidebar, updateResponsiveAppView } from './ui/layout.js';
 import { initModules, toggleBillPaid, addSubscription, removeSubscription, editSubscription, addStockItem, removeStockItem, changeStockQty, addLimit, removeLimit, editLimit, addBill, removeBill, editBill, addCategory, editCategory, removeCategory } from './ui/modules.js';
 import { closeModal, closeModalOutside, confirmTx, confirmTxAudio, openModal, setModalType, editTx } from './ui/modal.js';
+import { openFeedbackModal, setFeedbackType, updateFeedbackCounter } from './ui/feedback-modal.js';
+import { onbNext, onbSkip, restartOnboarding } from './ui/onboarding.js';
 import { changeMonth, closeFab, goDesktopPage, goMobilePage, toggleFab } from './ui/navigation.js';
 import { setTxSearch, setTxFilter, setTxGrouped, openTxHistory, closeTxHistory, setDashView, toggleDashViewDropdown, selectExpenseHeatmapDay, toggleReportBlock } from './ui/render.js';
 
@@ -21,6 +23,12 @@ window.closeModalOutside = closeModalOutside;
 window.setModalType = setModalType;
 window.confirmTx = confirmTx;
 window.confirmTxAudio = confirmTxAudio;
+window.openFeedbackModal = openFeedbackModal;
+window.setFeedbackType = setFeedbackType;
+window.updateFeedbackCounter = updateFeedbackCounter;
+window.onbNext = onbNext;
+window.onbSkip = onbSkip;
+window.restartOnboarding = restartOnboarding;
 window.pickCat = pickCategory;
 window.toggleCatDropdown = toggleCatDropdown;
 window.openInlineCatInput = openInlineCatInput;

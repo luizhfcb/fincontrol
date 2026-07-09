@@ -32,7 +32,10 @@ export async function executeLogout() {
   const modal = document.getElementById('logoutModal');
   if (modal) modal.style.display = 'none';
 
-  localStorage.removeItem('fincontrol_modules_v1');
+  // Remove todo cache local de módulos (key base + scoped por uid) pra evitar vazamento entre contas.
+  Object.keys(localStorage)
+    .filter((key) => key.startsWith('fincontrol_modules_v1'))
+    .forEach((key) => localStorage.removeItem(key));
 
   if (state.unsubscribe) {
     state.unsubscribe();

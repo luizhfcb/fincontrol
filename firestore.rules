@@ -5,5 +5,14 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
       allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
     }
+    match /feedback/{docId} {
+      allow create: if request.auth != null
+        && request.auth.uid == request.resource.data.uid
+        && request.resource.data.type in ['bug', 'suggestion']
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() <= 2000;
+      allow read, update, delete: if false;
+    }
   }
 }

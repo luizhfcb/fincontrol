@@ -453,6 +453,46 @@ body.logged-out #desktop-app{display:none!important}
 .mmBtn.on.expense{background:linear-gradient(180deg,#ef4444,#991b1b);border-color:transparent;color:#fff}
 .mmBtn.on.audio{background:linear-gradient(180deg,#525252,#171717);border-color:transparent;color:#fff}
 .finput{width:100%;padding:13px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:14px;color:var(--text);font-size:15px;outline:none;-webkit-appearance:none;margin-bottom:10px}
+
+/* ── Feedback modal ─────────────────────────────────────────── */
+.fb-sub{font-size:13px;line-height:1.5;color:var(--text2);margin:-6px 0 16px}
+.fb-toggle{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.fb-seg{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 10px;border-radius:16px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:14px;font-weight:800;cursor:pointer;transition:transform .15s,border-color .2s,background .2s,color .2s}
+.fb-seg .fb-seg-ico{font-size:17px;filter:grayscale(1) opacity(.6);transition:filter .2s}
+.fb-seg:active{transform:scale(.97)}
+.fb-seg.on{color:var(--text);border-color:transparent;box-shadow:0 6px 18px rgba(2,8,23,.35)}
+.fb-seg.on .fb-seg-ico{filter:none}
+.fb-seg.on[data-type="bug"]{background:linear-gradient(180deg,rgba(255,120,105,.22),rgba(255,120,105,.08));border-color:rgba(255,120,105,.5)}
+.fb-seg.on[data-type="suggestion"]{background:linear-gradient(180deg,rgba(87,167,255,.22),rgba(87,167,255,.08));border-color:var(--accent-strong)}
+.fb-field{position:relative;margin-bottom:6px}
+.fb-textarea{width:100%;padding:14px 15px;background:var(--bg3);border:1px solid var(--border);border-radius:16px;color:var(--text);font-size:15px;line-height:1.55;font-family:inherit;outline:none;resize:vertical;min-height:120px;transition:border-color .2s}
+.fb-textarea::placeholder{color:var(--text3)}
+.fb-textarea:focus{border-color:var(--accent)}
+.fb-counter{text-align:right;font-size:11px;color:var(--text3);font-weight:700;margin-bottom:4px}
+.fb-counter.warn{color:var(--red)}
+
+/* ── Onboarding / tutorial ──────────────────────────────────── */
+.onb-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(2,8,23,.72);backdrop-filter:blur(6px);animation:onbFade .25s ease}
+@keyframes onbFade{from{opacity:0}to{opacity:1}}
+.onb-card{width:100%;max-width:400px;background:var(--bg2);border:1px solid var(--border);border-radius:26px;padding:30px 24px 22px;box-shadow:var(--shadow);text-align:center}
+.onb-slide{min-height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.onb-slide.onb-anim{animation:onbSlideIn .35s cubic-bezier(.22,1,.36,1)}
+@keyframes onbSlideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.onb-ico{width:76px;height:76px;display:flex;align-items:center;justify-content:center;font-size:38px;border-radius:24px;background:linear-gradient(180deg,var(--accent-bg),rgba(87,167,255,.04));border:1px solid var(--border2);margin-bottom:20px}
+.onb-title{font-size:21px;font-weight:900;letter-spacing:-.02em;color:var(--text);margin-bottom:10px}
+.onb-text{font-size:14.5px;line-height:1.6;color:var(--text2);max-width:300px}
+.onb-text strong{color:var(--text);font-weight:800}
+.onb-dots{display:flex;gap:7px;justify-content:center;margin:22px 0}
+.onb-dot{width:7px;height:7px;border-radius:999px;background:var(--border2);transition:all .25s}
+.onb-dot.on{width:22px;background:var(--accent-strong)}
+.onb-actions{display:flex;align-items:center;gap:10px}
+.onb-skip{flex:0 0 auto;padding:13px 18px;border:none;background:none;color:var(--text3);font-size:14px;font-weight:700;cursor:pointer}
+.onb-next{flex:1;padding:14px;border:none;border-radius:15px;background:var(--accent-strong);color:#fff;font-size:15px;font-weight:900;cursor:pointer;transition:opacity .15s}
+.onb-next:active{opacity:.85}
+
+/* Ghost swipe: ensina o gesto animando a primeira linha */
+@keyframes txHintWiggle{0%,100%{transform:translateX(0)}14%{transform:translateX(-72px)}38%{transform:translateX(0)}56%{transform:translateX(72px)}82%{transform:translateX(0)}}
+.tx-swipe-hint .tx-row{animation:txHintWiggle 2.4s ease-in-out}
 .finput:focus{border-color:var(--accent)}
 .finput::placeholder{color:var(--text3)}
 .finput-row{display:flex;gap:8px;margin-bottom:10px}
