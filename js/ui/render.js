@@ -1,6 +1,6 @@
 import { CATEGORY_COLORS, CATEGORY_ICONS, MONTHS } from '../core/constants.js';
 import { state } from '../core/state.js';
-import { formatCompactCurrency, formatCurrency, setText } from '../core/utils.js';
+import { formatCompactCurrency, formatCurrency, getMonthlyTransactions, setText } from '../core/utils.js';
 import { renderModules } from './modules.js';
 
 // ─── Paleta de cores para receitas ───────────────────────────────────────────
@@ -66,9 +66,7 @@ function catGroupIcon() {
 }
 
 export function refreshUI() {
-  const monthlyTransactions = state.transactions.filter(
-    (t) => t.month === state.currentMonth && t.year === state.currentYear,
-  );
+  const monthlyTransactions = getMonthlyTransactions();
 
   const incomeTransactions  = monthlyTransactions.filter((t) => t.type === 'income');
   const expenseTransactions = monthlyTransactions.filter((t) => t.type === 'expense');
@@ -306,9 +304,7 @@ export function toggleReportBlock(key) {
 
 export function selectExpenseHeatmapDay(day) {
   state.heatmapSelectedDay = Number(day) || 1;
-  const monthlyTransactions = state.transactions.filter(
-    (t) => t.month === state.currentMonth && t.year === state.currentYear,
-  );
+  const monthlyTransactions = getMonthlyTransactions();
   renderExpenseHeatmap('mExpenseHeatmap', monthlyTransactions);
   renderExpenseHeatmap('dExpenseHeatmap', monthlyTransactions);
 }
@@ -654,9 +650,7 @@ function renderSearchAndFilters(controlsId) {
 
 export function setTxSearch(value) {
   state.txSearchQuery = value;
-  const monthly = state.transactions.filter(
-    (t) => t.month === state.currentMonth && t.year === state.currentYear,
-  );
+  const monthly = getMonthlyTransactions();
   // NÃO re-renderiza os controles (destruiria o <input> e fecharia o teclado).
   // Apenas sincroniza o valor visível e a visibilidade do botão de limpar no DOM.
   document.querySelectorAll('.tx-search-input').forEach((input) => {
@@ -672,9 +666,7 @@ export function setTxSearch(value) {
 
 export function setTxFilter(type) {
   state.txTypeFilter = type;
-  const monthly = state.transactions.filter(
-    (t) => t.month === state.currentMonth && t.year === state.currentYear,
-  );
+  const monthly = getMonthlyTransactions();
   renderSearchAndFilters('mAllTxControls');
   renderSearchAndFilters('dAllTxControls');
   renderTxList('mAllTxList', monthly);
@@ -683,9 +675,7 @@ export function setTxFilter(type) {
 
 export function setTxGrouped(grouped) {
   state.txGrouped = grouped;
-  const monthly = state.transactions.filter(
-    (t) => t.month === state.currentMonth && t.year === state.currentYear,
-  );
+  const monthly = getMonthlyTransactions();
   renderSearchAndFilters('mAllTxControls');
   renderSearchAndFilters('dAllTxControls');
   renderTxList('mAllTxList', monthly);
@@ -699,9 +689,7 @@ export function openTxHistory(desc) {
   const modal = document.getElementById('txHistoryModal');
   if (!modal) return;
 
-  const monthTransactions = state.transactions.filter(
-    (t) => t.month === state.currentMonth && t.year === state.currentYear && t.desc === desc,
-  );
+  const monthTransactions = getMonthlyTransactions().filter((t) => t.desc === desc);
 
   const totalIncome  = monthTransactions.filter((t) => t.type === 'income').reduce((s, t)  => s + t.val, 0);
   const totalExpense = monthTransactions.filter((t) => t.type === 'expense').reduce((s, t) => s + t.val, 0);

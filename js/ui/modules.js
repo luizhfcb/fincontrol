@@ -1,6 +1,6 @@
 import { state } from '../core/state.js';
 import { buildModuleTransactionDocId, getDueSubscriptionPosts } from '../core/subscription-sync.mjs';
-import { formatCurrency } from '../core/utils.js';
+import { formatCurrency, getMonthlyTransactions } from '../core/utils.js';
 import { showToast } from './feedback.js';
 import { db, deleteDoc, doc, onSnapshot, setDoc, updateDoc } from '../config/firebase.js';
 import { DEFAULT_CATEGORIES } from '../core/constants.js';
@@ -119,7 +119,8 @@ async function persist() {
       ...state.modules,
     });
     state.modulesDocId = modulesDocId;
-  } catch {
+  } catch (error) {
+    console.error('[Firestore] Erro ao salvar módulos:', error);
     showToast('Erro ao salvar módulos na nuvem.', true);
   }
 }
@@ -139,9 +140,7 @@ export function renderModules() {
 }
 
 function expensesByCategory() {
-  const monthlyExpenses = state.transactions.filter((t) => (
-    t.type === 'expense' && t.month === state.currentMonth && t.year === state.currentYear
-  ));
+  const monthlyExpenses = getMonthlyTransactions().filter((t) => t.type === 'expense');
 
   return monthlyExpenses.reduce((acc, t) => {
     acc[t.cat] = (acc[t.cat] || 0) + t.val;
@@ -697,6 +696,7 @@ async function updateTransactionsCategory(fromCategory, toCategory) {
       transaction.cat === fromCategory ? { ...transaction, cat: toCategory } : transaction
     ));
   } catch (error) {
+    console.error('[Firestore] Erro ao atualizar transações antigas:', error);
     showToast('Erro ao atualizar transações antigas.', true);
   }
 }

@@ -1,3 +1,12 @@
+import { state } from './state.js';
+
+/** Transações do mês/ano em exibição (state.currentMonth/currentYear). */
+export function getMonthlyTransactions() {
+  return state.transactions.filter(
+    (t) => t.month === state.currentMonth && t.year === state.currentYear,
+  );
+}
+
 export function formatCurrency(value) {
   return 'R$ ' + Number(value || 0).toLocaleString('pt-BR', {
     minimumFractionDigits: 2,
@@ -7,7 +16,11 @@ export function formatCurrency(value) {
 
 export function formatCompactCurrency(value) {
   const amount = Number(value || 0);
-  return amount >= 1000 ? `R${Math.round(amount / 100) / 10}k` : `R$${Math.round(amount)}`;
+  if (amount >= 1000) {
+    const compact = (Math.round(amount / 100) / 10).toLocaleString('pt-BR');
+    return `R$${compact}k`;
+  }
+  return `R$${Math.round(amount)}`;
 }
 
 export function setText(id, value) {

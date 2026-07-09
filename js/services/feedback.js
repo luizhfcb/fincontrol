@@ -34,6 +34,7 @@ export async function submitFeedback(type, message) {
       createdAt: serverTimestamp(),
     });
   } catch (error) {
+    console.error('[Firestore] Erro ao enviar feedback:', error);
     showToast('Erro ao enviar feedback.', true);
     return false;
   }

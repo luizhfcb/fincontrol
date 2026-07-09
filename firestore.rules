@@ -3,7 +3,11 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /transactions/{docId} {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
-      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
+      allow read, delete: if request.auth != null && request.auth.uid == resource.data.uid;
+      // update não pode reatribuir o doc a outro uid (injeção no feed de terceiros)
+      allow update: if request.auth != null
+        && request.auth.uid == resource.data.uid
+        && request.resource.data.uid == resource.data.uid;
     }
     match /feedback/{docId} {
       allow create: if request.auth != null

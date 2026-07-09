@@ -89,6 +89,7 @@ export async function saveTransaction(description, value, type, category, dateVa
       });
     }
   } catch (error) {
+    console.error('[Firestore] Erro ao salvar transação:', error);
     setSyncStatus('error');
     showToast('Erro ao salvar!', true);
   }
@@ -144,6 +145,7 @@ async function deleteTransaction(id) {
     await deleteDoc(doc(db, 'transactions', id));
     showToast('Removido');
   } catch (error) {
+    console.error('[Firestore] Erro ao remover transação:', error);
     setSyncStatus('error');
     showToast('Erro ao remover', true);
   }
