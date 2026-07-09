@@ -10,6 +10,7 @@ import {
   updateDoc,
 } from '../config/firebase.js';
 import { state } from '../core/state.js';
+import { transactionDateFields } from '../core/dates.js';
 import { showToast, setSyncStatus } from '../ui/feedback.js';
 import { refreshUI } from '../ui/render.js';
 
@@ -63,6 +64,7 @@ export async function saveTransaction(description, value, type, category, dateVa
 
   setSyncStatus('syncing');
   const transactionDate = buildTransactionDate(dateValue);
+  const dateFields = transactionDateFields(transactionDate);
 
   try {
     if (state.editingTxId) {
@@ -71,9 +73,7 @@ export async function saveTransaction(description, value, type, category, dateVa
         val: value,
         type,
         cat: category,
-        date: transactionDate.toISOString(),
-        month: transactionDate.getMonth(),
-        year: transactionDate.getFullYear(),
+        ...dateFields,
       });
       state.editingTxId = null;
     } else {
@@ -83,9 +83,7 @@ export async function saveTransaction(description, value, type, category, dateVa
         val: value,
         type,
         cat: category,
-        date: transactionDate.toISOString(),
-        month: transactionDate.getMonth(),
-        year: transactionDate.getFullYear(),
+        ...dateFields,
       });
     }
   } catch (error) {

@@ -1,4 +1,5 @@
 import { state } from '../core/state.js';
+import { transactionDateFields } from '../core/dates.js';
 import { buildModuleTransactionDocId, getDueSubscriptionPosts } from '../core/subscription-sync.mjs';
 import { formatCurrency, getMonthlyTransactions } from '../core/utils.js';
 import { showToast } from './feedback.js';
@@ -930,15 +931,18 @@ async function postModuleExpense({ ref, desc, value, category }) {
   pendingModuleRefs.add(ref);
   try {
     const transactionDocId = buildModuleTransactionDocId(state.currentUser.uid, ref);
+    // Contrato de datas (ver core/dates.js): month/year são a fonte da verdade.
+    // Gastos de módulo pertencem ao MÊS EM EXIBIÇÃO (state.currentMonth/Year),
+    // então `date` é ancorado no dia 1 desse mês — e não em new Date() — para
+    // não cair no mês errado quando o usuário lança olhando um mês passado.
+    const postedDate = new Date(state.currentYear, state.currentMonth, 1);
     const payload = {
       uid: state.currentUser.uid,
       desc,
       val: value,
       type: 'expense',
       cat: category || 'Outros',
-      date: new Date().toISOString(),
-      month: state.currentMonth,
-      year: state.currentYear,
+      ...transactionDateFields(postedDate),
       moduleRef: ref,
     };
     await setDoc(doc(db, 'transactions', transactionDocId), payload);
