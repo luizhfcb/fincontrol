@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fincontrol-static-dd619615';
+const CACHE_NAME = 'fincontrol-static-c6111d49';
 const GOOGLE_HOSTS = ['firebase', 'gstatic', 'googleapis', 'google.com'];
 
 const CORE_ASSETS = [
@@ -15,6 +15,7 @@ const CORE_ASSETS = [
   './js/core/constants.js',
   './js/core/dates.js',
   './js/core/feedback-validation.mjs',
+  './js/core/local-date.mjs',
   './js/core/state.js',
   './js/core/subscription-sync.mjs',
   './js/core/utils.js',

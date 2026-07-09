@@ -11,6 +11,7 @@ import {
 } from '../config/firebase.js';
 import { state } from '../core/state.js';
 import { transactionDateFields } from '../core/dates.js';
+import { toLocalDateInputValue, parseLocalDateInput } from '../core/local-date.mjs';
 import { showToast, setSyncStatus } from '../ui/feedback.js';
 import { refreshUI } from '../ui/render.js';
 
@@ -57,9 +58,15 @@ export function startListening() {
   );
 }
 
-export async function saveTransaction(description, value, type, category, dateValue = new Date().toISOString().slice(0, 10)) {
+/**
+ * Salva/edita uma transação. Retorna sempre um resultado explícito para que
+ * quem chama nunca mostre "sucesso" após uma escrita rejeitada:
+ *   { ok: true }
+ *   { ok: false, code: 'unauthenticated' | 'write-failed', error? }
+ */
+export async function saveTransaction(description, value, type, category, dateValue = toLocalDateInputValue()) {
   if (!state.currentUser) {
-    return;
+    return { ok: false, code: 'unauthenticated' };
   }
 
   setSyncStatus('syncing');
@@ -86,32 +93,24 @@ export async function saveTransaction(description, value, type, category, dateVa
         ...dateFields,
       });
     }
+    setSyncStatus('ok');
+    return { ok: true };
   } catch (error) {
     console.error('[Firestore] Erro ao salvar transação:', error);
     setSyncStatus('error');
-    showToast('Erro ao salvar!', true);
+    return { ok: false, code: 'write-failed', error };
   }
 }
 
 function buildTransactionDate(dateValue) {
-  const [year, month, day] = String(dateValue).split('-').map(Number);
+  // Ao editar, herda a hora original da transação; ao criar, usa a hora atual.
   const timeSource = state.editingTxId
     ? new Date(state.transactions.find((transaction) => transaction.id === state.editingTxId)?.date || Date.now())
     : new Date();
 
-  if (!year || !month || !day || Number.isNaN(timeSource.getTime())) {
-    return new Date();
-  }
-
-  return new Date(
-    year,
-    month - 1,
-    day,
-    timeSource.getHours(),
-    timeSource.getMinutes(),
-    timeSource.getSeconds(),
-    timeSource.getMilliseconds(),
-  );
+  // parseLocalDateInput monta a data no fuso local (sem drift UTC) e valida.
+  // Data ausente/inválida cai na hora atual — comportamento leniente de antes.
+  return parseLocalDateInput(dateValue, timeSource) || new Date();
 }
 
 export function removeTransaction(id) {

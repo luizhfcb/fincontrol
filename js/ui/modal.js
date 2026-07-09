@@ -3,15 +3,14 @@ import { showToast } from './feedback.js';
 import { closeFab } from './navigation.js';
 import { saveTransaction } from '../services/transactions.js';
 import { buildCategories } from './categories.js';
+import { toLocalDateInputValue } from '../core/local-date.mjs';
 
 function getTodayInputValue() {
-  return new Date().toISOString().slice(0, 10);
+  return toLocalDateInputValue();
 }
 
 function getDateInputValue(date) {
-  const parsedDate = new Date(date);
-  if (Number.isNaN(parsedDate.getTime())) return getTodayInputValue();
-  return parsedDate.toISOString().slice(0, 10);
+  return toLocalDateInputValue(date) || getTodayInputValue();
 }
 
 export function openModal(type) {
@@ -168,7 +167,11 @@ export async function confirmTx() {
     return;
   }
 
-  await saveTransaction(description, value, state.modalType, state.selectedCategory, date);
+  const result = await saveTransaction(description, value, state.modalType, state.selectedCategory, date);
+  if (!result.ok) {
+    showToast('Não foi possível salvar. Tente novamente.', true);
+    return;
+  }
   closeModal();
   showToast(state.modalType === 'expense' ? '💸 Gasto registrado!' : '💰 Entrada registrada!');
 }
@@ -182,7 +185,11 @@ export async function confirmTxAudio(type) {
     return;
   }
 
-  await saveTransaction(description, value, type, state.selectedCategory);
+  const result = await saveTransaction(description, value, type, state.selectedCategory);
+  if (!result.ok) {
+    showToast('Não foi possível salvar. Tente novamente.', true);
+    return;
+  }
   closeModal();
   showToast(type === 'expense' ? '💸 Gasto registrado!' : '💰 Entrada registrada!');
 }
