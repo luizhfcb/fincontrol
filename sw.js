@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fincontrol-static-v17';
+const CACHE_NAME = 'fincontrol-static-596811e9';
 const GOOGLE_HOSTS = ['firebase', 'gstatic', 'googleapis', 'google.com'];
 
 const CORE_ASSETS = [
@@ -6,6 +6,7 @@ const CORE_ASSETS = [
   './index.html',
   './manifest.json',
   './favicon.svg',
+  './assets/fonts/poppins.css',
   './icon-192.svg',
   './icon-512.svg',
   './css/main.css',
