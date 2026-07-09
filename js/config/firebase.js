@@ -7,7 +7,9 @@ import {
   onAuthStateChanged,
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import {
-  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   collection,
   addDoc,
   deleteDoc,
@@ -32,7 +34,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+// Cache local persistente: dados ficam no dispositivo. Trocar de aba/reload
+// não gasta leitura no servidor enquanto o cache estiver quente.
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
+});
 const googleProvider = new GoogleAuthProvider();
 
 export {

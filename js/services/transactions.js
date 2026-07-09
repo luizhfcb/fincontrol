@@ -26,9 +26,15 @@ export function startListening() {
   setSyncStatus('syncing');
   state.transactionsLoaded = false;
 
+  // Janela deslizante: só últimos 12 meses. Não puxa histórico inteiro.
+  // Cobre mês atual + 11 anteriores (navegação de meses e gráfico 6 meses).
+  const now = new Date();
+  const cutoff = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+
   const transactionQuery = query(
     collection(db, 'transactions'),
     where('uid', '==', state.currentUser.uid),
+    where('date', '>=', cutoff.toISOString()),
   );
 
   state.unsubscribe = onSnapshot(
@@ -41,7 +47,8 @@ export function startListening() {
       setSyncStatus('ok');
       refreshUI();
     },
-    () => {
+    (error) => {
+      console.error('[Firestore] Erro na sincronização de transações:', error);
       state.transactionsLoaded = false;
       setSyncStatus('error');
       showToast('Erro de sincronização', true);
