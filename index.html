@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="./icon-192.svg">
 <link rel="manifest" href="./manifest.json">
 <link rel="stylesheet" href="./assets/fonts/poppins.css">
-<link rel="stylesheet" href="./css/main.css?v=596811e9">
+<link rel="stylesheet" href="./css/main.css?v=dd619615">
 <title>FinControl</title>
 </head>
 <body>
@@ -484,6 +484,24 @@
   </div>
 </div>
 
+<!-- Dica de áudio: aparece só na primeira vez que a pessoa abre o modo por voz -->
+<div class="audio-tip-overlay" id="audioTipOverlay" onclick="if(event.target===this) dismissAudioTip()">
+  <div class="audio-tip-card" role="dialog" aria-modal="true" aria-labelledby="audioTipTitle">
+    <div class="audio-tip-ico" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+    </div>
+    <h3 class="audio-tip-title" id="audioTipTitle">Como falar</h3>
+    <p class="audio-tip-text">Diga o <strong>valor</strong> e a <strong>descrição</strong> numa frase só. A categoria é detectada sozinha.</p>
+    <ul class="audio-tip-examples">
+      <li><span>“cinquenta no mercado”</span></li>
+      <li><span>“uber trinta reais”</span></li>
+      <li><span>“mil e quinhentos de aluguel”</span></li>
+    </ul>
+    <p class="audio-tip-note">Funciona melhor no Chrome ou Edge.</p>
+    <button class="audio-tip-btn" onclick="dismissAudioTip()">Entendi</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="genericFormModal" style="display:none" onclick="if(event.target===this) this.style.display='none'">
   <div class="modal-box">
     <div class="modal-handle"></div>
@@ -524,7 +542,7 @@
 <!-- Modal: Histórico Detalhado por Descrição -->
 <div class="modal-overlay" id="txHistoryModal" onclick="if(event.target===this) closeTxHistory()"></div>
 
-<script type="module" src="./js/main.js?v=596811e9"></script>
+<script type="module" src="./js/main.js?v=dd619615"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

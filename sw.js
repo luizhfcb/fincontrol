@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fincontrol-static-596811e9';
+const CACHE_NAME = 'fincontrol-static-dd619615';
 const GOOGLE_HOSTS = ['firebase', 'gstatic', 'googleapis', 'google.com'];
 
 const CORE_ASSETS = [

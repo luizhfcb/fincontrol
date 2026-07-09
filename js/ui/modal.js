@@ -54,12 +54,7 @@ export function openModal(type) {
   }
 
   if (type === 'audio') {
-    const incomeButton = document.getElementById('mmIncome');
-    const expenseButton = document.getElementById('mmExpense');
-    const audioButton = document.getElementById('mmAudio');
-    if (incomeButton) incomeButton.className = 'mmBtn income';
-    if (expenseButton) expenseButton.className = 'mmBtn expense';
-    if (audioButton) audioButton.className = 'mmBtn on audio';
+    showAudioMode();
   } else {
     setModalType(type);
   }
@@ -68,8 +63,48 @@ export function openModal(type) {
   buildCategories();
 }
 
+const AUDIO_TIP_SEEN_KEY = 'fincontrol_audio_tip_seen';
+
+/** Alterna o modal para o modo de voz e ensina o uso na primeira vez. */
+function showAudioMode() {
+  const incomeButton = document.getElementById('mmIncome');
+  const expenseButton = document.getElementById('mmExpense');
+  const audioButton = document.getElementById('mmAudio');
+  if (incomeButton) incomeButton.className = 'mmBtn income';
+  if (expenseButton) expenseButton.className = 'mmBtn expense';
+  if (audioButton) audioButton.className = 'mmBtn on audio';
+
+  const textModal = document.getElementById('modal-text');
+  const audioModal = document.getElementById('modal-audio');
+  if (textModal) textModal.style.display = 'none';
+  if (audioModal) audioModal.style.display = 'block';
+
+  maybeShowAudioTip();
+}
+
+function maybeShowAudioTip() {
+  let seen = false;
+  try {
+    seen = localStorage.getItem(AUDIO_TIP_SEEN_KEY) === '1';
+  } catch {
+    // localStorage indisponível (aba privada): mostra a dica, sem persistir
+  }
+  if (seen) return;
+  document.getElementById('audioTipOverlay')?.classList.add('show');
+}
+
+export function dismissAudioTip() {
+  document.getElementById('audioTipOverlay')?.classList.remove('show');
+  try {
+    localStorage.setItem(AUDIO_TIP_SEEN_KEY, '1');
+  } catch {
+    // sem persistência em aba privada: dica reaparece na próxima, aceitável
+  }
+}
+
 export function closeModal() {
   document.getElementById('modalOverlay')?.classList.remove('show');
+  document.getElementById('audioTipOverlay')?.classList.remove('show');
   if (state.isRecording) {
     state.isRecording = false;
     document.getElementById('micBtn')?.classList.remove('rec');
@@ -107,6 +142,7 @@ export function closeModalOutside(event) {
 
 export function setModalType(type) {
   if (type === 'audio') {
+    showAudioMode();
     return;
   }
 
