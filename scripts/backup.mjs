@@ -18,7 +18,7 @@ import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
 const KEY_PATH = resolve('serviceAccountKey.json');
-const COLLECTIONS = ['transactions', 'feedback'];
+const COLLECTIONS = ['transactions', 'modules', 'feedback'];
 
 let credentials;
 try {

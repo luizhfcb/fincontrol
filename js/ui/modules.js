@@ -2,7 +2,7 @@ import { state } from '../core/state.js';
 import { buildModuleTransactionDocId, getDueSubscriptionPosts } from '../core/subscription-sync.mjs';
 import { formatCurrency, getMonthlyTransactions } from '../core/utils.js';
 import { showToast } from './feedback.js';
-import { db, deleteDoc, doc, onSnapshot, setDoc, updateDoc } from '../config/firebase.js';
+import { db, deleteDoc, doc, getDoc, onSnapshot, setDoc, updateDoc } from '../config/firebase.js';
 import { DEFAULT_CATEGORIES } from '../core/constants.js';
 import {
   renderDesktopBillsModule,
@@ -25,7 +25,40 @@ function storageKey() {
   return state.currentUser ? `${STORAGE_KEY_BASE}_${state.currentUser.uid}` : STORAGE_KEY_BASE;
 }
 const MODULES_DOC_TYPE = 'modules_state';
-const MODULES_COLLECTION = 'transactions';
+const MODULES_COLLECTION = 'modules';
+// Endereço antigo: doc `${uid}_modules` dentro de `transactions` (pré-migração)
+const LEGACY_MODULES_COLLECTION = 'transactions';
+// Evita tentar migrar mais de 1x por uid na mesma sessão (onSnapshot pode re-disparar)
+const migrationAttempted = new Set();
+
+function legacyModulesRef(uid) {
+  return doc(db, LEGACY_MODULES_COLLECTION, `${uid}_modules`);
+}
+
+/**
+ * Migra o doc de módulos do endereço antigo (transactions/{uid}_modules)
+ * para o novo (modules/{uid}). Só apaga o antigo após gravar o novo com
+ * sucesso. Retorna true se havia doc legado e ele foi copiado.
+ */
+async function migrateLegacyModulesDoc(uid) {
+  const legacySnap = await getDoc(legacyModulesRef(uid));
+  if (!legacySnap.exists()) return false;
+
+  await setDoc(doc(db, MODULES_COLLECTION, uid), legacySnap.data());
+  await deleteDoc(legacyModulesRef(uid));
+  return true;
+}
+
+/** Doc novo já existe mas o legado sobreviveu (migração interrompida): limpa. */
+async function cleanupLegacyModulesDoc(uid) {
+  try {
+    const legacySnap = await getDoc(legacyModulesRef(uid));
+    if (legacySnap.exists()) await deleteDoc(legacyModulesRef(uid));
+  } catch (error) {
+    // best-effort: doc legado órfão não afeta o app, só ocupa espaço
+    console.warn('[Migração] Não foi possível remover doc legado de módulos:', error);
+  }
+}
 const pendingModuleRefs = new Set();
 
 const defaultData = {
@@ -48,21 +81,46 @@ export function initModules() {
     state.unsubscribeModules();
   }
 
-  const docRef = doc(db, MODULES_COLLECTION, `${state.currentUser.uid}_modules`);
+  const uid = state.currentUser.uid;
+  const docRef = doc(db, MODULES_COLLECTION, uid);
   state.unsubscribeModules = onSnapshot(docRef, async (snapshot) => {
     if (!snapshot.exists()) {
+      // Antes de tratar como usuário novo: pode ser conta antiga com doc no
+      // endereço legado. Migra 1x; o setDoc da migração re-dispara o listener.
+      if (!migrationAttempted.has(uid)) {
+        migrationAttempted.add(uid);
+        try {
+          const migrated = await migrateLegacyModulesDoc(uid);
+          if (migrated) return;
+        } catch (error) {
+          console.error('[Migração] Falha ao migrar módulos do endereço legado:', error);
+          // NÃO semeia defaults por cima: dados legados ainda existem.
+          // Libera nova tentativa e segura no cache local até resolver.
+          migrationAttempted.delete(uid);
+          state.modules = loadData();
+          renderModules();
+          showToast('Erro ao sincronizar módulos. Nova tentativa no próximo acesso.', true);
+          return;
+        }
+      }
+
       // Usuário novo começa do zero — nunca herda cache local de outra conta.
       state.modules = cloneDefaults();
       state.modules.categories = DEFAULT_CATEGORIES.map((c) => ({ ...c }));
       await setDoc(docRef, {
-        uid: state.currentUser.uid,
+        uid,
         _docType: MODULES_DOC_TYPE,
         ...state.modules,
       });
-      state.modulesDocId = `${state.currentUser.uid}_modules`;
+      state.modulesDocId = uid;
       persistLocal();
       renderModules();
       return;
+    }
+    // Migração pode ter deixado o doc legado pra trás (interrupção): limpeza 1x.
+    if (!migrationAttempted.has(uid)) {
+      migrationAttempted.add(uid);
+      cleanupLegacyModulesDoc(uid);
     }
     state.modulesDocId = snapshot.id;
     state.modules = { ...cloneDefaults(), ...snapshot.data() };
@@ -111,7 +169,7 @@ function persistLocal() {
 async function persist() {
   persistLocal();
   if (!state.currentUser) return;
-  const modulesDocId = `${state.currentUser.uid}_modules`;
+  const modulesDocId = state.currentUser.uid;
   try {
     await setDoc(doc(db, MODULES_COLLECTION, modulesDocId), {
       uid: state.currentUser.uid,

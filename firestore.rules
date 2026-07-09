@@ -9,6 +9,10 @@ service cloud.firestore {
         && request.auth.uid == resource.data.uid
         && request.resource.data.uid == resource.data.uid;
     }
+    // Estado dos módulos (limites, assinaturas, contas, categorias): 1 doc por usuário
+    match /modules/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
     match /feedback/{docId} {
       allow create: if request.auth != null
         && request.auth.uid == request.resource.data.uid
