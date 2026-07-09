@@ -2,6 +2,17 @@ import { CATEGORY_COLORS, CATEGORY_ICONS, MONTHS } from '../core/constants.js';
 import { state } from '../core/state.js';
 import { formatCompactCurrency, formatCurrency, getMonthlyTransactions, setText } from '../core/utils.js';
 import { renderModules } from './modules.js';
+import {
+  catColor,
+  COMPO_PALETTE,
+  escapeHtml,
+  formatDateTime,
+  txTypeIcon,
+  WEEKDAY_FULL,
+} from './ui-helpers.js';
+
+// Re-export: consumidores externos (modules.js) seguem importando daqui.
+export { escapeHtml } from './ui-helpers.js';
 
 // ─── Paleta de cores para receitas ───────────────────────────────────────────
 const INCOME_PALETTE = [
@@ -14,27 +25,6 @@ const EXPENSE_PALETTE = [
   '#081522', '#4BA9C4', '#AAB7C0', '#6DDFF6',
   '#5A6B76', '#D7E6EC', '#1C526C', '#8EC7D6',
 ];
-
-// Cores vívidas e distintas p/ composição do dia — legíveis em tema claro E escuro
-const COMPO_PALETTE = [
-  '#29D6FF', '#FF6B6B', '#FFD166', '#06D6A0',
-  '#A78BFA', '#F78C6B', '#4ADE80', '#F472B6',
-  '#38BDF8', '#FBBF24', '#22D3EE', '#FB7185',
-];
-
-/** Monograma: 1ª letra útil da descrição (fallback #). */
-function txMonogram(desc) {
-  const s = (desc || '').trim();
-  return s ? s[0].toUpperCase() : '#';
-}
-
-/** Cor da categoria: mapa fixo p/ conhecidas, hash estável p/ dinâmicas. */
-function catColor(name) {
-  if (CATEGORY_COLORS[name]) return CATEGORY_COLORS[name];
-  let h = 0;
-  for (let i = 0; i < (name || '').length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
-  return COMPO_PALETTE[h % COMPO_PALETTE.length];
-}
 
 // ─── SVGs das visões do dashboard ────────────────────────────────────
 const DVP_ICONS = {
@@ -49,16 +39,6 @@ const DASH_VIEWS = [
   { key: 'income',  label: 'Receitas'    },
   { key: 'expense', label: 'Despesas'    },
 ];
-
-// ─── Ícones SVG para transações ──────────────────────────────────────────────────
-
-/** Seta SVG para transação individual (income=verde/cima, expense=vermelho/baixo) */
-function txTypeIcon(type) {
-  if (type === 'income') {
-    return '<svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>';
-  }
-  return '<svg viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>';
-}
 
 /** Ícone de tag SVG para cabeçalho de grupo de categoria */
 function catGroupIcon() {
@@ -1025,7 +1005,6 @@ window.selectSixMonthBar = function (bar) {
 // ─── Gráfico: Gasto médio por dia da semana ──────────────────────────────────
 
 const WEEKDAY_LETTER = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
-const WEEKDAY_FULL   = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 // "aos domingos/sábados" (masc.) · "às segundas..." (fem., dia de feira)
 const WEEKDAY_PHRASE = [
   'aos domingos', 'às segundas', 'às terças', 'às quartas',
@@ -1268,20 +1247,3 @@ function getDonutColor(category, index, isIncome) {
   return EXPENSE_PALETTE[index % EXPENSE_PALETTE.length] || CATEGORY_COLORS[category] || '#71717a';
 }
 
-// ─── Utilidades ───────────────────────────────────────────────────────────────
-
-function formatDateTime(value) {
-  return new Date(value).toLocaleString('pt-BR', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  }).replace(',', ' ·');
-}
-
-export function escapeHtml(value) {
-  return String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
