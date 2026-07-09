@@ -30,6 +30,20 @@ export function setText(id, value) {
   }
 }
 
+/**
+ * Converte um token numérico em formato pt-BR para Number.
+ * Ponto é separador de milhar, vírgula é decimal: "1.500,50" -> 1500.5,
+ * "50,00" -> 50, "1.500" -> 1500, "25" -> 25.
+ */
+export function parseBrazilianAmount(token) {
+  if (!token) return 0;
+  const normalized = token.includes(',')
+    ? token.replace(/\./g, '').replace(',', '.')  // vírgula decimal -> pontos são milhares
+    : token.replace(/\./g, '');                    // sem vírgula -> ponto é milhar
+  const value = parseFloat(normalized);
+  return Number.isNaN(value) ? 0 : value;
+}
+
 export function parseVoiceInput(text) {
   const wordToNumber = {
     um: 1,
@@ -70,9 +84,10 @@ export function parseVoiceInput(text) {
   };
 
   let value = 0;
-  const numberMatch = text.match(/(?:r\$\s*)?(\d+(?:[.,]\d+)?)/i);
+  // Captura o token numérico inteiro (ex: "1.500,50") p/ normalizar depois.
+  const numberMatch = text.match(/(?:r\$\s*)?(\d[\d.,]*)/i);
   if (numberMatch) {
-    value = parseFloat(numberMatch[1].replace(',', '.'));
+    value = parseBrazilianAmount(numberMatch[1]);
   }
 
   if (!value) {
@@ -113,7 +128,7 @@ export function parseVoiceInput(text) {
 
   let description = text
     .replace(/r\$/gi, '')
-    .replace(/\d+(?:[.,]\d+)?/g, '')
+    .replace(/\d[\d.,]*/g, '')
     .replace(/(reais|real|paguei|gastei|comprei|recebi|custou|ganhei|valor|de|por|no|na|um|uma|o|a)/gi, ' ')
     .replace(/\s+/g, ' ')
     .trim();
