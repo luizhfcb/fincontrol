@@ -51,11 +51,11 @@ export const CATEGORY_COLORS = {
   Assinaturas: '#29D6FF',
   'Despesa Fixa': '#FB7185',
   Combustível: '#F59E0B',
-  Manutenção: '#94A3B8',
+  Manutenção: '#6366F1',
   Fornecedor: '#4ADE80',
   'Venda de Água': '#06D6A0',
   Entrega: '#818CF8',
-  Outros: '#9CA3AF',
+  Outros: '#14B8A6',
 };
 
 /** Categorias genéricas pré-definidas para contas novas */

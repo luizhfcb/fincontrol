@@ -82,9 +82,14 @@ export function initModules() {
     state.unsubscribeModules();
   }
 
+  // Só libera o onboarding depois que os módulos autoritativos (nuvem) chegarem —
+  // senão o tutorial reabre pra usuário existente durante a janela de carregamento.
+  state.modulesCloudLoaded = false;
+
   const uid = state.currentUser.uid;
   const docRef = doc(db, MODULES_COLLECTION, uid);
   state.unsubscribeModules = onSnapshot(docRef, async (snapshot) => {
+    state.modulesCloudLoaded = true;
     if (!snapshot.exists()) {
       // Antes de tratar como usuário novo: pode ser conta antiga com doc no
       // endereço legado. Migra 1x; o setDoc da migração re-dispara o listener.

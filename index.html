@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="./icon-192.svg">
 <link rel="manifest" href="./manifest.json">
 <link rel="stylesheet" href="./assets/fonts/poppins.css">
-<link rel="stylesheet" href="./css/main.css?v=c6111d49">
+<link rel="stylesheet" href="./css/main.css?v=4c938388">
 <title>FinControl</title>
 </head>
 <body>
@@ -88,13 +88,9 @@
 <div id="mobile-app">
   <div class="m-topbar">
     <div class="m-topbar-inner">
-      <div class="m-profile-mini">
-        <div class="avatar-btn" id="mAvatar" onclick="confirmLogout()">?</div>
-        <div class="m-profile-copy">
-          <strong>Bem-vindo ao <em>FinControl</em></strong>
-          <span><span class="sync-dot" id="mSyncDot"></span><em id="mMonthSync">Março 2026 • Sincronizado</em></span>
-        </div>
-      </div>
+      <button class="avatar-btn" id="mAvatar" onclick="confirmLogout()" aria-label="Sair da conta">?</button>
+      <div class="m-topbar-brand" aria-label="FinControl">Fin<span>Control</span></div>
+
       <div class="m-topbar-right">
         <button class="icon-btn" id="mFeedbackBtn" onclick="openFeedbackModal()" aria-label="Enviar feedback" title="Enviar feedback">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
@@ -107,49 +103,69 @@
   <div class="m-scroller">
     <div class="m-page active" id="mp-home">
       <div class="m-balance-hero">
-        <div class="m-home-headline">
-          <div>
-            <span class="m-greeting">Bom dia</span>
-            <strong>Resumo do mês</strong>
+        <div class="m-context-row">
+          <div class="m-monthpick-wrap">
+            <div class="m-monthpick">
+              <button class="m-monthpick-btn" id="mMonthBtn" onclick="toggleMonthPicker()" aria-haspopup="listbox" aria-expanded="false">
+                <span id="monthLabel">—</span>
+                <span class="sync-dot" id="mSyncDot" title="Sincronizado"></span>
+                <svg class="m-monthpick-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <div class="m-monthpick-menu" id="mMonthMenu" role="listbox" aria-label="Selecionar mês">
+                <div class="m-monthpick-year">
+                  <button class="m-monthpick-ynav" onclick="pickYear(-1)" aria-label="Ano anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
+                  <span id="mMonthPickYear">—</span>
+                  <button class="m-monthpick-ynav" onclick="pickYear(1)" aria-label="Próximo ano"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+                </div>
+                <div class="m-monthpick-grid" id="mMonthPickGrid"></div>
+              </div>
+            </div>
           </div>
           <div id="mDashViewWrap" class="dash-view-wrap"></div>
         </div>
-        <div class="m-period-switch">
-          <button class="mnbtn" onclick="changeMonth(-1)">‹</button>
-          <span id="monthLabel">—</span>
-          <button class="mnbtn" onclick="changeMonth(1)">›</button>
-        </div>
-        <label id="mBalanceLabel">SALDO TOTAL</label>
-        <div class="m-balance-row">
-          <div class="big-val positive" id="mBalance">R$ 0,00</div>
-        </div>
-        <p id="mPeriodLabel">—</p>
-        <div class="m-summary-stack" aria-label="Resumo financeiro do mês">
-          <article class="m-summary-card balance">
-            <span>Saldo do Mês</span>
-            <div class="m-balance-line">
-              <strong id="mBalanceCard">R$ 0,00</strong>
+
+        <section class="m-executive-card" aria-labelledby="mBalanceLabel">
+          <div class="m-hero-balance">
+            <div class="m-executive-label-row">
+              <label id="mBalanceLabel">SALDO DO MÊS</label>
+              <button class="m-eye-btn" id="mEyeBtn" onclick="togglePrivacy()" aria-label="Ocultar valores" title="Ocultar valores">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="m-hero-value-row">
+              <div class="big-val positive priv" id="mBalance">R$ 0,00</div>
+            </div>
+            <div class="m-hero-meta">
               <span class="m-badge" id="mBalanceDelta">+0%</span>
+              <span class="m-balance-comparison" id="mBalanceComparison">vs. mês anterior</span>
             </div>
-            <div class="m-flow" role="img" aria-label="Proporção entre receitas e despesas do mês">
-              <div class="m-flow-income" id="mFlowIncome"></div>
-              <div class="m-flow-expense" id="mFlowExpense"></div>
-            </div>
-            <p class="m-flow-caption" id="mFlowCaption">—</p>
-            <i aria-hidden="true">$</i>
-          </article>
-          <article class="m-summary-card income">
-            <span>Receitas</span>
-            <strong id="mIncome">R$ 0,00</strong>
-            <i aria-hidden="true">↗</i>
-          </article>
-          <article class="m-summary-card expense">
-            <span>Despesas</span>
-            <strong id="mExpense">R$ 0,00</strong>
-            <i aria-hidden="true">↘</i>
-          </article>
+          </div>
+
+        <div class="m-inout-row" aria-label="Receitas e despesas do mês">
+          <button class="m-inout income" onclick="setDashView('income')" aria-label="Ver receitas do mês">
+            <span class="io-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+            <span class="io-copy"><small>Receitas</small><strong id="mIncome" class="priv">R$ 0,00</strong></span>
+          </button>
+          <button class="m-inout expense" onclick="setDashView('expense')" aria-label="Ver despesas do mês">
+            <span class="io-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg></span>
+            <span class="io-copy"><small>Despesas</small><strong id="mExpense" class="priv">R$ 0,00</strong></span>
+          </button>
         </div>
+
+        <div class="m-flow-card">
+          <div class="m-flow" role="img" aria-label="Proporção entre receitas e despesas do mês">
+            <div class="m-flow-income" id="mFlowIncome"></div>
+            <div class="m-flow-expense" id="mFlowExpense"></div>
+          </div>
+          <p class="m-flow-caption" id="mFlowCaption">—</p>
+        </div>
+        </section>
       </div>
+
+      <div class="m-section-filter">
+        <span class="m-section-filter-label">Relatórios</span>
+      </div>
+
       <div class="m-card report-card" id="mChartCard">
         <div class="report-head report-toggle" id="mChartHeader" role="button" tabindex="0" aria-expanded="false" aria-controls="mBarChart" onclick="toggleReportBlock('chart')">
           <span>Gastos por Categoria</span>
@@ -203,6 +219,21 @@
       <div class="m-card" id="mBillsPage"></div>
     </div>
 
+    <div class="m-page" id="mp-more">
+      <div style="height:10px"></div>
+      <div class="sec-title">Mais</div>
+      <div class="more-hub-grid" aria-label="Mais opções">
+        <button class="more-hub-card" onclick="goMPage('limits')">
+          <span class="more-hub-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l6 9H6z"/><circle cx="6" cy="18" r="3"/><rect x="15" y="15" width="6" height="6" rx="1"/></svg></span>
+          <span><strong>Categorias</strong><small>Limites e organização dos gastos</small></span>
+        </button>
+        <button class="more-hub-card" onclick="goMPage('stock')">
+          <span class="more-hub-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5"/><path d="M12 12L4 7.5"/><path d="M12 21v-9"/></svg></span>
+          <span><strong>Estoque</strong><small>Itens, alertas e reposições</small></span>
+        </button>
+      </div>
+    </div>
+
     <div class="m-page" id="mp-stock">
       <div style="height:10px"></div>
       <div class="sec-title">Estoque</div>
@@ -214,10 +245,9 @@
 
   <nav class="m-bottomnav">
     <button class="nbtn on" id="mn-home" onclick="goMPage('home')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9l8-6 8 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/></svg></span>Início</button>
-    <button class="nbtn" id="mn-bills" onclick="goMPage('bills')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M6 3h12"/><path d="M10 13h4"/></svg></span>Contas</button>
     <button class="nbtn" id="mn-transactions" onclick="goMPage('transactions')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h12"/></svg></span>Transações</button>
-    <button class="nbtn" id="mn-limits" onclick="goMPage('limits')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l6 9H6z"/><circle cx="6" cy="18" r="3"/><rect x="15" y="15" width="6" height="6" rx="1"/></svg></span>Categorias</button>
-    <button class="nbtn" id="mn-stock" onclick="goMPage('stock')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5"/><path d="M12 12L4 7.5"/><path d="M12 21v-9"/></svg></span>Mais</button>
+    <button class="nbtn" id="mn-bills" onclick="goMPage('bills')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M6 3h12"/><path d="M10 13h4"/></svg></span>Contas</button>
+    <button class="nbtn" id="mn-more" onclick="goMPage('more')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></span>Mais</button>
   </nav>
 </div>
 
@@ -432,30 +462,78 @@
 </div>
 
 <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
-  <div class="modal-box">
+  <div class="modal-box tx-modal-box" data-tx-type="income">
     <div class="modal-handle"></div>
-    <div class="modal-title">Nova Transação</div>
-    <div class="modal-mode">
+    <div class="tx-modal-head">
+      <div>
+        <span class="tx-modal-eyebrow">Nova movimentação</span>
+        <div class="modal-title" id="mModalTitle">Nova entrada</div>
+      </div>
+      <button class="tx-modal-close" id="mModalClose" type="button" onclick="closeModal()" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="modal-mode" role="tablist" aria-label="Tipo da transação">
       <button class="mmBtn on income" id="mmIncome" onclick="setModalType('income')"><svg class="mm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span>Entrada</span></button>
       <button class="mmBtn expense" id="mmExpense" onclick="setModalType('expense')"><svg class="mm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg><span>Gasto</span></button>
-      <button class="mmBtn audio" id="mmAudio" onclick="setModalType('audio')"><svg class="mm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg><span>Áudio</span></button>
     </div>
     <div id="modal-text">
-      <div class="finput-row">
-        <input class="finput" id="mDesc" type="text" placeholder="Ex: Almoço, Salário, Uber…" autocomplete="off"/>
-        <input class="finput amt" id="mVal" type="number" inputmode="decimal" placeholder="R$"/>
+      <button class="tx-amount-card" id="mAmountCard" type="button" onclick="openAmountKeypad()" aria-label="Editar valor">
+        <span id="mAmountLabel">Valor da entrada</span>
+        <strong><small>R$</small><span id="mAmountDisplay">0,00</span></strong>
+        <em id="mAmountExpression"></em>
+      </button>
+      <input id="mVal" type="hidden" value="0"/>
+
+      <div id="mAmountKeypad" class="tx-keypad">
+        <div class="tx-keypad-toolbar">
+          <span>Digite ou calcule o valor</span>
+          <button type="button" data-key="backspace" onclick="pressAmountKey('backspace')" aria-label="Apagar último número">⌫</button>
+        </div>
+        <div class="tx-keypad-grid" aria-label="Teclado de valor">
+          <button type="button" data-key="7" onclick="pressAmountKey('7')">7</button>
+          <button type="button" data-key="8" onclick="pressAmountKey('8')">8</button>
+          <button type="button" data-key="9" onclick="pressAmountKey('9')">9</button>
+          <button type="button" class="is-operator" data-key="÷" onclick="pressAmountKey('÷')">÷</button>
+          <button type="button" data-key="4" onclick="pressAmountKey('4')">4</button>
+          <button type="button" data-key="5" onclick="pressAmountKey('5')">5</button>
+          <button type="button" data-key="6" onclick="pressAmountKey('6')">6</button>
+          <button type="button" class="is-operator" data-key="×" onclick="pressAmountKey('×')">×</button>
+          <button type="button" data-key="1" onclick="pressAmountKey('1')">1</button>
+          <button type="button" data-key="2" onclick="pressAmountKey('2')">2</button>
+          <button type="button" data-key="3" onclick="pressAmountKey('3')">3</button>
+          <button type="button" class="is-operator" data-key="−" onclick="pressAmountKey('−')">−</button>
+          <button type="button" data-key="0" onclick="pressAmountKey('0')">0</button>
+          <button type="button" data-key="," onclick="pressAmountKey(',')">,</button>
+          <button type="button" class="is-equals" data-key="=" onclick="pressAmountKey('=')">=</button>
+          <button type="button" class="is-operator" data-key="+" onclick="pressAmountKey('+')">+</button>
+        </div>
+        <div class="tx-keypad-actions">
+          <button type="button" class="tx-keypad-clear" onclick="pressAmountKey('clear')">Limpar</button>
+          <button type="button" class="tx-keypad-done" onclick="finishAmountEntry()">Continuar</button>
+        </div>
       </div>
-      <div>
-        <label class="gfm-label">Categoria</label>
-        <div class="cats" id="mCatRow"></div>
-      </div>
-      <div>
-        <label class="gfm-label" for="mDate">Data</label>
-        <input class="finput" id="mDate" type="date"/>
-      </div>
-      <div class="modal-actions">
-        <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
-        <button class="btn-confirm income" id="mConfirmBtn" onclick="confirmTx()">+ Confirmar Entrada</button>
+
+      <div id="mTxDetails" class="tx-details" hidden>
+        <div class="tx-field">
+          <label class="gfm-label" for="mDesc">Descrição</label>
+          <input class="finput" id="mDesc" type="text" placeholder="Ex.: Salário, almoço, Uber…" autocomplete="off"/>
+        </div>
+        <button class="tx-voice-fill" id="mVoiceFill" type="button" onclick="setModalType('audio')">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><path d="M12 18v4"/></svg>
+          <span><strong>Preencher por voz</strong><small>Diga valor, descrição e categoria</small></span>
+        </button>
+        <div class="tx-field">
+          <label class="gfm-label">Categoria</label>
+          <div class="cats" id="mCatRow"></div>
+        </div>
+        <div class="tx-field">
+          <label class="gfm-label" for="mDate">Data</label>
+          <input class="finput" id="mDate" type="date"/>
+        </div>
+        <div class="modal-actions tx-primary-action">
+          <button class="btn-confirm income" id="mConfirmBtn" onclick="confirmTx()">Adicionar entrada</button>
+        </div>
       </div>
     </div>
     <div id="modal-audio" style="display:none">
@@ -523,16 +601,17 @@
     <p style="color: var(--text2); font-size: 15px; margin-bottom: 28px; line-height: 1.5;">Tem certeza que deseja desconectar?<br>Você precisará fazer login novamente para acessar seus dados.</p>
     <div style="display:flex; gap:12px;">
       <button class="btn-cancel" style="flex:1; padding:14px; border-radius:16px;" onclick="document.getElementById('logoutModal').style.display='none'">Cancelar</button>
-      <button class="btn-confirm" style="flex:1; padding:14px; border-radius:16px; background: var(--red); color: #fff; border:none; font-weight:800; cursor:pointer;" onclick="executeLogout()">Sair da Conta</button>
+      <button class="btn-confirm logout-confirm-btn" style="flex:1; padding:14px; border-radius:16px;" onclick="executeLogout()">Sair da Conta</button>
     </div>
   </div>
 </div>
 
+<div class="fab-backdrop" id="fabBackdrop"></div>
 <div class="fab-wrap" id="fabWrap">
   <div class="fab-menu" id="fabMenu">
-    <div class="fab-item"><span class="fab-label">Gravar Áudio</span><button class="fab-action fa-neutral" onclick="openModal('audio')" aria-label="Gravar áudio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg></button></div>
-    <div class="fab-item"><span class="fab-label">Adicionar Gasto</span><button class="fab-action fa-red" onclick="openModal('expense')" aria-label="Adicionar gasto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg></button></div>
-    <div class="fab-item"><span class="fab-label">Adicionar Entrada</span><button class="fab-action fa-green" onclick="openModal('income')" aria-label="Adicionar entrada"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></button></div>
+    <div class="fab-item fi-income"><button class="fab-action fa-green" onclick="openModal('income')" aria-label="Adicionar entrada"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></button><span class="fab-label">Entrada</span></div>
+    <div class="fab-item fi-audio"><button class="fab-action fa-neutral" onclick="openModal('audio')" aria-label="Gravar áudio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg></button><span class="fab-label">Voz</span></div>
+    <div class="fab-item fi-expense"><button class="fab-action fa-red" onclick="openModal('expense')" aria-label="Adicionar gasto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg></button><span class="fab-label">Gasto</span></div>
   </div>
   <button class="fab" id="fabBtn" onclick="toggleFab()" aria-label="Adicionar transação"><svg class="fab-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
 </div>
@@ -542,7 +621,7 @@
 <!-- Modal: Histórico Detalhado por Descrição -->
 <div class="modal-overlay" id="txHistoryModal" onclick="if(event.target===this) closeTxHistory()"></div>
 
-<script type="module" src="./js/main.js?v=c6111d49"></script>
+<script type="module" src="./js/main.js?v=4c938388"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

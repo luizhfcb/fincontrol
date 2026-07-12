@@ -1,21 +1,10 @@
 // Gráficos do dashboard: donut por categoria, 6 meses (receita×despesa),
 // tendência mensal de despesas e gasto médio por dia da semana.
-import { CATEGORY_COLORS, MONTHS } from '../core/constants.js';
+import { CATEGORY_COLORS, CATEGORY_ICONS, MONTHS } from '../core/constants.js';
 import { state } from '../core/state.js';
 import { formatCompactCurrency, formatCurrency } from '../core/utils.js';
+import { assignDistinctDonutColors } from './chart-colors.mjs';
 import { escapeHtml, WEEKDAY_FULL } from './ui-helpers.js';
-
-// ─── Paleta de cores para receitas ───────────────────────────────────────────
-const INCOME_PALETTE = [
-  '#29D6FF', '#12384D', '#6DDFF6', '#7A8B96',
-  '#A7DDE9', '#081522', '#AAB7C0', '#4BA9C4',
-];
-
-const EXPENSE_PALETTE = [
-  '#12384D', '#29D6FF', '#7A8B96', '#A7DDE9',
-  '#081522', '#4BA9C4', '#AAB7C0', '#6DDFF6',
-  '#5A6B76', '#D7E6EC', '#1C526C', '#8EC7D6',
-];
 
 /** Clique numa barra: mostra valor exato num texto dinâmico abaixo do gráfico. */
 window.selectChartBar = function (bar) {
@@ -253,47 +242,46 @@ function buildDonutMarkup(sortedCategories, totalValue, isIncome) {
     return `<div class="empty">${emptyLabel}</div>`;
   }
 
+  // Atribui uma cor a cada categoria de uma vez só, garantindo unicidade —
+  // duas fatias nunca saem com o mesmo tom (bug de Assinaturas × Teste).
+  const colors = assignDistinctDonutColors(
+    sortedCategories.map(([category]) => category),
+    isIncome,
+    CATEGORY_COLORS,
+  );
+
   let current = 0;
-  const chartStops = sortedCategories.map(([cat, val], i) => {
+  const chartStops = sortedCategories.map(([, val], i) => {
     const start = current;
     const pct   = (val / totalValue) * 100;
     current    += pct;
-    const color = getDonutColor(cat, i, isIncome);
-    return `${color} ${start.toFixed(2)}% ${current.toFixed(2)}%`;
+    return `${colors[i]} ${start.toFixed(2)}% ${current.toFixed(2)}%`;
   });
-
-  const [topCat, topVal] = sortedCategories[0];
-  const topShare = Math.round((topVal / totalValue) * 100);
-  const typeLabel = isIncome ? 'receita' : 'gasto';
 
   return `
     <div class="chart-layout">
       <div class="donut-shell">
         <div class="donut-chart" style="background:conic-gradient(${chartStops.join(', ')})">
           <div class="donut-hole">
+            <strong class="donut-total ${isIncome ? 'positive' : 'negative'} priv">${formatCurrency(totalValue)}</strong>
             <span>Total ${isIncome ? 'receitas' : 'gastos'}</span>
-            <strong>${formatCurrency(totalValue)}</strong>
-            <small>${sortedCategories.length} categorias</small>
+            <small>${sortedCategories.length} ${sortedCategories.length === 1 ? 'categoria' : 'categorias'}</small>
           </div>
         </div>
       </div>
       <div class="donut-side">
-        <div class="chart-highlight${isIncome ? ' income-highlight' : ''}">
-          <span>Categoria dominante</span>
-          <strong>${escapeHtml(topCat)}</strong>
-          <p>${topShare}% do total de ${typeLabel}s concentrado em <strong>${escapeHtml(topCat)}</strong>.</p>
-        </div>
-        <div class="donut-legend">
+        <div class="cat-list">
           ${sortedCategories.map(([cat, val], i) => {
-            const color = getDonutColor(cat, i, isIncome);
+            const color = colors[i];
+            const pct = ((val / totalValue) * 100).toFixed(1).replace('.', ',');
             return `
-              <div class="legend-item">
-                <span class="legend-dot" style="background:${color}"></span>
-                <div>
-                  <div class="legend-name">${escapeHtml(cat)}</div>
-                  <div class="legend-meta">${Math.round((val / totalValue) * 100)}% do total</div>
+              <div class="cat-row">
+                <span class="cat-ico" style="background:${color}" aria-hidden="true">${CATEGORY_ICONS[cat] || '📦'}</span>
+                <div class="cat-info">
+                  <div class="cat-name">${escapeHtml(cat)}</div>
+                  <div class="cat-sub">${pct}% do total</div>
                 </div>
-                <div class="legend-value">${formatCurrency(val)}</div>
+                <div class="cat-val ${isIncome ? 'positive' : 'negative'} priv">${formatCurrency(val)}</div>
               </div>
             `;
           }).join('')}
@@ -301,9 +289,4 @@ function buildDonutMarkup(sortedCategories, totalValue, isIncome) {
       </div>
     </div>
   `;
-}
-
-function getDonutColor(category, index, isIncome) {
-  if (isIncome) return INCOME_PALETTE[index % INCOME_PALETTE.length];
-  return EXPENSE_PALETTE[index % EXPENSE_PALETTE.length] || CATEGORY_COLORS[category] || '#71717a';
 }

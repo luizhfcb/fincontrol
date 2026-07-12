@@ -35,6 +35,8 @@ export function renderExpenseHeatmap(containerId, transactions) {
 
   const totalMonth = days.reduce((sum, day) => sum + day.total, 0);
   const maxDayTotal = Math.max(...days.map((day) => day.total), 0);
+  // Distribuição dos dias COM gasto (ordenada) para tonalização por quantil.
+  const sortedPositives = days.map((day) => day.total).filter((v) => v > 0).sort((a, b) => a - b);
   const selectedDay = Math.min(
     daysInMonth,
     Math.max(1, Number(state.heatmapSelectedDay) || new Date().getDate()),
@@ -50,6 +52,31 @@ export function renderExpenseHeatmap(containerId, transactions) {
   const dailyAvg     = activeDays ? totalMonth / activeDays : 0;
   const multiplier   = dailyAvg ? selected.total / dailyAvg : 0;
   const txCount      = selected.transactions.length;
+
+  // ── Insight de padrão: dia da semana que concentra os gastos ──────────────
+  let insightHtml = '';
+  if (totalMonth > 0 && activeDays >= 2) {
+    const weekdayTotals = Array(7).fill(0);
+    days.forEach((d) => {
+      if (d.total <= 0) return;
+      const dow = new Date(state.currentYear, state.currentMonth, d.day).getDay();
+      weekdayTotals[dow] += d.total;
+    });
+    let topDow = 0;
+    for (let i = 1; i < 7; i += 1) {
+      if (weekdayTotals[i] > weekdayTotals[topDow]) topDow = i;
+    }
+    if (weekdayTotals[topDow] > 0) {
+      const share = Math.round((weekdayTotals[topDow] / totalMonth) * 100);
+      insightHtml = `
+        <div class="heatmap-insight">
+          <span class="hi-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg>
+          </span>
+          <span class="hi-text"><strong>${WEEKDAY_FULL[topDow]}</strong> concentra seus gastos — ${formatCurrency(weekdayTotals[topDow])} <em>(${share}% do mês)</em></span>
+        </div>`;
+    }
+  }
 
   // Composição: fatia de cada despesa no total do dia (cores distintas)
   const compo = selected.total > 0
@@ -107,6 +134,7 @@ export function renderExpenseHeatmap(containerId, transactions) {
     </div>
     <div class="${collapsible ? `collapse-shell${expanded ? '' : ' collapsed'}` : ''}">
     <div class="${collapsible ? 'collapse-inner' : 'heatmap-body'}">
+    ${insightHtml}
     <div class="heatmap-weekdays" aria-hidden="true">
       <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
     </div>
@@ -114,12 +142,17 @@ export function renderExpenseHeatmap(containerId, transactions) {
       ${Array.from({ length: firstWeekday }, () => '<span class="heatmap-day-spacer" aria-hidden="true"></span>').join('')}
       ${days.map((day) => `
         <button
-          class="heatmap-day ${getHeatmapTone(day.total, maxDayTotal)}${day.day === selectedDay ? ' selected' : ''}"
+          class="heatmap-day ${getHeatmapTone(day.total, sortedPositives)}${day.day === selectedDay ? ' selected' : ''}"
           onclick="selectExpenseHeatmapDay(${day.day})"
           title="Dia ${day.day}: ${formatCurrency(day.total)}"
           aria-label="Dia ${day.day}, ${formatCurrency(day.total)} em despesas"
         >${day.day}</button>
       `).join('')}
+    </div>
+    <div class="heatmap-scale">
+      <span>Menos</span>
+      <div class="heatmap-scale-bar"></div>
+      <span>Mais</span>
     </div>
     <div class="heatmap-detail">
       <div class="heatmap-detail-top">
@@ -163,11 +196,20 @@ export function renderExpenseHeatmap(containerId, transactions) {
   `;
 }
 
-function getHeatmapTone(total, maxTotal) {
-  if (!total || !maxTotal) return 'level-0';
-  const intensity = total / maxTotal;
-  if (intensity <= 0.25) return 'level-1';
-  if (intensity <= 0.5) return 'level-2';
-  if (intensity <= 0.75) return 'level-3';
+// Tonalização por QUANTIL: distribui os dias com gasto em 4 faixas de
+// população parecida, em vez de razão linear ao pico. Assim um único dia caro
+// não achata todo o resto. Dia sem gasto (total 0) fica neutro (level-0).
+function getHeatmapTone(total, sortedPositives) {
+  if (!total || !sortedPositives.length) return 'level-0';
+  // Posição do valor na distribuição dos dias com gasto (0 < ratio <= 1).
+  let rank = 0;
+  for (const value of sortedPositives) {
+    if (value <= total) rank += 1;
+    else break;
+  }
+  const ratio = rank / sortedPositives.length;
+  if (ratio <= 0.25) return 'level-1';
+  if (ratio <= 0.5) return 'level-2';
+  if (ratio <= 0.75) return 'level-3';
   return 'level-4';
 }

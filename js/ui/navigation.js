@@ -6,21 +6,24 @@ import { refreshUI } from './render.js';
 import { maybeSwipeHint } from './onboarding.js';
 
 export function toggleFab() {
-  document.getElementById('fabMenu')?.classList.toggle('show');
-  document.getElementById('fabBtn')?.classList.toggle('open');
+  const isOpen = document.getElementById('fabMenu')?.classList.toggle('show') ?? false;
+  document.getElementById('fabBtn')?.classList.toggle('open', isOpen);
+  document.body.classList.toggle('fab-open', isOpen);
 }
 
 export function closeFab() {
   document.getElementById('fabMenu')?.classList.remove('show');
   document.getElementById('fabBtn')?.classList.remove('open');
+  document.body.classList.remove('fab-open');
 }
 
 export function goMobilePage(name) {
   document.querySelectorAll('.m-page').forEach((page) => page.classList.remove('active'));
   document.querySelectorAll('.nbtn').forEach((button) => button.classList.remove('on'));
   document.getElementById(`mp-${name}`)?.classList.add('active');
-  document.getElementById(`mn-${name}`)?.classList.add('on');
-  document.getElementById('fabWrap')?.classList.toggle('hidden', ['limits', 'subscriptions', 'bills', 'stock'].includes(name));
+  const morePages = new Set(['limits', 'stock', 'subscriptions']);
+  const navName = morePages.has(name) ? 'more' : name;
+  document.getElementById(`mn-${navName}`)?.classList.add('on');
   document.querySelector('.m-scroller')?.scrollTo({ top: 0 });
   closeFab();
   if (name === 'transactions') {
@@ -59,6 +62,56 @@ export function changeMonth(delta) {
   const label = `${MONTHS[state.currentMonth]} ${state.currentYear}`;
   setText('monthLabel', label);
   setText('dMonthLabel', label);
+  refreshUI();
+  renderModules();
+}
+
+// ─── Seletor de mês (dropdown no topbar mobile) ──────────────────────────────
+let pickerYear = state.currentYear;
+
+function renderMonthPickGrid() {
+  const grid = document.getElementById('mMonthPickGrid');
+  if (!grid) return;
+  setText('mMonthPickYear', String(pickerYear));
+  grid.innerHTML = MONTHS.map((name, i) => {
+    const active = i === state.currentMonth && pickerYear === state.currentYear;
+    return `<button class="m-monthpick-cell${active ? ' active' : ''}" role="option"
+      aria-selected="${active}" onclick="pickMonth(${i})">${name.slice(0, 3)}</button>`;
+  }).join('');
+}
+
+export function toggleMonthPicker() {
+  const menu = document.getElementById('mMonthMenu');
+  const btn  = document.getElementById('mMonthBtn');
+  if (!menu) return;
+  const open = menu.classList.toggle('open');
+  btn?.setAttribute('aria-expanded', String(open));
+  if (open) {
+    pickerYear = state.currentYear;
+    renderMonthPickGrid();
+  }
+}
+
+export function closeMonthPicker() {
+  document.getElementById('mMonthMenu')?.classList.remove('open');
+  document.getElementById('mMonthBtn')?.setAttribute('aria-expanded', 'false');
+}
+
+export function pickYear(delta) {
+  pickerYear += delta;
+  renderMonthPickGrid();
+}
+
+export function pickMonth(month) {
+  state.currentMonth = month;
+  state.currentYear  = pickerYear;
+  state.txSearchQuery = '';
+  state.txTypeFilter = 'all';
+  state.heatmapSelectedDay = 1;
+  const label = `${MONTHS[state.currentMonth]} ${state.currentYear}`;
+  setText('monthLabel', label);
+  setText('dMonthLabel', label);
+  closeMonthPicker();
   refreshUI();
   renderModules();
 }

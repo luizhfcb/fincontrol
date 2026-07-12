@@ -44,6 +44,9 @@ async function markOnboarding(patch) {
 /** Chamado quando os módulos carregam. Mostra o carrossel uma única vez. */
 export function maybeStartOnboarding() {
   if (started || !state.currentUser || !state.modules) return;
+  // Espera os módulos da nuvem: o cache default do boot não tem welcomeSeen
+  // e faria o tutorial reabrir pra usuário existente a cada login/refresh.
+  if (!state.modulesCloudLoaded) return;
   if (getOnboarding().welcomeSeen) return;
   started = true;
   idx = 0;

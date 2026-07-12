@@ -4,6 +4,15 @@ import { closeFab } from './navigation.js';
 import { saveTransaction } from '../services/transactions.js';
 import { buildCategories } from './categories.js';
 import { toLocalDateInputValue } from '../core/local-date.mjs';
+import {
+  createAmountState,
+  formatAmountDisplay,
+  formatAmountExpression,
+  getAmountValue,
+  pressAmountKey as reduceAmountKey,
+} from '../core/amount-keypad.mjs';
+
+let amountState = createAmountState();
 
 function getTodayInputValue() {
   return toLocalDateInputValue();
@@ -11,6 +20,50 @@ function getTodayInputValue() {
 
 function getDateInputValue(date) {
   return toLocalDateInputValue(date) || getTodayInputValue();
+}
+
+function syncAmountUI() {
+  const display = document.getElementById('mAmountDisplay');
+  const expression = document.getElementById('mAmountExpression');
+  const value = document.getElementById('mVal');
+  if (display) display.textContent = formatAmountDisplay(amountState);
+  if (expression) expression.textContent = amountState.error || formatAmountExpression(amountState);
+  if (value) value.value = String(getAmountValue(amountState));
+}
+
+function setAmountValue(value) {
+  amountState = createAmountState(value);
+  syncAmountUI();
+}
+
+function showTransactionDetails() {
+  const keypad = document.getElementById('mAmountKeypad');
+  const details = document.getElementById('mTxDetails');
+  if (keypad) keypad.hidden = true;
+  if (details) details.hidden = false;
+  document.querySelector('.tx-modal-box')?.classList.add('shows-details');
+}
+
+export function pressAmountKey(key) {
+  amountState = reduceAmountKey(amountState, key);
+  syncAmountUI();
+  if (amountState.error) showToast(amountState.error, true);
+}
+
+export function openAmountKeypad() {
+  const keypad = document.getElementById('mAmountKeypad');
+  const details = document.getElementById('mTxDetails');
+  if (keypad) keypad.hidden = false;
+  if (details) details.hidden = true;
+  document.querySelector('.tx-modal-box')?.classList.remove('shows-details');
+}
+
+export function finishAmountEntry() {
+  if (getAmountValue(amountState) <= 0) {
+    showToast('Digite um valor maior que zero.', true);
+    return;
+  }
+  showTransactionDetails();
 }
 
 export function openModal(type) {
@@ -25,6 +78,11 @@ export function openModal(type) {
   const description = document.getElementById('mDesc');
   const value = document.getElementById('mVal');
   const date = document.getElementById('mDate');
+  const modalBox = document.querySelector('.tx-modal-box');
+
+  modalBox?.classList.remove('is-audio', 'shows-details');
+  setAmountValue(0);
+  openAmountKeypad();
 
   if (textModal) {
     textModal.style.display = type === 'audio' ? 'none' : 'block';
@@ -45,9 +103,7 @@ export function openModal(type) {
   if (description) {
     description.value = '';
   }
-  if (value) {
-    value.value = '';
-  }
+  if (value) value.value = '0';
   if (date) {
     date.value = getTodayInputValue();
   }
@@ -68,15 +124,18 @@ const AUDIO_TIP_SEEN_KEY = 'fincontrol_audio_tip_seen';
 function showAudioMode() {
   const incomeButton = document.getElementById('mmIncome');
   const expenseButton = document.getElementById('mmExpense');
-  const audioButton = document.getElementById('mmAudio');
   if (incomeButton) incomeButton.className = 'mmBtn income';
   if (expenseButton) expenseButton.className = 'mmBtn expense';
-  if (audioButton) audioButton.className = 'mmBtn on audio';
 
   const textModal = document.getElementById('modal-text');
   const audioModal = document.getElementById('modal-audio');
+  const title = document.getElementById('mModalTitle');
+  const modalBox = document.querySelector('.tx-modal-box');
   if (textModal) textModal.style.display = 'none';
   if (audioModal) audioModal.style.display = 'block';
+  if (title) title.textContent = 'Preencher por voz';
+  modalBox?.classList.add('is-audio');
+  if (modalBox) modalBox.dataset.txType = 'audio';
 
   maybeShowAudioTip();
 }
@@ -109,6 +168,7 @@ export function closeModal() {
     document.getElementById('micBtn')?.classList.remove('rec');
   }
   state.editingTxId = null;
+  document.querySelector('.tx-modal-box')?.classList.remove('is-audio', 'shows-details');
 }
 
 export function editTx(id) {
@@ -126,10 +186,12 @@ export function editTx(id) {
     
     if (description) description.value = tx.desc;
     if (value) value.value = tx.val;
+    setAmountValue(tx.val);
     if (date) date.value = getDateInputValue(tx.date);
     
     state.selectedCategory = tx.cat || 'Outros';
     buildCategories();
+    showTransactionDetails();
   }, 50);
 }
 
@@ -146,15 +208,37 @@ export function setModalType(type) {
   }
 
   state.modalType = type;
-  document.getElementById('mmIncome').className = 'mmBtn' + (type === 'income' ? ' on income' : ' income');
-  document.getElementById('mmExpense').className = 'mmBtn' + (type === 'expense' ? ' on expense' : ' expense');
-  document.getElementById('mmAudio').className = 'mmBtn audio';
-  document.getElementById('modal-text').style.display = 'block';
-  document.getElementById('modal-audio').style.display = 'none';
+  const incomeButton = document.getElementById('mmIncome');
+  const expenseButton = document.getElementById('mmExpense');
+  const textModal = document.getElementById('modal-text');
+  const audioModal = document.getElementById('modal-audio');
+  const modalBox = document.querySelector('.tx-modal-box');
+  const title = document.getElementById('mModalTitle');
+  const amountLabel = document.getElementById('mAmountLabel');
+  const isEditing = Boolean(state.editingTxId);
+
+  if (incomeButton) incomeButton.className = 'mmBtn' + (type === 'income' ? ' on income' : ' income');
+  if (expenseButton) expenseButton.className = 'mmBtn' + (type === 'expense' ? ' on expense' : ' expense');
+  if (textModal) textModal.style.display = 'block';
+  if (audioModal) audioModal.style.display = 'none';
+  modalBox?.classList.remove('is-audio');
+  if (modalBox) modalBox.dataset.txType = type;
+
+  if (title) {
+    title.textContent = isEditing
+      ? (type === 'income' ? 'Editar entrada' : 'Editar gasto')
+      : (type === 'income' ? 'Nova entrada' : 'Novo gasto');
+  }
+  if (amountLabel) amountLabel.textContent = type === 'income' ? 'Valor da entrada' : 'Valor do gasto';
 
   const confirmButton = document.getElementById('mConfirmBtn');
-  confirmButton.className = 'btn-confirm ' + (type === 'income' ? 'income' : 'expense');
-  confirmButton.textContent = type === 'income' ? '+ Confirmar Entrada' : '− Confirmar Gasto';
+  if (confirmButton) {
+    confirmButton.className = 'btn-confirm ' + (type === 'income' ? 'income' : 'expense');
+    confirmButton.textContent = isEditing
+      ? 'Salvar alterações'
+      : (type === 'income' ? 'Adicionar entrada' : 'Adicionar gasto');
+  }
+  syncAmountUI();
 }
 
 export async function confirmTx() {

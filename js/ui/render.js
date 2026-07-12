@@ -1,6 +1,7 @@
 // Orquestrador da UI: refreshUI() calcula métricas do dashboard e delega a
 // renderização às views especializadas (tx-list, heatmap, charts, modules).
 import { MONTHS } from '../core/constants.js';
+import { buildDashboardComparison } from '../core/dashboard-comparison.mjs';
 import { state } from '../core/state.js';
 import { formatCompactCurrency, formatCurrency, getMonthlyTransactions, setText } from '../core/utils.js';
 import { renderModules } from './modules.js';
@@ -54,35 +55,38 @@ export function refreshUI() {
   const prevIncome  = prevTxs.filter((t) => t.type === 'income').reduce((s, t)  => s + t.val, 0);
   const prevExpense = prevTxs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.val, 0);
   const prevBalance = prevIncome - prevExpense;
-  const balanceDelta = prevBalance === 0
-    ? 0
-    : Math.round(((balance - prevBalance) / Math.abs(prevBalance)) * 100);
 
   // ── Lógica de visão (Geral / Receitas / Despesas) ─────────────────────────
   const dashView = state.dashView || 'all';
-  let heroValue, heroClass, balanceLabel, chartTxs, chartTotal, chartIsIncome;
+  let heroValue, heroClass, balanceLabel, chartTxs, chartTotal, chartIsIncome, comparisonValue, previousHeroValue;
 
   if (dashView === 'income') {
     heroValue    = income;
     heroClass    = 'positive';
-    balanceLabel = 'TOTAL RECEITAS';
+    balanceLabel = 'RECEITAS DO MÊS';
     chartTxs     = incomeTransactions;
     chartTotal   = income;
     chartIsIncome = true;
+    comparisonValue = income;
+    previousHeroValue = prevIncome;
   } else if (dashView === 'expense') {
     heroValue    = expense;
     heroClass    = 'negative';
-    balanceLabel = 'TOTAL DESPESAS';
+    balanceLabel = 'DESPESAS DO MÊS';
     chartTxs     = expenseTransactions;
     chartTotal   = expense;
     chartIsIncome = false;
+    comparisonValue = expense;
+    previousHeroValue = prevExpense;
   } else {
     heroValue    = Math.abs(balance);
     heroClass    = balance >= 0 ? 'positive' : 'negative';
-    balanceLabel = 'SALDO TOTAL';
+    balanceLabel = 'SALDO DO MÊS';
     chartTxs     = expenseTransactions;
     chartTotal   = expense;
     chartIsIncome = false;
+    comparisonValue = balance;
+    previousHeroValue = prevBalance;
   }
 
   // ── Atualiza métrica principal do dashboard ────────────────────────────────
@@ -90,7 +94,7 @@ export function refreshUI() {
     const el = document.getElementById(id);
     if (!el) return;
     el.textContent = formatCurrency(heroValue);
-    el.className   = `big-val ${heroClass}`;
+    el.className   = `big-val priv ${heroClass}`;
   });
 
   const desktopBalance = document.getElementById('dBalance');
@@ -99,17 +103,6 @@ export function refreshUI() {
     desktopBalance.className = `val ${balance >= 0 ? 'positive' : 'negative'}`;
   }
 
-  const mobileBalanceCard = document.getElementById('mBalanceCard');
-  if (mobileBalanceCard) {
-    mobileBalanceCard.textContent = formatCurrency(balance);
-    mobileBalanceCard.className = balance >= 0 ? 'positive' : 'negative';
-    // Marca o card de saldo p/ estilo condicional (negativo = alerta / >=0 = marca)
-    const balanceArticle = mobileBalanceCard.closest('.m-summary-card.balance');
-    if (balanceArticle) {
-      balanceArticle.classList.toggle('is-negative', balance < 0);
-      balanceArticle.classList.toggle('is-positive', balance >= 0);
-    }
-  }
   setText('mBalanceLabel', balanceLabel);
   setText('dBalanceLabel', balanceLabel);
 
@@ -157,13 +150,20 @@ export function refreshUI() {
   setText('dBig',    highestExpense ? formatCurrency(highestExpense.val) : '—');
   setText('dBig2',   highestExpense ? formatCurrency(highestExpense.val) : '—');
   setText('dBigSub', highestExpense ? `${highestExpense.cat} — ${highestExpense.desc}` : '—');
-  setText('mMonthSync', `${MONTHS[state.currentMonth]} ${state.currentYear} • Sincronizado`);
-  setText('mPeriodLabel', getMonthPeriodLabel(state.currentYear, state.currentMonth));
-
+  setText('monthLabel', `${MONTHS[state.currentMonth]} ${state.currentYear}`);
+  const comparison = buildDashboardComparison(comparisonValue, previousHeroValue, MONTHS[prevDate.getMonth()]);
   const badge = document.getElementById('mBalanceDelta');
+  const comparisonLabel = document.getElementById('mBalanceComparison');
   if (badge) {
-    badge.textContent = `${balanceDelta >= 0 ? '+' : ''}${balanceDelta}%`;
-    badge.className   = `m-badge ${balanceDelta >= 0 ? 'positive' : 'negative'}`;
+    badge.hidden = !comparison;
+    if (comparison) {
+      badge.textContent = comparison.deltaText;
+      badge.className = `m-badge is-${comparison.tone}`;
+    }
+  }
+  if (comparisonLabel) {
+    comparisonLabel.hidden = !comparison;
+    if (comparison) comparisonLabel.textContent = comparison.contextText;
   }
 
   // ── Seletor de visão (dropdown pill) ──────────────────────────────────────
@@ -269,15 +269,3 @@ export function toggleReportBlock(key) {
   if (header) header.setAttribute('aria-expanded', String(expanded));
   if (body) body.classList.toggle('collapsed', !expanded);
 }
-
-// ─── Funções Auxiliares ───────────────────────────────────────────────────────
-
-function getMonthPeriodLabel(year, month) {
-  const start = new Date(year, month, 1);
-  const end   = new Date(year, month + 1, 0);
-  const fmt   = (d) => d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '');
-  return `${fmt(start)} — ${fmt(end)}`;
-}
-
-
-
