@@ -1,12 +1,12 @@
 // Orquestrador da UI: refreshUI() calcula métricas do dashboard e delega a
 // renderização às views especializadas (tx-list, heatmap, charts, modules).
 import { MONTHS } from '../core/constants.js';
-import { buildDashboardComparison } from '../core/dashboard-comparison.mjs';
 import { state } from '../core/state.js';
 import { formatCompactCurrency, formatCurrency, getMonthlyTransactions, setText } from '../core/utils.js';
 import { renderModules } from './modules.js';
 import { renderExpenseHeatmap } from './heatmap.js';
-import { renderTransactionsPage } from './tx-list.js';
+import { renderAnalytics } from './analytics.js';
+import { renderRecentTransactions, renderTransactionsPage } from './tx-list.js';
 import {
   renderDonutCharts,
   renderMonthlyTrend,
@@ -48,17 +48,9 @@ export function refreshUI() {
   const dailyAverage = activeDays.size ? expense / activeDays.size : 0;
   const highestExpense = [...expenseTransactions].sort((a, b) => b.val - a.val)[0];
 
-  const prevDate = new Date(state.currentYear, state.currentMonth - 1, 1);
-  const prevTxs  = state.transactions.filter(
-    (t) => t.month === prevDate.getMonth() && t.year === prevDate.getFullYear(),
-  );
-  const prevIncome  = prevTxs.filter((t) => t.type === 'income').reduce((s, t)  => s + t.val, 0);
-  const prevExpense = prevTxs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.val, 0);
-  const prevBalance = prevIncome - prevExpense;
-
   // ── Lógica de visão (Geral / Receitas / Despesas) ─────────────────────────
   const dashView = state.dashView || 'all';
-  let heroValue, heroClass, balanceLabel, chartTxs, chartTotal, chartIsIncome, comparisonValue, previousHeroValue;
+  let heroValue, heroClass, balanceLabel, chartTxs, chartTotal, chartIsIncome;
 
   if (dashView === 'income') {
     heroValue    = income;
@@ -67,8 +59,6 @@ export function refreshUI() {
     chartTxs     = incomeTransactions;
     chartTotal   = income;
     chartIsIncome = true;
-    comparisonValue = income;
-    previousHeroValue = prevIncome;
   } else if (dashView === 'expense') {
     heroValue    = expense;
     heroClass    = 'negative';
@@ -76,8 +66,6 @@ export function refreshUI() {
     chartTxs     = expenseTransactions;
     chartTotal   = expense;
     chartIsIncome = false;
-    comparisonValue = expense;
-    previousHeroValue = prevExpense;
   } else {
     heroValue    = Math.abs(balance);
     heroClass    = balance >= 0 ? 'positive' : 'negative';
@@ -85,8 +73,6 @@ export function refreshUI() {
     chartTxs     = expenseTransactions;
     chartTotal   = expense;
     chartIsIncome = false;
-    comparisonValue = balance;
-    previousHeroValue = prevBalance;
   }
 
   // ── Atualiza métrica principal do dashboard ────────────────────────────────
@@ -105,27 +91,6 @@ export function refreshUI() {
 
   setText('mBalanceLabel', balanceLabel);
   setText('dBalanceLabel', balanceLabel);
-
-  // ── Barra de fluxo (proporção receitas × despesas no card de saldo) ────────
-  const flowIncome  = document.getElementById('mFlowIncome');
-  const flowExpense = document.getElementById('mFlowExpense');
-  if (flowIncome && flowExpense) {
-    const flowTotal = income + expense;
-    const incomePct = flowTotal > 0 ? (income / flowTotal) * 100 : 0;
-    flowIncome.style.width  = `${incomePct.toFixed(1)}%`;
-    flowExpense.style.width = `${flowTotal > 0 ? (100 - incomePct).toFixed(1) : 0}%`;
-    flowIncome.parentElement.classList.toggle('is-empty', flowTotal <= 0);
-  }
-  const flowCaption = document.getElementById('mFlowCaption');
-  if (flowCaption) {
-    if (income <= 0 && expense <= 0) {
-      flowCaption.textContent = 'Sem lançamentos neste mês';
-    } else if (income <= 0) {
-      flowCaption.textContent = 'Nenhuma receita registrada';
-    } else {
-      flowCaption.textContent = `Despesas somam ${Math.round((expense / income) * 100)}% das receitas`;
-    }
-  }
 
   // ── Métricas secundárias ───────────────────────────────────────────────────
   setText('mIncome', formatCurrency(income));
@@ -151,20 +116,6 @@ export function refreshUI() {
   setText('dBig2',   highestExpense ? formatCurrency(highestExpense.val) : '—');
   setText('dBigSub', highestExpense ? `${highestExpense.cat} — ${highestExpense.desc}` : '—');
   setText('monthLabel', `${MONTHS[state.currentMonth]} ${state.currentYear}`);
-  const comparison = buildDashboardComparison(comparisonValue, previousHeroValue, MONTHS[prevDate.getMonth()]);
-  const badge = document.getElementById('mBalanceDelta');
-  const comparisonLabel = document.getElementById('mBalanceComparison');
-  if (badge) {
-    badge.hidden = !comparison;
-    if (comparison) {
-      badge.textContent = comparison.deltaText;
-      badge.className = `m-badge is-${comparison.tone}`;
-    }
-  }
-  if (comparisonLabel) {
-    comparisonLabel.hidden = !comparison;
-    if (comparison) comparisonLabel.textContent = comparison.contextText;
-  }
 
   // ── Seletor de visão (dropdown pill) ──────────────────────────────────────
   renderDashViewSelector('mDashViewWrap');
@@ -178,6 +129,8 @@ export function refreshUI() {
   renderExpenseHeatmap('mExpenseHeatmap', monthlyTransactions);
   renderExpenseHeatmap('dExpenseHeatmap', monthlyTransactions);
   renderTransactionsPage(monthlyTransactions);
+  renderRecentTransactions('mRecentTx', monthlyTransactions);
+  renderAnalytics(state.transactions);
   renderDonutCharts(sortedCategories, chartTotal, chartIsIncome);
   renderWeekdayChart('mWeekdayChart', monthlyTransactions);
   renderMonthlyTrend('mSixMonthChart', state.transactions);
@@ -254,11 +207,6 @@ export function toggleReportBlock(key) {
       prop: 'heatmapExpanded',
       header: '#mExpenseHeatmap .report-head',
       body: '#mExpenseHeatmap .collapse-shell',
-    },
-    chart: {
-      prop: 'chartExpanded',
-      header: '#mChartHeader',
-      body: '#mChartBody',
     },
   }[key];
   if (!cfg) return;

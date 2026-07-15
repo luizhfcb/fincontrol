@@ -20,6 +20,7 @@ function onSwipeStart(e) {
   if (e.pointerType === 'mouse' && e.button !== 0) return;
   const target = e.target;
   if (target.closest('.tx-swipe-action')) return; // clique no botão revelado
+  if (target.closest('.recent-tx-list')) return; // home: linhas são somente leitura
   const el = target.closest('.tx-swipe');
   closeAllSwipes(el);
   if (!el) return;

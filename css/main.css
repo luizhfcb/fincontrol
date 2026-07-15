@@ -6714,3 +6714,1162 @@ body.privacy-on #mobile-app .m-hero-value-row .big-val{filter:blur(14px)}
 }
 .heatmap-insight .hi-text strong{ color:var(--text); font-weight:800; }
 .heatmap-insight .hi-text em{ font-style:normal; color:var(--text3); font-weight:600; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Home enxuta + Análises. O movimento fica concentrado no donut; o restante
+   usa superfícies quietas, hierarquia tipográfica e cor apenas com significado.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Home: saldo principal seguido por duas pills de fluxo em uma única linha. */
+#mp-home .m-executive-card{
+  padding:20px;
+  overflow:visible;
+}
+#mp-home .m-context-row .dash-view-dropdown{
+  right:0;
+  left:auto;
+  transform:translateY(-8px);
+}
+#mp-home .m-context-row .dash-view-dropdown.open{transform:translateY(0)}
+#mp-home .m-hero-balance{margin:0 0 16px !important}
+#mp-home .m-executive-card .m-hero-value-row .big-val{
+  font-size:clamp(34px,10vw,42px);
+  font-variant-numeric:tabular-nums;
+}
+.m-inout-pills{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.m-pill{
+  min-width:0;
+  min-height:54px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:9px 10px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:var(--card2);
+  color:var(--text);
+  text-align:left;
+  cursor:pointer;
+  transition:transform .16s ease,border-color .16s ease,background .16s ease;
+}
+.m-pill:active{transform:scale(.98)}
+.m-pill > span:last-child{min-width:0}
+.m-pill-icon{
+  width:34px;
+  height:34px;
+  flex:0 0 34px;
+  display:grid;
+  place-items:center;
+  border-radius:11px;
+}
+.m-pill-icon svg{
+  width:17px;
+  height:17px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2.2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.m-pill small,.m-pill strong{display:block}
+.m-pill small{
+  margin-bottom:2px;
+  color:var(--text3);
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.m-pill strong{
+  overflow:hidden;
+  font-family:var(--fin-display);
+  font-size:clamp(12px,3.6vw,15px);
+  font-variant-numeric:tabular-nums;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.m-pill.income{border-color:color-mix(in srgb,var(--fin-green) 28%,var(--border))}
+.m-pill.income .m-pill-icon{background:var(--fin-green-soft);color:var(--fin-green)}
+.m-pill.income strong{color:var(--fin-green)}
+.m-pill.expense{border-color:color-mix(in srgb,var(--fin-red) 28%,var(--border))}
+.m-pill.expense .m-pill-icon{background:var(--fin-red-soft);color:var(--fin-red)}
+.m-pill.expense strong{color:var(--fin-red)}
+
+#mobile-app #mp-home .report-card{
+  padding:19px 18px 18px;
+  overflow:hidden;
+  border:1px solid color-mix(in srgb,var(--text) 8%,transparent);
+  border-radius:26px;
+  background:var(--card);
+  box-shadow:0 14px 34px color-mix(in srgb,#071521 9%,transparent);
+}
+#mp-home .report-card > .report-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:17px;
+  padding:0;
+  border:0;
+}
+#mp-home .report-card > .report-head > span{font-size:15px;letter-spacing:-.02em}
+.report-chip{
+  flex:0 0 auto;
+  padding:5px 8px;
+  border-radius:999px;
+  background:var(--card2);
+  color:var(--text);
+  font-family:var(--fin-display);
+  font-size:10px;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-.01em;
+}
+
+.recent-section-title{margin-top:22px}
+.recent-section-title .sec-link{
+  min-height:34px;
+  padding:0 11px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  background:var(--card);
+}
+#mobile-app #mp-home .recent-tx-list{
+  padding:6px 10px;
+  overflow:hidden;
+  border:1px solid color-mix(in srgb,var(--text) 8%,transparent);
+  border-radius:26px;
+  background:var(--card);
+  box-shadow:0 14px 34px color-mix(in srgb,#071521 8%,transparent);
+}
+[data-theme="dark"] #mobile-app #mp-home .report-card,
+[data-theme="dark"] #mobile-app #mp-home .recent-tx-list{
+  background:#0e2a3b !important;
+  border-color:rgba(255,255,255,.08) !important;
+  box-shadow:0 18px 38px rgba(0,0,0,.28) !important;
+}
+.recent-tx-ledger{display:flex;flex-direction:column}
+.recent-tx-item{
+  width:100%;
+  min-width:0;
+  min-height:72px;
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr) auto;
+  align-items:center;
+  gap:11px;
+  padding:11px 5px;
+  border:0;
+  border-radius:14px;
+  background:transparent;
+  color:var(--text);
+  text-align:left;
+  cursor:pointer;
+  transition:background .16s ease,transform .16s ease;
+}
+.recent-tx-item + .recent-tx-item{border-top:1px solid color-mix(in srgb,var(--border) 72%,transparent);border-radius:0}
+.recent-tx-item:hover{background:var(--card2)}
+.recent-tx-item:active{transform:scale(.99)}
+.recent-tx-item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.recent-tx-icon{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+  background:color-mix(in srgb,var(--tx-accent) 14%,transparent);
+  color:var(--tx-accent);
+}
+[data-theme="dark"] .recent-tx-icon{background:color-mix(in srgb,var(--tx-accent) 22%,transparent)}
+.recent-tx-icon svg{
+  width:19px;
+  height:19px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.9;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.recent-tx-copy{min-width:0;display:block}
+.recent-tx-copy strong{
+  display:block;
+  overflow:hidden;
+  color:var(--text);
+  font-size:13px;
+  font-weight:750;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.recent-tx-copy > span{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  overflow:hidden;
+  margin-top:4px;
+  color:var(--text3);
+  font-size:10px;
+  font-weight:600;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.recent-tx-copy i{font-style:normal;color:color-mix(in srgb,var(--text3) 54%,transparent)}
+.recent-tx-value{min-width:0;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.recent-tx-amount{
+  font-family:var(--fin-display);
+  font-size:12px;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-.02em;
+  white-space:nowrap;
+}
+.recent-tx-value small{color:var(--text3);font-size:9px;font-weight:650}
+[data-theme] #mobile-app .recent-tx-amount.positive{color:var(--fin-green)!important}
+[data-theme] #mobile-app .recent-tx-amount.negative{color:var(--fin-red)!important}
+
+/* Donut SVG compacto e acessível. */
+.donut-chart{
+  position:relative;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:transparent !important;
+  box-shadow:none;
+}
+.donut-chart::after{display:none}
+.donut-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.donut-track{stroke:color-mix(in srgb,var(--text) 8%,transparent)}
+.donut-arc{
+  stroke-linecap:round;
+  stroke-dashoffset:var(--arc-start);
+  cursor:pointer;
+  outline:none;
+  transition:stroke-width .18s ease,filter .18s ease,opacity .18s ease;
+  animation:donutDraw .56s cubic-bezier(.22,1,.36,1) both;
+  pointer-events:none;
+}
+.donut-arc-hit{
+  fill:none;
+  stroke:transparent;
+  stroke-width:44;
+  stroke-linecap:round;
+  stroke-dashoffset:var(--arc-start);
+  pointer-events:stroke;
+  cursor:pointer;
+  outline:none;
+}
+.donut-svg:has(.donut-arc.active) .donut-arc:not(.active){opacity:.48}
+.donut-arc:hover,.donut-arc:focus-visible,.donut-arc.active{
+  stroke-width:16;
+  filter:drop-shadow(0 0 3px color-mix(in srgb,currentColor 44%,transparent));
+}
+.donut-svg:has(.donut-arc-hit:focus-visible) .donut-arc.active{
+  filter:drop-shadow(0 0 4px color-mix(in srgb,var(--accent) 55%,transparent));
+}
+.donut-hole{position:relative;z-index:1;max-width:84px;pointer-events:none;text-align:center}
+.donut-hole .donut-center-label{
+  display:block;
+  margin:0 0 3px;
+  color:var(--text3);
+  font-size:8px;
+  font-weight:800;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.donut-hole .donut-total{
+  display:block;
+  overflow:hidden;
+  color:var(--text);
+  font-size:clamp(12px,3.3vw,14px);
+  line-height:1.12;
+  letter-spacing:-.045em;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+#mobile-app .donut-hole .donut-total.negative{color:var(--text)!important}
+.donut-hole small{display:block;margin-top:4px;color:var(--text3);font-size:8px;font-weight:650}
+.donut-legend{display:grid;gap:0}
+.donut-legend-row{
+  min-width:0;
+  display:grid;
+  grid-template-columns:7px minmax(0,1fr) auto;
+  align-items:center;
+  gap:9px;
+  min-height:31px;
+  padding:3px 0;
+  color:var(--text2);
+  font-size:11px;
+}
+.donut-legend-row + .donut-legend-row{border-top:1px solid color-mix(in srgb,var(--border) 58%,transparent)}
+.donut-legend-dot{width:7px;height:18px;border-radius:999px;box-shadow:none}
+.donut-legend-copy{min-width:0;display:grid;gap:1px}
+.donut-legend-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.donut-legend-value{overflow:hidden;color:var(--text3);font-size:9px;font-weight:600;text-overflow:ellipsis;white-space:nowrap}
+.donut-legend-percent{
+  min-width:35px;
+  padding:4px 6px;
+  border-radius:999px;
+  background:var(--card2);
+  color:var(--text);
+  font-size:10px;
+  font-variant-numeric:tabular-nums;
+  text-align:center;
+}
+.donut-readout{grid-column:1 / -1;width:100%;margin-top:0}
+
+#mobile-app .chart-layout{
+  display:grid;
+  grid-template-columns:128px minmax(0,1fr);
+  gap:17px;
+  align-items:start;
+}
+#mobile-app .donut-shell{margin:0}
+#mobile-app .donut-chart{width:128px;height:128px;margin:4px 0 0}
+#desktop-app .chart-layout{
+  grid-template-columns:minmax(0,240px) minmax(0,1fr);
+  gap:20px;
+}
+#desktop-app .donut-chart{width:220px;height:220px;margin:auto}
+
+@keyframes donutDraw{
+  from{stroke-dashoffset:var(--arc-hidden)}
+  to{stroke-dashoffset:var(--arc-start)}
+}
+
+/* Cabeçalho e segmentação da aba Análises (layout referência fintech). */
+#mp-analytics{
+  --analytics-blue:#2563eb;
+  --analytics-blue-soft:rgba(37,99,235,.12);
+  --analytics-surface:#f3f4f7;
+  --analytics-selector:#e9ebef;
+  padding-top:4px;
+}
+[data-theme="dark"] #mp-analytics{
+  --analytics-blue:#3b82f6;
+  --analytics-blue-soft:rgba(59,130,246,.16);
+  --analytics-surface:#122033;
+  --analytics-selector:#122033;
+}
+
+.analytics-period-filter{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:4px;
+  margin:0 0 20px;
+  padding:4px;
+  border:0;
+  border-radius:17px;
+  background:var(--analytics-selector);
+}
+.analytics-period-filter button{
+  position:relative;
+  min-width:0;
+  min-height:40px;
+  border:0;
+  border-radius:13px;
+  background:transparent;
+  color:var(--text2);
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  transition:color .15s ease,background .15s ease,box-shadow .15s ease;
+}
+.analytics-period-filter button.active{
+  background:var(--card);
+  color:var(--analytics-blue);
+  font-weight:700;
+  box-shadow:0 3px 10px color-mix(in srgb,#0f172a 10%,transparent);
+}
+.analytics-period-filter button.active::after{display:none}
+
+.analytics-hero{padding:0 0 4px;border:0;background:transparent;box-shadow:none}
+
+.analytics-secondary{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin-top:0;
+  padding:0;
+  border:0;
+}
+.analytics-secondary > div{
+  min-width:0;
+  min-height:76px;
+  padding:14px 16px;
+  border:0;
+  border-radius:16px;
+  background:var(--analytics-surface);
+  box-shadow:none;
+}
+.analytics-secondary span,
+.analytics-secondary strong{display:block}
+.analytics-secondary span{
+  margin-bottom:6px;
+  color:var(--text2);
+  font-size:13px;
+  font-weight:500;
+  text-transform:none;
+  letter-spacing:0;
+}
+.analytics-secondary strong{
+  overflow:hidden;
+  color:var(--text);
+  font-family:var(--fin-display);
+  font-size:20px;
+  font-weight:700;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-.03em;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.analytics-secondary .income strong{color:var(--fin-green)}
+.analytics-secondary .expense strong{color:var(--text)}
+.analytics-flow{margin-top:2px}
+
+.analytics-section-title{
+  margin-top:22px;
+  margin-bottom:12px;
+  color:var(--text);
+  font-size:18px;
+  font-weight:800;
+  letter-spacing:-.02em;
+}
+.analytics-daily-scroll{
+  max-width:100%;
+  overflow-x:hidden;
+  padding:2px 1px 4px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--border2) transparent;
+}
+.analytics-daily-bars{min-width:100%}
+.analytics-daily-card[data-period] .analytics-daily-bars{min-width:100%;gap:7px}
+.analytics-daily-card .fin-bar-track{height:128px}
+
+.analytics-breakdown{padding:8px 16px}
+.breakdown-row{display:flex;align-items:center;gap:12px;padding:14px 0}
+.breakdown-row + .breakdown-row{border-top:0}
+.breakdown-icon{
+  width:38px;
+  height:38px;
+  flex:0 0 38px;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  background:color-mix(in srgb,var(--category-color) 15%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--category-color) 24%,transparent);
+  font-size:16px;
+}
+.breakdown-main{min-width:0;flex:1}
+.breakdown-copy{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.breakdown-copy strong{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  overflow:hidden;
+  color:var(--text);
+  font-size:14px;
+  font-weight:600;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.breakdown-dot{
+  width:8px;
+  height:8px;
+  flex:0 0 8px;
+  border-radius:50%;
+}
+.breakdown-copy span{
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  flex:0 0 auto;
+  color:var(--text3);
+  font-size:13px;
+}
+.breakdown-copy b{color:var(--text);font-weight:700}
+.breakdown-copy em{font-style:normal;color:var(--text3);font-weight:500}
+.breakdown-track{
+  height:8px;
+  overflow:hidden;
+  border-radius:99px;
+  background:color-mix(in srgb,var(--text) 7%,transparent);
+}
+.breakdown-track span{display:block;height:100%;border-radius:inherit}
+.analytics-stats{margin-top:0}
+
+#mobile-app .m-pill:focus-visible,
+#mobile-app .analytics-period-filter button:focus-visible,
+#mobile-app .more-hub-card:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+@media(max-width:767px){
+  .m-bottomnav{grid-template-columns:repeat(5,minmax(0,1fr))}
+  #mn-home{grid-column:1}
+  #mn-transactions{grid-column:2}
+  #mn-analytics{grid-column:4}
+  #mn-more{grid-column:5}
+}
+
+@media(max-width:350px){
+  #mp-home .m-executive-card{padding:16px}
+  .m-pill{gap:6px;padding:8px}
+  .m-pill-icon{width:30px;height:30px;flex-basis:30px}
+  #mobile-app #mp-home .report-card{padding-inline:14px}
+  #mobile-app .chart-layout{grid-template-columns:108px minmax(0,1fr);gap:11px}
+  #mobile-app .donut-chart{width:108px;height:108px}
+  .donut-hole{max-width:68px}
+  .donut-hole .donut-total{font-size:11px}
+  .donut-hole .donut-center-label,.donut-hole small{font-size:7px}
+  .donut-legend-row{gap:6px;min-height:28px;font-size:10px}
+  .donut-legend-percent{min-width:31px;padding-inline:4px;font-size:9px}
+  .recent-tx-item{grid-template-columns:38px minmax(0,1fr) auto;gap:8px;padding-inline:2px}
+  .recent-tx-icon{width:38px;height:38px}
+  .recent-tx-copy strong{font-size:12px}
+  .recent-tx-amount{font-size:11px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .donut-arc{animation:none;transition:none;stroke-dashoffset:var(--arc-start)}
+  .m-pill,.analytics-period-filter button{transition:none}
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Home mobile — aproximação do layout de referência (fintech premium):
+   hero em card gradiente, donut/legenda mais limpos e transações recentes
+   com ícones circulares e linhas enxutas.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Hero: card gradiente estilo cartão ─────────────────────────────────── */
+#mp-home .m-executive-card{
+  position:relative;
+  overflow:hidden;
+  padding:22px 20px;
+  border:0;
+  border-radius:26px;
+  background:linear-gradient(140deg,#3B82F6 0%,#2A6BEF 52%,#1F57DD 100%);
+  box-shadow:0 18px 40px rgba(37,99,235,.34);
+}
+/* No escuro, azul royal rico + glow azul suave (referência premium). */
+[data-theme="dark"] #mp-home .m-executive-card{
+  background:linear-gradient(145deg,#3B82F6 0%,#2A63E0 52%,#1E4FC8 100%);
+  box-shadow:0 22px 48px rgba(30,79,200,.5),0 0 44px rgba(59,130,246,.28);
+}
+[data-theme="dark"] #mp-home .m-executive-card::before{
+  background:radial-gradient(circle,rgba(150,185,255,.34),transparent 68%);
+}
+/* Brilho decorativo do cartão */
+#mp-home .m-executive-card::before{
+  content:"";
+  position:absolute;
+  top:-45%;
+  right:-20%;
+  width:230px;
+  height:230px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.22),transparent 68%);
+  pointer-events:none;
+}
+#mp-home .m-executive-card > *{position:relative;z-index:1}
+#mp-home .m-executive-card .m-executive-label-row{margin-bottom:2px}
+#mp-home .m-executive-card #mBalanceLabel{
+  color:rgba(255,255,255,.82)!important;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.1em;
+}
+#mp-home .m-executive-card .m-eye-btn{
+  border:1px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.14);
+  color:#fff;
+}
+#mp-home .m-executive-card .m-eye-btn svg{stroke:#fff}
+#mp-home .m-executive-card .m-hero-value-row .big-val,
+#mp-home .m-executive-card .big-val.positive,
+#mp-home .m-executive-card .big-val.negative{
+  color:#fff!important;
+  font-weight:800;
+  letter-spacing:-.04em;
+}
+
+/* ── Pills Receitas/Despesas em vidro sobre o cartão ────────────────────── */
+#mp-home .m-executive-card .m-inout-pills{margin-top:18px;gap:11px}
+#mp-home .m-executive-card .m-pill{
+  min-height:56px;
+  border:1px solid rgba(255,255,255,.2)!important;
+  border-radius:16px;
+  background:rgba(255,255,255,.14)!important;
+  backdrop-filter:blur(4px);
+}
+#mp-home .m-executive-card .m-pill-icon{
+  background:rgba(255,255,255,.24)!important;
+  color:#fff!important;
+}
+#mp-home .m-executive-card .m-pill small{color:rgba(255,255,255,.78)!important}
+#mp-home .m-executive-card .m-pill.income strong,
+#mp-home .m-executive-card .m-pill.expense strong{color:#fff!important}
+
+/* ── Donut grande centralizado + legenda em 2 colunas embaixo ────────────
+   Empilhar tira a disputa de largura com a legenda: o donut cresce e as
+   fatias pequenas ganham área de toque; a legenda em 2 colunas mostra
+   nome + valor + % sem cortar. */
+#mobile-app #mp-home .chart-layout{
+  grid-template-columns:132px minmax(0,1fr);
+  align-items:center;
+  gap:16px;
+}
+#mobile-app #mp-home .donut-shell{display:grid;place-items:center}
+#mobile-app #mp-home .donut-chart{width:132px;height:132px;margin:0}
+#mp-home .donut-hole{max-width:90px}
+#mp-home .donut-hole .donut-total{font-size:clamp(15px,4.6vw,19px)}
+#mp-home .donut-hole .donut-center-label{font-size:9px}
+#mp-home .donut-hole small{font-size:9px}
+/* Arco mais grosso: preenche melhor e amplia o alvo de toque. */
+#mp-home .donut-arc{stroke-width:15}
+#mp-home .donut-arc:hover,#mp-home .donut-arc:focus-visible,#mp-home .donut-arc.active{stroke-width:19}
+
+/* Legenda em coluna única ao lado do donut; cada linha clicável seleciona a fatia. */
+#mobile-app #mp-home .donut-side{width:100%}
+#mobile-app #mp-home .donut-legend{
+  grid-template-columns:1fr;
+  gap:0;
+}
+.donut-legend-row{
+  display:grid;
+  grid-template-columns:10px minmax(0,1fr) auto;
+  align-items:center;
+  column-gap:8px;
+  min-height:40px;
+  padding:2px 5px;
+  border-radius:10px;
+  cursor:pointer;
+  transition:background .16s ease;
+}
+.donut-legend-row + .donut-legend-row{border-top:0}
+.donut-legend-row:hover{background:var(--card2)}
+.donut-legend-row.active{background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.donut-legend-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.donut-legend-dot{width:10px;height:10px;border-radius:50%}
+.donut-legend-name{
+  min-width:0;
+  overflow:hidden;
+  color:var(--text);
+  font-size:13px;
+  font-weight:650;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.donut-legend-percent{
+  min-width:30px;
+  padding:0;
+  border-radius:0;
+  background:transparent;
+  color:var(--text);
+  font-family:var(--fin-display);
+  font-size:13px;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+  text-align:right;
+}
+
+/* Cabeçalho do card de gastos: título maior, chip discreto */
+#mp-home .report-card > .report-head > span{font-size:16px;font-weight:800}
+#mp-home .report-card .report-chip{
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text2);
+}
+
+/* ── Transações recentes: ícones circulares, linhas enxutas ─────────────── */
+.recent-tx-item{min-height:62px;padding:9px 4px;grid-template-columns:40px minmax(0,1fr) auto}
+.recent-tx-icon{width:40px;height:40px;border-radius:50%}
+.recent-tx-copy strong{font-size:13.5px;font-weight:700}
+.recent-tx-copy > span{margin-top:3px;font-size:10.5px}
+.recent-tx-amount{font-size:13px}
+
+/* Análises — card de barras e refinamentos finais da tela de referência. */
+#mp-analytics .analytics-daily-card{
+  margin-top:6px;
+  padding:18px 16px 14px!important;
+  border:0!important;
+  border-radius:22px!important;
+  background:var(--card)!important;
+  box-shadow:0 8px 28px color-mix(in srgb,#0f172a 7%,transparent)!important;
+}
+[data-theme="dark"] #mp-analytics .analytics-daily-card{
+  background:var(--card2)!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.28)!important;
+}
+#mp-analytics .analytics-chart-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+#mp-analytics .analytics-chart-head h3{
+  margin:0;
+  color:var(--text);
+  font-family:var(--fin-display);
+  font-size:16px;
+  font-weight:800;
+  letter-spacing:-.02em;
+}
+#mp-analytics .analytics-chart-current{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:var(--text3);
+  font-size:12px;
+  font-weight:600;
+}
+#mp-analytics .analytics-chart-current i{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--analytics-blue);
+  box-shadow:0 0 0 3px var(--analytics-blue-soft);
+}
+#mp-analytics .analytics-daily-plot{
+  margin-top:14px;
+  padding:4px 0 0;
+  background:none;
+  border:0;
+}
+#mp-analytics .analytics-daily-scroll{padding:0 1px 2px}
+#mp-analytics .analytics-daily-card .fin-bar{gap:8px;padding:0 1px}
+#mp-analytics .analytics-daily-card .fin-bar-track{
+  position:relative;
+  height:132px;
+  align-items:flex-end;
+  justify-content:center;
+}
+#mp-analytics .analytics-daily-card .fin-bar-track::before{
+  content:"";
+  position:absolute;
+  bottom:0;
+  width:72%;
+  max-width:34px;
+  height:var(--ghost-height,18%);
+  border-radius:10px 10px 4px 4px;
+  background:color-mix(in srgb,var(--analytics-blue) 7%,var(--analytics-surface));
+}
+#mp-analytics .analytics-daily-card .fin-bar-fill{
+  position:relative;
+  z-index:1;
+  width:72%;
+  max-width:34px;
+  min-height:4px;
+  border-radius:10px 10px 4px 4px;
+  background:var(--analytics-blue);
+  box-shadow:none;
+  transition:height .45s cubic-bezier(.22,1,.36,1);
+}
+#mp-analytics .analytics-daily-card .fin-bar.is-empty .fin-bar-fill{
+  height:0!important;
+  min-height:0;
+}
+#mp-analytics .analytics-daily-card .fin-bar.is-peak .fin-bar-fill,
+#mp-analytics .analytics-daily-card .fin-bar.active .fin-bar-fill{
+  background:var(--analytics-blue);
+  box-shadow:0 8px 18px var(--analytics-blue-soft);
+}
+#mp-analytics .analytics-daily-card .fin-bar-label{
+  color:var(--text3);
+  font-size:11px;
+  font-weight:600;
+  text-transform:none;
+}
+#mp-analytics .analytics-daily-card .fin-bar.is-peak .fin-bar-label,
+#mp-analytics .analytics-daily-card .fin-bar.active .fin-bar-label{color:var(--text2)}
+#mp-analytics .analytics-daily-card .fin-bar:hover{background:transparent}
+
+#mp-analytics .analytics-breakdown{
+  padding:4px 16px 8px!important;
+  border:0!important;
+  border-radius:20px!important;
+  background:var(--card)!important;
+  box-shadow:0 6px 22px color-mix(in srgb,#0f172a 6%,transparent)!important;
+}
+[data-theme="dark"] #mp-analytics .analytics-breakdown{
+  background:var(--card2)!important;
+}
+#mp-analytics .breakdown-row{gap:0;padding:14px 0}
+#mp-analytics .breakdown-row + .breakdown-row{border-top:0}
+#mp-analytics .breakdown-track{height:8px}
+
+/* Cards secundários dos hábitos/limites na aba: mais leves */
+#mp-analytics .expense-heatmap-card,
+#mp-analytics .fin-chart-card:not(.analytics-daily-card),
+#mp-analytics #mLimitsMini{
+  border:0!important;
+  border-radius:20px!important;
+  box-shadow:0 6px 22px color-mix(in srgb,#0f172a 6%,transparent)!important;
+}
+
+@media(max-width:350px){
+  #mp-analytics .analytics-page-title{font-size:19px}
+  #mp-analytics .analytics-total{font-size:30px}
+  #mp-analytics .analytics-secondary > div{padding-inline:12px}
+  #mp-analytics .analytics-secondary strong{font-size:16px}
+  #mp-analytics .analytics-daily-card{padding-inline:12px!important}
+  #mp-analytics .analytics-period-filter button{font-size:13px}
+}
+
+/* Topbar mobile pessoal: foto + saudação, preservando as ações existentes. */
+@media (max-width:767px){
+  #mobile-app .m-topbar-inner{
+    min-height:70px;
+    padding:12px 16px;
+    gap:12px;
+  }
+
+  #mobile-app .m-profile-mini{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:0;
+    flex:1 1 auto;
+  }
+
+  #mobile-app .avatar-btn{
+    position:relative;
+    width:42px;
+    height:42px;
+    padding:0;
+    overflow:hidden;
+    border-radius:50%;
+    flex:0 0 42px;
+  }
+
+  #mobile-app .avatar-btn img,
+  #mobile-app .avatar-btn span{
+    width:100%;
+    height:100%;
+    border-radius:inherit;
+  }
+
+  #mobile-app .avatar-btn img{
+    display:none;
+    object-fit:cover;
+  }
+
+  #mobile-app .avatar-btn span{
+    display:grid;
+    place-items:center;
+    color:inherit;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:.02em;
+  }
+
+  #mobile-app .m-profile-copy{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    min-width:0;
+  }
+
+  #mobile-app .m-profile-copy span{
+    display:block;
+    margin:0;
+    color:var(--text2)!important;
+    font-size:11px;
+    font-weight:500;
+    line-height:1.2;
+    white-space:nowrap;
+  }
+
+  #mobile-app .m-profile-copy strong{
+    display:block;
+    overflow:hidden;
+    color:var(--text)!important;
+    font-size:15px;
+    font-weight:750;
+    line-height:1.2;
+    letter-spacing:-.02em;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  #mobile-app .m-topbar-right{
+    flex:0 0 auto;
+    margin-left:0;
+  }
+}
+
+@media (max-width:359px){
+  #mobile-app .m-topbar-inner{padding-inline:12px;gap:8px}
+  #mobile-app .m-profile-mini{gap:8px}
+  #mobile-app .avatar-btn{width:38px;height:38px;flex-basis:38px}
+  #mobile-app .m-profile-copy span{font-size:10px}
+  #mobile-app .m-profile-copy strong{font-size:13px}
+  #mobile-app .m-topbar-right{gap:6px}
+}
+
+/* Resumo de Análises: dupla centralizada, com superfícies de card reais. */
+@media (max-width:767px){
+  #mp-analytics .analytics-secondary{
+    width:100%;
+    max-width:380px;
+    margin-inline:auto;
+    gap:12px;
+  }
+
+  #mp-analytics .analytics-secondary > div{
+    display:flex;
+    min-height:88px;
+    padding:15px 12px;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    border:1px solid var(--border);
+    border-radius:18px;
+    background:var(--card);
+    box-shadow:0 7px 20px color-mix(in srgb,#0f172a 7%,transparent);
+  }
+
+  [data-theme="dark"] #mp-analytics .analytics-secondary > div{
+    background:var(--card2);
+    box-shadow:0 9px 24px rgba(0,0,0,.22);
+  }
+
+  #mp-analytics .analytics-secondary span{
+    margin-bottom:7px;
+    line-height:1.15;
+  }
+
+  #mp-analytics .analytics-secondary strong{
+    width:100%;
+    line-height:1.15;
+    text-align:center;
+  }
+}
+
+@media (max-width:350px){
+  #mp-analytics .analytics-secondary{gap:9px}
+  #mp-analytics .analytics-secondary > div{min-height:82px;padding-inline:9px}
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   POLISH TEMA ESCURO — Início + Análises
+   Superfícies coesas com profundidade (gradiente sutil + hairline + brilho no
+   topo), filtro de período com destaque, cards de fluxo coloridos e barras
+   com gradiente. Escopo restrito a [data-theme="dark"] para não mexer no claro.
+   ══════════════════════════════════════════════════════════════════════════ */
+[data-theme="dark"] #mobile-app{
+  --surface-card:linear-gradient(180deg,#17293f 0%,#101d2f 100%);
+  --surface-border:rgba(150,184,255,.10);
+  --surface-shadow:0 16px 34px rgba(4,10,22,.44);
+  --surface-top:inset 0 1px 0 rgba(255,255,255,.045);
+}
+
+/* ── Superfície unificada: cards da home e da aba análises ─────────────── */
+[data-theme="dark"] #mobile-app #mp-home .report-card,
+[data-theme="dark"] #mobile-app #mp-home .recent-tx-list,
+[data-theme="dark"] #mp-analytics .analytics-secondary > div,
+[data-theme="dark"] #mp-analytics .analytics-daily-card,
+[data-theme="dark"] #mp-analytics .analytics-breakdown,
+[data-theme="dark"] #mp-analytics .expense-heatmap-card,
+[data-theme="dark"] #mp-analytics .fin-chart-card,
+[data-theme="dark"] #mp-analytics #mLimitsMini{
+  background:var(--surface-card)!important;
+  border:1px solid var(--surface-border)!important;
+  box-shadow:var(--surface-shadow),var(--surface-top)!important;
+}
+[data-theme="dark"] #mp-analytics .m-stat-mini{
+  background:var(--surface-card);
+  border:1px solid var(--surface-border);
+  box-shadow:var(--surface-shadow),var(--surface-top);
+}
+
+/* ── Chip do total no card de categorias ──────────────────────────────── */
+[data-theme="dark"] #mp-home .report-card .report-chip{
+  border:1px solid rgba(150,184,255,.16);
+  background:rgba(120,160,255,.08);
+  color:var(--text2);
+}
+
+/* ── Filtro de período: trilho e pílula ativa com destaque de acento ──── */
+[data-theme="dark"] #mp-analytics .analytics-period-filter{
+  padding:5px;
+  border:1px solid rgba(150,184,255,.09);
+  background:linear-gradient(180deg,#0f1c2e,#0c1726);
+}
+[data-theme="dark"] #mp-analytics .analytics-period-filter button{color:var(--text3)}
+[data-theme="dark"] #mp-analytics .analytics-period-filter button.active{
+  background:linear-gradient(180deg,#2b6bf0,#2158d6);
+  color:#fff;
+  box-shadow:0 6px 16px rgba(37,99,235,.42);
+}
+
+/* ── Cards Receita / Saídas: acento colorido + valores tonais ─────────── */
+[data-theme="dark"] #mp-analytics .analytics-secondary > div{
+  position:relative;
+  overflow:hidden;
+  padding-left:18px;
+}
+[data-theme="dark"] #mp-analytics .analytics-secondary > div::before{
+  content:"";
+  position:absolute;
+  top:14px;bottom:14px;left:0;
+  width:4px;
+  border-radius:0 4px 4px 0;
+}
+[data-theme="dark"] #mp-analytics .analytics-secondary .income::before{background:var(--fin-green)}
+[data-theme="dark"] #mp-analytics .analytics-secondary .expense::before{background:var(--fin-red)}
+[data-theme="dark"] #mp-analytics .analytics-secondary .expense strong{color:var(--fin-red)}
+
+/* ── Barras do gasto por dia: gradiente vertical + brilho no pico ─────── */
+[data-theme="dark"] #mp-analytics .analytics-daily-card .fin-bar-fill{
+  background:linear-gradient(180deg,#5b93ff 0%,#2f6bea 100%);
+}
+[data-theme="dark"] #mp-analytics .analytics-daily-card .fin-bar.is-peak .fin-bar-fill,
+[data-theme="dark"] #mp-analytics .analytics-daily-card .fin-bar.active .fin-bar-fill{
+  background:linear-gradient(180deg,#7aa8ff 0%,#3b82f6 100%);
+  box-shadow:0 10px 22px rgba(59,130,246,.45);
+}
+[data-theme="dark"] #mp-analytics .analytics-daily-card .fin-bar-track::before{
+  background:rgba(120,160,255,.06);
+}
+
+/* ── Títulos de seção com marcador de acento. O título é flex/space-between,
+      então o marcador é absoluto p/ não virar item flex e empurrar o texto. */
+[data-theme="dark"] #mp-analytics .analytics-section-title{
+  position:relative;
+  padding-left:15px;
+}
+[data-theme="dark"] #mp-analytics .analytics-section-title::before{
+  content:"";
+  position:absolute;
+  left:0;top:50%;
+  transform:translateY(-50%);
+  width:4px;height:15px;
+  border-radius:3px;
+  background:linear-gradient(180deg,#5b93ff,#2f6bea);
+}
+
+/* Ícones por categoria na lista de Transações (mesmos das recentes):
+   círculo com tom da própria categoria via --tx-accent. */
+.tx-row-ico{
+  border-radius:50%;
+  background:color-mix(in srgb,var(--tx-accent,var(--accent)) 15%,transparent);
+  color:var(--tx-accent,var(--accent));
+}
+[data-theme="dark"] #mobile-app .tx-row-ico{
+  background:color-mix(in srgb,var(--tx-accent,var(--accent)) 22%,transparent);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   REDESIGN COESO (tema escuro) — acento TEAL + hero escuro premium
+   Substitui o hero azul brilhante por gradiente navy→indigo com brilho teal,
+   harmonizando com o donut. Retinta destaques (nav, análises) para teal.
+   Só [data-theme="dark"] — tema claro permanece como está.
+   ══════════════════════════════════════════════════════════════════════════ */
+[data-theme="dark"] #mobile-app{
+  --teal:#00D1C8;
+  --teal-strong:#00A99E;
+  --teal-soft:rgba(0,209,200,.16);
+}
+
+/* ── Hero: gradiente escuro navy→indigo + borda/brilho teal ─────────────── */
+[data-theme="dark"] #mp-home .m-executive-card{
+  background:linear-gradient(150deg,#1B2742 0%,#141E38 50%,#0F1A30 100%)!important;
+  border:1px solid rgba(0,209,200,.26)!important;
+  box-shadow:
+    0 22px 48px rgba(0,0,0,.55),
+    0 0 36px rgba(0,209,200,.14),
+    inset 0 1px 0 rgba(255,255,255,.05)!important;
+}
+[data-theme="dark"] #mp-home .m-executive-card::before{
+  background:radial-gradient(circle,rgba(0,209,200,.24),transparent 68%)!important;
+}
+[data-theme="dark"] #mp-home .m-executive-card #mBalanceLabel{color:rgba(0,209,200,.9)!important}
+[data-theme="dark"] #mp-home .m-executive-card .m-eye-btn{
+  border-color:rgba(0,209,200,.35);
+  background:rgba(0,209,200,.14);
+}
+
+/* ── Pills Receitas/Despesas: borda esquerda colorida ──────────────────── */
+[data-theme="dark"] #mp-home .m-executive-card .m-pill{
+  border:1px solid rgba(255,255,255,.16)!important;
+  border-left:3px solid rgba(255,255,255,.16)!important;
+  background:rgba(255,255,255,.07)!important;
+}
+[data-theme="dark"] #mp-home .m-executive-card .m-pill.income{border-left-color:#22C55E!important}
+[data-theme="dark"] #mp-home .m-executive-card .m-pill.expense{border-left-color:#FF5252!important}
+[data-theme="dark"] #mp-home .m-executive-card .m-pill.income .m-pill-icon{color:#22C55E!important}
+[data-theme="dark"] #mp-home .m-executive-card .m-pill.expense .m-pill-icon{color:#FF5252!important}
+
+/* ── Chip do total no card de categorias: tom teal ─────────────────────── */
+[data-theme="dark"] #mp-home .report-card .report-chip{
+  border-color:rgba(0,209,200,.24);
+  background:rgba(0,209,200,.08);
+  color:var(--teal);
+}
+
+/* ── Bottom nav: estado selecionado teal ───────────────────────────────── */
+[data-theme="dark"] .nbtn.on{color:var(--teal);background:var(--teal-soft)}
+
+/* ── Aba Análises: retinta azul → teal p/ consistência ─────────────────── */
+[data-theme="dark"] #mp-analytics{
+  --analytics-blue:#00D1C8;
+  --analytics-blue-soft:rgba(0,209,200,.18);
+}
+[data-theme="dark"] #mp-analytics .analytics-period-filter button.active{
+  background:linear-gradient(180deg,#00D1C8,#00A99E);
+  color:#052623;
+  box-shadow:0 6px 16px rgba(0,209,200,.4);
+}
+[data-theme="dark"] #mp-analytics .analytics-daily-card .fin-bar-fill{
+  background:linear-gradient(180deg,#3ae6dd 0%,#00c2b8 100%);
+}
+[data-theme="dark"] #mp-analytics .analytics-daily-card .fin-bar.is-peak .fin-bar-fill,
+[data-theme="dark"] #mp-analytics .analytics-daily-card .fin-bar.active .fin-bar-fill{
+  background:linear-gradient(180deg,#5ff0e8 0%,#00d1c8 100%);
+  box-shadow:0 10px 22px rgba(0,209,200,.4);
+}
+[data-theme="dark"] #mp-analytics .analytics-section-title::before{
+  background:linear-gradient(180deg,#3ae6dd,#00c2b8);
+}
+[data-theme="dark"] #mp-analytics .analytics-chart-current i{background:var(--teal)!important}
+
+/* Mapa de calor no desktop: capar tamanho das células e centralizar o bloco.
+   Sem isso, as colunas 1fr esticam e o aspect-ratio:1 vira círculos gigantes. */
+#desktop-app .heatmap-weekdays,
+#desktop-app .heatmap-grid{
+  grid-template-columns:repeat(7,minmax(0,52px));
+  justify-content:start;
+  gap:9px;
+}
+#desktop-app .heatmap-weekdays{padding:0;max-width:none}
+
+/* Detalhe do dia ao lado do calendário: aproveita o espaço à direita e
+   encurta a altura do painel (antes ficava tudo empilhado). */
+#desktop-app .heatmap-body{
+  display:grid;
+  grid-template-columns:auto minmax(300px,1fr);
+  column-gap:32px;
+  align-items:start;
+}
+#desktop-app .heatmap-body > .heatmap-insight{grid-column:1 / -1}
+#desktop-app .heatmap-body > .heatmap-weekdays,
+#desktop-app .heatmap-body > .heatmap-grid,
+#desktop-app .heatmap-body > .heatmap-scale{grid-column:1}
+#desktop-app .heatmap-body > .heatmap-detail{
+  grid-column:2;
+  grid-row:2 / 100;
+  align-self:start;
+  margin-top:0;
+  padding-top:0;
+  border-top:0;
+}

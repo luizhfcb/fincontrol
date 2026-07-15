@@ -70,11 +70,35 @@ export function initAuth() {
         .toUpperCase();
 
       const avatar = document.getElementById('mAvatar');
+      const mobileUserName = document.getElementById('mUserName');
+      const mobileAvatarImg = document.getElementById('mAvatarImg');
+      const mobileAvatarInitials = document.getElementById('mAvatarInitials');
       const userName = document.getElementById('dUserName');
       const topbarAvatarImg = document.getElementById('dAvatarImg');
       const topbarAvatarInitials = document.getElementById('dAvatarInitials');
+
       if (avatar) {
-        avatar.textContent = initials;
+        avatar.title = user.displayName || user.email || 'Opções da conta';
+      }
+      if (mobileUserName) {
+        mobileUserName.textContent = user.displayName || user.email?.split('@')[0] || 'Usuário';
+      }
+      if (mobileAvatarImg && mobileAvatarInitials) {
+        mobileAvatarInitials.textContent = initials;
+        mobileAvatarImg.onerror = () => {
+          mobileAvatarImg.style.display = 'none';
+          mobileAvatarInitials.style.display = 'grid';
+        };
+
+        if (user.photoURL) {
+          mobileAvatarImg.src = user.photoURL;
+          mobileAvatarImg.style.display = 'block';
+          mobileAvatarInitials.style.display = 'none';
+        } else {
+          mobileAvatarImg.removeAttribute('src');
+          mobileAvatarImg.style.display = 'none';
+          mobileAvatarInitials.style.display = 'grid';
+        }
       }
       if (userName) {
         userName.textContent = user.displayName || user.email || 'Usuário';

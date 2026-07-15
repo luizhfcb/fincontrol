@@ -21,7 +21,7 @@ export function goMobilePage(name) {
   document.querySelectorAll('.m-page').forEach((page) => page.classList.remove('active'));
   document.querySelectorAll('.nbtn').forEach((button) => button.classList.remove('on'));
   document.getElementById(`mp-${name}`)?.classList.add('active');
-  const morePages = new Set(['limits', 'stock', 'subscriptions']);
+  const morePages = new Set(['limits', 'stock', 'subscriptions', 'bills']);
   const navName = morePages.has(name) ? 'more' : name;
   document.getElementById(`mn-${navName}`)?.classList.add('on');
   document.querySelector('.m-scroller')?.scrollTo({ top: 0 });

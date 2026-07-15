@@ -1,4 +1,4 @@
-import { initAuth, loginGoogle, confirmLogout, executeLogout } from './services/auth.js';
+import { initAuth, loginGoogle, confirmLogout, executeLogout } from './services/auth.js?v=welcome-profile-v1';
 import { handleMic } from './services/audio.js';
 import { initTheme, toggleTheme, initPrivacy, togglePrivacy } from './services/theme.js';
 import { removeTransaction } from './services/transactions.js';
@@ -10,6 +10,7 @@ import { openFeedbackModal, setFeedbackType, updateFeedbackCounter } from './ui/
 import { onbNext, onbSkip, restartOnboarding } from './ui/onboarding.js';
 import { changeMonth, closeFab, goDesktopPage, goMobilePage, toggleFab, toggleMonthPicker, pickYear, pickMonth, closeMonthPicker } from './ui/navigation.js';
 import { setTxSearch, setTxFilter, setTxGrouped, openTxHistory, closeTxHistory, setDashView, toggleDashViewDropdown, selectExpenseHeatmapDay, toggleReportBlock } from './ui/render.js';
+import { handleAnalyticsPeriodKey, setAnalyticsPeriod } from './ui/analytics.js';
 
 window.loginGoogle = loginGoogle;
 window.confirmLogout = confirmLogout;
@@ -78,6 +79,8 @@ window.toggleDashViewDropdown = toggleDashViewDropdown;
 window.setTxGrouped = setTxGrouped;
 window.selectExpenseHeatmapDay = selectExpenseHeatmapDay;
 window.toggleReportBlock = toggleReportBlock;
+window.setAnalyticsPeriod = setAnalyticsPeriod;
+window.handleAnalyticsPeriodKey = handleAnalyticsPeriodKey;
 
 initTheme();
 initPrivacy();

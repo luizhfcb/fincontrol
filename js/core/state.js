@@ -19,6 +19,8 @@ export const state = {
   selectedTxDesc: null,
   // Feature: visão do dashboard ('all' | 'income' | 'expense')
   dashView: 'all',
+  // Período da aba Análises ('week' | 'month' | 'year')
+  analyticsPeriod: 'month',
   // Feature: agrupar transações por categoria (false = lista plana)
   txGrouped: false,
   // Feature: edição de transações
@@ -27,5 +29,4 @@ export const state = {
   heatmapSelectedDay: new Date().getDate(),
   // Feature: blocos de relatório expansíveis (false = minimizado)
   heatmapExpanded: false,
-  chartExpanded: false,
 };

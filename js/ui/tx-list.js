@@ -14,6 +14,86 @@ export function renderTransactionsPage(transactions) {
   renderTxList('dAllTxList', transactions);
 }
 
+export function renderRecentTransactions(containerId, transactions, limit = 5) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  const recent = [...transactions]
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, Math.max(0, limit));
+
+  if (!recent.length) {
+    container.innerHTML = '<div class="empty">Nenhum lançamento neste mês</div>';
+    return;
+  }
+
+  container.innerHTML = `<div class="recent-tx-ledger">${recent.map(recentTxRowHtml).join('')}</div>`;
+}
+
+export function recentTransactionDate(value, reference = new Date()) {
+  const transactionDate = new Date(value);
+  if (Number.isNaN(transactionDate.getTime())) return '';
+
+  const start = new Date(reference.getFullYear(), reference.getMonth(), reference.getDate());
+  const transactionStart = new Date(transactionDate.getFullYear(), transactionDate.getMonth(), transactionDate.getDate());
+  const dayDifference = Math.round((start - transactionStart) / 86400000);
+  let label;
+
+  if (dayDifference === 0) label = 'Hoje';
+  else if (dayDifference === 1) label = 'Ontem';
+  else label = `${String(transactionDate.getDate()).padStart(2, '0')} ${MONTHS[transactionDate.getMonth()].slice(0, 3).toLowerCase()}`;
+
+  return `${label} · ${txTime(value)}`;
+}
+
+function recentCategoryIcon(category, type = 'expense') {
+  if (type === 'income') return txTypeIcon('income');
+
+  const name = String(category || '').toLocaleLowerCase('pt-BR');
+  if (name.includes('aliment')) {
+    return '<svg viewBox="0 0 24 24"><path d="M7 3v7M4 3v4a3 3 0 0 0 6 0V3M7 10v11M16 3v18M16 3c3 2 4 5 4 8h-4"/></svg>';
+  }
+  if (name.includes('transport') || name.includes('combust') || name.includes('entrega')) {
+    return '<svg viewBox="0 0 24 24"><path d="M5 17h14l1-5-3-5H7l-3 5 1 5Z"/><path d="M7 7 5 4M17 7l2-3M7 17v2M17 17v2"/><circle cx="8" cy="13" r="1"/><circle cx="16" cy="13" r="1"/></svg>';
+  }
+  if (name.includes('casa') || name.includes('moradia')) {
+    return '<svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10M9 20v-6h6v6"/></svg>';
+  }
+  if (name.includes('saúde') || name.includes('saude')) {
+    return '<svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>';
+  }
+  if (name.includes('assinatura')) {
+    return '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg>';
+  }
+  if (name.includes('fixa') || name.includes('conta')) {
+    return '<svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/></svg>';
+  }
+  if (name.includes('lazer')) {
+    return '<svg viewBox="0 0 24 24"><path d="M8 6h8l5 6-5 6H8l-5-6 5-6Z"/><path d="M9 12h6M12 9v6"/></svg>';
+  }
+  return '<svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg>';
+}
+
+function recentTxRowHtml(transaction) {
+  const safeDesc = escapeHtml(transaction.desc).replace(/'/g, "\\'");
+  const isIncome = transaction.type === 'income';
+  const category = transaction.cat || 'Outros';
+  const accent = isIncome ? '#16A765' : catColor(category);
+  return `
+    <button type="button" class="recent-tx-item" style="--tx-accent:${accent}"
+      onclick="onTxRowClick(event, '${safeDesc}')"
+      aria-label="${escapeHtml(transaction.desc)}, ${isIncome ? 'entrada' : 'saída'} de ${formatCurrency(transaction.val)}">
+      <span class="recent-tx-icon" aria-hidden="true">${recentCategoryIcon(category, transaction.type)}</span>
+      <span class="recent-tx-copy">
+        <strong>${escapeHtml(transaction.desc)}</strong>
+        <span>${escapeHtml(category)} <i aria-hidden="true">·</i> ${recentTransactionDate(transaction.date)}</span>
+      </span>
+      <span class="recent-tx-value">
+        <strong class="recent-tx-amount ${isIncome ? 'positive' : 'negative'} priv">${isIncome ? '+' : '−'} ${formatCurrency(transaction.val)}</strong>
+      </span>
+    </button>`;
+}
+
 export function renderTxList(containerId, transactions) {
   const container = document.getElementById(containerId);
   if (!container) return;
@@ -83,9 +163,11 @@ function txSummaryHtml(list) {
 }
 
 /** Linha compacta de transação (estilo extrato). Usada na lista plana e agrupada. */
-function txRowHtml(transaction) {
+export function txRowHtml(transaction) {
   const safeDesc = escapeHtml(transaction.desc).replace(/'/g, "\\'");
   const isIncome = transaction.type === 'income';
+  const category = transaction.cat || 'Outros';
+  const accent = isIncome ? '#16A765' : catColor(category);
   return `
     <div class="tx-swipe">
       <div class="tx-swipe-action edit" aria-hidden="true">
@@ -99,7 +181,7 @@ function txRowHtml(transaction) {
         </button>
       </div>
       <div class="tx-row ${transaction.type}" onclick="onTxRowClick(event, '${safeDesc}')">
-        <div class="tx-row-ico ${transaction.type}">${txTypeIcon(transaction.type)}</div>
+        <div class="tx-row-ico" style="--tx-accent:${accent}">${recentCategoryIcon(category, transaction.type)}</div>
         <div class="tx-row-body">
           <span class="tx-row-desc">${escapeHtml(transaction.desc)}</span>
           <span class="tx-row-sub">
@@ -109,7 +191,7 @@ function txRowHtml(transaction) {
           </span>
         </div>
         <div class="tx-row-right">
-          <span class="tx-row-amt ${isIncome ? 'positive' : 'negative'}">${isIncome ? '+' : '−'} ${formatCurrency(transaction.val)}</span>
+          <span class="tx-row-amt ${isIncome ? 'positive' : 'negative'} priv">${isIncome ? '+' : '−'} ${formatCurrency(transaction.val)}</span>
         </div>
       </div>
     </div>`;

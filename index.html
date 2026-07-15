@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="./icon-192.svg">
 <link rel="manifest" href="./manifest.json">
 <link rel="stylesheet" href="./assets/fonts/poppins.css">
-<link rel="stylesheet" href="./css/main.css?v=4c938388">
+<link rel="stylesheet" href="./css/main.css?v=57c2e00b">
 <title>FinControl</title>
 </head>
 <body>
@@ -88,8 +88,16 @@
 <div id="mobile-app">
   <div class="m-topbar">
     <div class="m-topbar-inner">
-      <button class="avatar-btn" id="mAvatar" onclick="confirmLogout()" aria-label="Sair da conta">?</button>
-      <div class="m-topbar-brand" aria-label="FinControl">Fin<span>Control</span></div>
+      <div class="m-profile-mini">
+        <button class="avatar-btn" id="mAvatar" onclick="confirmLogout()" aria-label="Abrir opções da conta">
+          <img id="mAvatarImg" src="" alt="" referrerpolicy="no-referrer">
+          <span id="mAvatarInitials" aria-hidden="true">?</span>
+        </button>
+        <div class="m-profile-copy">
+          <span>Bem-vindo de volta,</span>
+          <strong id="mUserName">Usuário</strong>
+        </div>
+      </div>
 
       <div class="m-topbar-right">
         <button class="icon-btn" id="mFeedbackBtn" onclick="openFeedbackModal()" aria-label="Enviar feedback" title="Enviar feedback">
@@ -135,63 +143,28 @@
             <div class="m-hero-value-row">
               <div class="big-val positive priv" id="mBalance">R$ 0,00</div>
             </div>
-            <div class="m-hero-meta">
-              <span class="m-badge" id="mBalanceDelta">+0%</span>
-              <span class="m-balance-comparison" id="mBalanceComparison">vs. mês anterior</span>
-            </div>
           </div>
 
-        <div class="m-inout-row" aria-label="Receitas e despesas do mês">
-          <button class="m-inout income" onclick="setDashView('income')" aria-label="Ver receitas do mês">
-            <span class="io-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
-            <span class="io-copy"><small>Receitas</small><strong id="mIncome" class="priv">R$ 0,00</strong></span>
-          </button>
-          <button class="m-inout expense" onclick="setDashView('expense')" aria-label="Ver despesas do mês">
-            <span class="io-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg></span>
-            <span class="io-copy"><small>Despesas</small><strong id="mExpense" class="priv">R$ 0,00</strong></span>
-          </button>
-        </div>
-
-        <div class="m-flow-card">
-          <div class="m-flow" role="img" aria-label="Proporção entre receitas e despesas do mês">
-            <div class="m-flow-income" id="mFlowIncome"></div>
-            <div class="m-flow-expense" id="mFlowExpense"></div>
+          <div class="m-inout-pills" aria-label="Receitas e despesas do mês">
+            <button class="m-pill income" onclick="setDashView('income')" aria-label="Ver receitas do mês">
+              <span class="m-pill-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+              <span><small>Receitas</small><strong id="mIncome" class="priv">R$ 0,00</strong></span>
+            </button>
+            <button class="m-pill expense" onclick="setDashView('expense')" aria-label="Ver despesas do mês">
+              <span class="m-pill-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg></span>
+              <span><small>Despesas</small><strong id="mExpense" class="priv">R$ 0,00</strong></span>
+            </button>
           </div>
-          <p class="m-flow-caption" id="mFlowCaption">—</p>
-        </div>
         </section>
       </div>
 
-      <div class="m-section-filter">
-        <span class="m-section-filter-label">Relatórios</span>
-      </div>
-
       <div class="m-card report-card" id="mChartCard">
-        <div class="report-head report-toggle" id="mChartHeader" role="button" tabindex="0" aria-expanded="false" aria-controls="mBarChart" onclick="toggleReportBlock('chart')">
-          <span>Gastos por Categoria</span>
-          <svg class="report-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-        </div>
-        <div class="collapse-shell collapsed" id="mChartBody">
-          <div class="collapse-inner" id="mBarChart"><div class="empty">Sem gastos neste mês</div></div>
-        </div>
+        <div class="report-head"><span>Gastos por Categoria</span><small class="report-chip priv" id="mDonutMeta">R$ 0,00</small></div>
+        <div id="mBarChart"><div class="empty">Sem gastos neste mês</div></div>
       </div>
 
-      <div class="m-card expense-heatmap-card" id="mExpenseHeatmap"><div class="empty">Carregando mapa de calor...</div></div>
-
-      <div class="m-card fin-chart-card" id="mWeekdayChart"><div class="empty">Carregando comportamento…</div></div>
-      <div class="m-card fin-chart-card" id="mSixMonthChart"><div class="empty">Carregando tendência…</div></div>
-
-
-
-      <div class="m-mobile-stats">
-        <div class="m-stat-mini"><span>Dias ativos</span><strong id="mDays">0</strong></div>
-        <div class="m-stat-mini"><span>Média diária</span><strong id="mAvg">R$0</strong></div>
-        <div class="m-stat-mini"><span>Registros</span><strong id="mCount">0</strong></div>
-        <div class="m-stat-mini highlight"><span>Maior gasto</span><strong id="mBig">R$0</strong></div>
-      </div>
-
-      <div class="sec-title" style="justify-content: center; position: relative;">Limites — Situação <button class="sec-link" style="position: absolute; right: 0;" onclick="goMPage('subscriptions')">Ver todos</button></div>
-      <div class="m-card" id="mLimitsMini"><div class="empty">Nenhum limite</div></div>
+      <div class="sec-title recent-section-title"><span>Transações recentes</span><button class="sec-link" onclick="goMPage('transactions')">Ver todas</button></div>
+      <div class="m-card grouped-list recent-tx-list" id="mRecentTx"><div class="empty">Nenhum lançamento neste mês</div></div>
     </div>
 
     <div class="m-page" id="mp-transactions">
@@ -199,6 +172,41 @@
       <div class="sec-title">Transações</div>
       <div id="mAllTxControls" class="tx-controls-wrap"></div>
       <div class="m-card grouped-list" id="mAllTxList"><div class="empty">Nenhum lançamento neste mês</div></div>
+    </div>
+
+    <div class="m-page" id="mp-analytics">
+      <div class="analytics-period-filter" id="maPeriodFilter" role="radiogroup" aria-label="Período das análises">
+        <button type="button" role="radio" aria-checked="false" data-period="week" onclick="setAnalyticsPeriod('week')" onkeydown="handleAnalyticsPeriodKey(event)">Semana</button>
+        <button type="button" class="active" role="radio" aria-checked="true" data-period="month" onclick="setAnalyticsPeriod('month')" onkeydown="handleAnalyticsPeriodKey(event)">Mês</button>
+        <button type="button" role="radio" aria-checked="false" data-period="year" onclick="setAnalyticsPeriod('year')" onkeydown="handleAnalyticsPeriodKey(event)">Ano</button>
+        <button type="button" role="radio" aria-checked="false" data-period="all" onclick="setAnalyticsPeriod('all')" onkeydown="handleAnalyticsPeriodKey(event)">Tudo</button>
+      </div>
+
+      <div class="analytics-hero">
+        <div class="analytics-secondary" aria-label="Entradas e saídas do período">
+          <div class="income"><span>Receita</span><strong class="positive priv" id="maIncomeTotal">R$ 0,00</strong></div>
+          <div class="expense"><span>Saídas</span><strong class="priv" id="maOutflowTotal">R$ 0,00</strong></div>
+        </div>
+      </div>
+
+      <div class="m-card fin-chart-card analytics-daily-card" id="maDailyChart"><div class="empty">Carregando gastos do período…</div></div>
+      <div class="sec-title analytics-section-title">Detalhamento</div>
+      <div class="m-card analytics-breakdown" id="maBreakdown"><div class="empty">Sem despesas no período</div></div>
+
+      <div class="sec-title analytics-section-title">Hábitos do mês</div>
+      <div class="m-card expense-heatmap-card" id="mExpenseHeatmap"><div class="empty">Carregando mapa de calor...</div></div>
+      <div class="m-card fin-chart-card" id="mWeekdayChart"><div class="empty">Carregando comportamento…</div></div>
+      <div class="m-card fin-chart-card" id="mSixMonthChart"><div class="empty">Carregando tendência…</div></div>
+
+      <div class="m-mobile-stats analytics-stats">
+        <div class="m-stat-mini"><span>Dias ativos</span><strong id="mDays">0</strong></div>
+        <div class="m-stat-mini"><span>Média diária</span><strong class="priv" id="mAvg">R$0</strong></div>
+        <div class="m-stat-mini"><span>Registros</span><strong id="mCount">0</strong></div>
+        <div class="m-stat-mini highlight"><span>Maior gasto</span><strong class="priv" id="mBig">R$0</strong></div>
+      </div>
+
+      <div class="sec-title analytics-section-title">Limites — Situação <button class="sec-link" onclick="goMPage('subscriptions')">Ver todos</button></div>
+      <div class="m-card" id="mLimitsMini"><div class="empty">Nenhum limite</div></div>
     </div>
 
     <div class="m-page" id="mp-limits">
@@ -223,6 +231,10 @@
       <div style="height:10px"></div>
       <div class="sec-title">Mais</div>
       <div class="more-hub-grid" aria-label="Mais opções">
+        <button class="more-hub-card" onclick="goMPage('bills')">
+          <span class="more-hub-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M6 3h12"/><path d="M10 13h4"/></svg></span>
+          <span><strong>Contas</strong><small>Planos e contas a pagar</small></span>
+        </button>
         <button class="more-hub-card" onclick="goMPage('limits')">
           <span class="more-hub-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l6 9H6z"/><circle cx="6" cy="18" r="3"/><rect x="15" y="15" width="6" height="6" rx="1"/></svg></span>
           <span><strong>Categorias</strong><small>Limites e organização dos gastos</small></span>
@@ -246,7 +258,7 @@
   <nav class="m-bottomnav">
     <button class="nbtn on" id="mn-home" onclick="goMPage('home')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9l8-6 8 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/></svg></span>Início</button>
     <button class="nbtn" id="mn-transactions" onclick="goMPage('transactions')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h12"/></svg></span>Transações</button>
-    <button class="nbtn" id="mn-bills" onclick="goMPage('bills')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M6 3h12"/><path d="M10 13h4"/></svg></span>Contas</button>
+    <button class="nbtn" id="mn-analytics" onclick="goMPage('analytics')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V10"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19V3"/></svg></span>Análises</button>
     <button class="nbtn" id="mn-more" onclick="goMPage('more')"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></span>Mais</button>
   </nav>
 </div>
@@ -621,7 +633,7 @@
 <!-- Modal: Histórico Detalhado por Descrição -->
 <div class="modal-overlay" id="txHistoryModal" onclick="if(event.target===this) closeTxHistory()"></div>
 
-<script type="module" src="./js/main.js?v=4c938388"></script>
+<script type="module" src="./js/main.js?v=57c2e00b"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
