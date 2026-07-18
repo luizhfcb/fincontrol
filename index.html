@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="./icon-192.svg">
 <link rel="manifest" href="./manifest.json">
 <link rel="stylesheet" href="./assets/fonts/poppins.css">
-<link rel="stylesheet" href="./css/main.css?v=6289ab07">
+<link rel="stylesheet" href="./css/main.css?v=cc5caf97">
 <title>FinControl</title>
 </head>
 <body>
@@ -117,6 +117,7 @@
           <div class="m-monthpick-wrap">
             <div class="m-monthpick">
               <button class="m-monthpick-btn" id="mMonthBtn" onclick="toggleMonthPicker()" aria-haspopup="listbox" aria-expanded="false">
+                <svg class="m-monthpick-cal" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
                 <span id="monthLabel">—</span>
                 <span class="sync-dot" id="mSyncDot" title="Sincronizado"></span>
                 <svg class="m-monthpick-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
@@ -163,6 +164,11 @@
       <div class="m-card report-card" id="mChartCard">
         <div class="report-head"><span>Gastos por Categoria</span><small class="report-chip priv" id="mDonutMeta">R$ 0,00</small></div>
         <div id="mBarChart"><div class="chart-skeleton compact" aria-label="Carregando gastos por categoria"><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
+        <button type="button" class="m-report-cta" onclick="goMPage('analytics')" aria-label="Ver relatório completo">
+          <svg class="m-report-cta-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9h9"/></svg>
+          <span>Ver relatório completo</span>
+          <svg class="m-report-cta-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
       </div>
 
       <div class="sec-title recent-section-title"><span>Transações recentes</span><button class="sec-link" onclick="goMPage('transactions')">Ver todas</button></div>
@@ -641,7 +647,7 @@
 <!-- Modal: Histórico Detalhado por Descrição -->
 <div class="modal-overlay" id="txHistoryModal" onclick="if(event.target===this) closeTxHistory()"></div>
 
-<script type="module" src="./js/main.js?v=6289ab07"></script>
+<script type="module" src="./js/main.js?v=cc5caf97"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

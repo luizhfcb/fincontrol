@@ -5427,7 +5427,7 @@ body.privacy-on #mobile-app .m-hero-value-row .big-val{filter:blur(14px)}
     align-items:center;
     gap:8px;
     max-width:100%;
-    padding:8px 10px 8px 18px;
+    padding:8px 10px 8px 14px;
     border-radius:999px;
     border:1px solid var(--border2);
     background:var(--accent-bg);
@@ -5442,6 +5442,14 @@ body.privacy-on #mobile-app .m-hero-value-row .big-val{filter:blur(14px)}
   .m-monthpick-btn:active{ background:var(--accent-bg); filter:brightness(1.1); }
   .m-monthpick-btn #monthLabel{ overflow:hidden; text-overflow:ellipsis; }
   .m-monthpick-btn .sync-dot{ width:6px;height:6px; }
+  .m-monthpick-cal{
+    width:20px;height:20px;
+    flex-shrink:0;
+    margin-right:4px; /* gap do botão (8px) + 4px = 12px até o texto */
+    fill:none;stroke:currentColor;stroke-width:2;
+    stroke-linecap:round;stroke-linejoin:round;
+    color:var(--accent);
+  }
   .m-monthpick-arrow{
     width:20px;height:20px;
     flex-shrink:0;
@@ -5744,6 +5752,43 @@ body.privacy-on #mobile-app .m-hero-value-row .big-val{filter:blur(14px)}
   letter-spacing:-.01em;
 }
 
+/* Botão "Ver relatório completo" — estilo M3: fundo azul bem claro,
+   texto/ícones no acento, sem sombra pesada. */
+.m-report-cta{
+  width:100%;
+  min-height:54px;
+  margin-top:14px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:11px 14px;
+  border:0;
+  border-radius:16px;
+  background:var(--accent-bg);
+  color:var(--accent);
+  font-family:inherit;
+  font-size:13.5px;
+  font-weight:750;
+  letter-spacing:-.01em;
+  text-align:left;
+  cursor:pointer;
+  transition:background .16s ease,transform .16s ease;
+}
+.m-report-cta > span{flex:1;min-width:0}
+.m-report-cta:hover{background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.m-report-cta:active{transform:scale(.99)}
+.m-report-cta:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.m-report-cta-icon,.m-report-cta-chevron{
+  flex-shrink:0;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.m-report-cta-icon{width:20px;height:20px}
+.m-report-cta-chevron{width:18px;height:18px}
+
 .recent-section-title{margin-top:22px}
 .recent-section-title .sec-link{
   min-height:34px;
@@ -5772,7 +5817,7 @@ body.privacy-on #mobile-app .m-hero-value-row .big-val{filter:blur(14px)}
   min-width:0;
   min-height:72px;
   display:grid;
-  grid-template-columns:42px minmax(0,1fr) auto;
+  grid-template-columns:46px minmax(0,1fr) auto;
   align-items:center;
   gap:11px;
   padding:11px 5px;
@@ -5789,18 +5834,18 @@ body.privacy-on #mobile-app .m-hero-value-row .big-val{filter:blur(14px)}
 .recent-tx-item:active{transform:scale(.99)}
 .recent-tx-item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .recent-tx-icon{
-  width:42px;
-  height:42px;
+  width:46px;
+  height:46px;
   display:grid;
   place-items:center;
-  border-radius:14px;
+  border-radius:50%;
   background:color-mix(in srgb,var(--tx-accent) 14%,transparent);
   color:var(--tx-accent);
 }
 [data-theme="dark"] .recent-tx-icon{background:color-mix(in srgb,var(--tx-accent) 22%,transparent)}
 .recent-tx-icon svg{
-  width:19px;
-  height:19px;
+  width:20px;
+  height:20px;
   fill:none;
   stroke:currentColor;
   stroke-width:1.9;
@@ -6273,8 +6318,8 @@ body.privacy-on #mobile-app .m-hero-value-row .big-val{filter:blur(14px)}
 }
 
 /* ── Transações recentes: ícones circulares, linhas enxutas ─────────────── */
-.recent-tx-item{min-height:62px;padding:9px 4px;grid-template-columns:40px minmax(0,1fr) auto}
-.recent-tx-icon{width:40px;height:40px;border-radius:50%}
+.recent-tx-item{min-height:62px;padding:9px 4px;grid-template-columns:46px minmax(0,1fr) auto}
+.recent-tx-icon{width:46px;height:46px;border-radius:50%}
 .recent-tx-copy strong{font-size:13.5px;font-weight:700}
 .recent-tx-copy > span{margin-top:3px;font-size:10.5px}
 .recent-tx-amount{font-size:13px}

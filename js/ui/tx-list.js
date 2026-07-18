@@ -53,32 +53,51 @@ export function recentTransactionDate(value, reference = new Date()) {
   return `${label} · ${txTime(value)}`;
 }
 
+// Mapa reutilizável: palavras-chave da categoria → ícone SVG.
+// A cor do ícone e o fundo pastel derivam de --tx-accent (catColor) via CSS,
+// então aqui só escolhemos o glifo — nada fica hardcoded por transação.
+const RECENT_CATEGORY_ICONS = [
+  // Mercado/supermercado → carrinho
+  [['mercado', 'supermerc', 'feira'],
+    '<svg viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.6"/><circle cx="17" cy="20" r="1.6"/><path d="M3 4h2l2.4 10.4a1.5 1.5 0 0 0 1.5 1.1h7.9a1.5 1.5 0 0 0 1.4-1L20.5 8H6"/></svg>'],
+  // Alimentação/lanche → talheres
+  [['aliment', 'lanche', 'comida', 'restaurante', 'ifood'],
+    '<svg viewBox="0 0 24 24"><path d="M7 3v7M4 3v4a3 3 0 0 0 6 0V3M7 10v11M16 3v18M16 3c3 2 4 5 4 8h-4"/></svg>'],
+  // Transporte → carro
+  [['transport', 'combust', 'entrega', 'uber', 'carro', 'ônibus', 'onibus'],
+    '<svg viewBox="0 0 24 24"><path d="M5 17h14l1-5-3-5H7l-3 5 1 5Z"/><path d="M7 7 5 4M17 7l2-3M7 17v2M17 17v2"/><circle cx="8" cy="13" r="1"/><circle cx="16" cy="13" r="1"/></svg>'],
+  // Moradia → casa
+  [['casa', 'moradia', 'aluguel'],
+    '<svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10M9 20v-6h6v6"/></svg>'],
+  // Saúde → coração
+  [['saúde', 'saude', 'farmácia', 'farmacia', 'remédio', 'remedio', 'médico', 'medico'],
+    '<svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>'],
+  // Assinaturas → cartão
+  [['assinatura', 'streaming', 'netflix', 'spotify'],
+    '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg>'],
+  // Despesa fixa/contas → recibo
+  [['fixa', 'conta', 'fatura', 'boleto'],
+    '<svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/></svg>'],
+  // Lazer → etiqueta/play
+  [['lazer', 'cinema', 'divers'],
+    '<svg viewBox="0 0 24 24"><path d="M8 6h8l5 6-5 6H8l-5-6 5-6Z"/><path d="M9 12h6M12 9v6"/></svg>'],
+  // Trabalho/salário → maleta
+  [['trabalho', 'salário', 'salario', 'freela'],
+    '<svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/></svg>'],
+  // Educação → livro
+  [['educa', 'curso', 'escola', 'livro'],
+    '<svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2Zm0 0a2 2 0 0 0 2 2h14"/></svg>'],
+];
+const RECENT_CATEGORY_FALLBACK_ICON = '<svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg>';
+
 function recentCategoryIcon(category, type = 'expense') {
   if (type === 'income') return txTypeIcon('income');
 
   const name = String(category || '').toLocaleLowerCase('pt-BR');
-  if (name.includes('aliment')) {
-    return '<svg viewBox="0 0 24 24"><path d="M7 3v7M4 3v4a3 3 0 0 0 6 0V3M7 10v11M16 3v18M16 3c3 2 4 5 4 8h-4"/></svg>';
+  for (const [keywords, icon] of RECENT_CATEGORY_ICONS) {
+    if (keywords.some((keyword) => name.includes(keyword))) return icon;
   }
-  if (name.includes('transport') || name.includes('combust') || name.includes('entrega')) {
-    return '<svg viewBox="0 0 24 24"><path d="M5 17h14l1-5-3-5H7l-3 5 1 5Z"/><path d="M7 7 5 4M17 7l2-3M7 17v2M17 17v2"/><circle cx="8" cy="13" r="1"/><circle cx="16" cy="13" r="1"/></svg>';
-  }
-  if (name.includes('casa') || name.includes('moradia')) {
-    return '<svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10M9 20v-6h6v6"/></svg>';
-  }
-  if (name.includes('saúde') || name.includes('saude')) {
-    return '<svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>';
-  }
-  if (name.includes('assinatura')) {
-    return '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg>';
-  }
-  if (name.includes('fixa') || name.includes('conta')) {
-    return '<svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/></svg>';
-  }
-  if (name.includes('lazer')) {
-    return '<svg viewBox="0 0 24 24"><path d="M8 6h8l5 6-5 6H8l-5-6 5-6Z"/><path d="M9 12h6M12 9v6"/></svg>';
-  }
-  return '<svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg>';
+  return RECENT_CATEGORY_FALLBACK_ICON;
 }
 
 function recentTxRowHtml(transaction) {
