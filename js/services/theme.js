@@ -9,7 +9,7 @@ function renderThemeIcon(theme) {
 }
 
 // Cores da status bar do celular por tema (casam com o fundo do topbar)
-const THEME_COLORS = { dark: '#07111d', light: '#f6f7f8' };
+const THEME_COLORS = { dark: '#000000', light: '#f6f7f8' };
 
 export function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);

@@ -4,6 +4,7 @@ import { CATEGORY_COLORS, MONTHS } from '../core/constants.js';
 import { state } from '../core/state.js';
 import { formatCompactCurrency, formatCurrency } from '../core/utils.js';
 import { assignDistinctDonutColors } from './chart-colors.mjs';
+import { renderEmptyState } from './empty-state.js';
 import { escapeHtml, WEEKDAY_FULL } from './ui-helpers.js';
 
 /** Clique numa barra: mostra valor exato num texto dinâmico abaixo do gráfico. */
@@ -247,8 +248,15 @@ export function renderDonutCharts(sortedCategories, totalValue, isIncome = false
 
 function buildDonutMarkup(sortedCategories, totalValue, isIncome) {
   if (!sortedCategories.length || !totalValue) {
-    const emptyLabel = isIncome ? 'Sem receitas neste mês' : 'Sem gastos neste mês';
-    return `<div class="empty">${emptyLabel}</div>`;
+    return renderEmptyState({
+      icon: 'chart',
+      title: isIncome ? 'Sem receitas neste mês' : 'Sem gastos neste mês',
+      hint: isIncome
+        ? 'Registre uma entrada para acompanhar as categorias.'
+        : 'Registre um gasto para acompanhar as categorias.',
+      ctaLabel: isIncome ? 'Registrar entrada' : 'Registrar gasto',
+      ctaAction: isIncome ? "openModal('income')" : "openModal('expense')",
+    });
   }
 
   const compactCategories = compactDonutCategories(sortedCategories);
@@ -274,7 +282,7 @@ function buildDonutMarkup(sortedCategories, totalValue, isIncome) {
     const valueLabel = formatCurrency(value);
     return `
       <circle class="donut-arc" data-arc-index="${index}" cx="60" cy="60" r="${radius}" fill="none"
-        stroke="${colors[index]}" stroke-width="12" pathLength="${circumference.toFixed(2)}"
+        stroke="${colors[index]}" stroke-width="9" pathLength="${circumference.toFixed(2)}"
         stroke-dasharray="${visibleLength.toFixed(2)} ${(circumference - visibleLength).toFixed(2)}"
         stroke-dashoffset="${finalOffset.toFixed(2)}"
         style="--arc-start:${finalOffset.toFixed(2)};--arc-hidden:${hiddenOffset.toFixed(2)};animation-delay:${index * 90}ms"
@@ -296,7 +304,7 @@ function buildDonutMarkup(sortedCategories, totalValue, isIncome) {
       <div class="donut-shell">
         <div class="donut-chart">
           <svg class="donut-svg" viewBox="0 0 120 120" aria-label="Distribuição por categoria">
-            <circle class="donut-track" cx="60" cy="60" r="${radius}" fill="none" stroke-width="12" />
+            <circle class="donut-track" cx="60" cy="60" r="${radius}" fill="none" stroke-width="9" />
             ${arcs}
           </svg>
           <div class="donut-hole">

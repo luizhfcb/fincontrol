@@ -10,7 +10,8 @@ import { openFeedbackModal, setFeedbackType, updateFeedbackCounter } from './ui/
 import { onbNext, onbSkip, restartOnboarding } from './ui/onboarding.js';
 import { changeMonth, closeFab, goDesktopPage, goMobilePage, toggleFab, toggleMonthPicker, pickYear, pickMonth, closeMonthPicker } from './ui/navigation.js';
 import { setTxSearch, setTxFilter, setTxGrouped, openTxHistory, closeTxHistory, setDashView, toggleDashViewDropdown, selectExpenseHeatmapDay, toggleReportBlock } from './ui/render.js';
-import { handleAnalyticsPeriodKey, setAnalyticsPeriod } from './ui/analytics.js';
+import { handleAnalyticsPeriodKey, setAnalyticsPeriod, toggleAnalyticsCategories } from './ui/analytics.js';
+import { initRipple } from './ui/ripple.js';
 
 window.loginGoogle = loginGoogle;
 window.confirmLogout = confirmLogout;
@@ -81,12 +82,14 @@ window.selectExpenseHeatmapDay = selectExpenseHeatmapDay;
 window.toggleReportBlock = toggleReportBlock;
 window.setAnalyticsPeriod = setAnalyticsPeriod;
 window.handleAnalyticsPeriodKey = handleAnalyticsPeriodKey;
+window.toggleAnalyticsCategories = toggleAnalyticsCategories;
 
 initTheme();
 initPrivacy();
 initDesktopSidebar();
 initModules();
 initAuth();
+initRipple();
 
 window.addEventListener('resize', updateResponsiveAppView);
 document.addEventListener('click', (event) => {

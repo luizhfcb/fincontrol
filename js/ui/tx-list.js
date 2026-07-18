@@ -4,6 +4,7 @@ import { MONTHS } from '../core/constants.js';
 import { state } from '../core/state.js';
 import { formatCurrency, getMonthlyTransactions } from '../core/utils.js';
 import { catColor, escapeHtml, txTypeIcon } from './ui-helpers.js';
+import { renderEmptyState } from './empty-state.js';
 // Side effects: registra listeners de swipe e window.onTxRowClick
 import './tx-swipe.js';
 
@@ -23,7 +24,13 @@ export function renderRecentTransactions(containerId, transactions, limit = 5) {
     .slice(0, Math.max(0, limit));
 
   if (!recent.length) {
-    container.innerHTML = '<div class="empty">Nenhum lançamento neste mês</div>';
+    container.innerHTML = renderEmptyState({
+      icon: 'receipt',
+      title: 'Nenhum lançamento',
+      hint: 'Registre sua primeira movimentação do mês.',
+      ctaLabel: 'Registrar agora',
+      ctaAction: "openModal('expense')",
+    });
     return;
   }
 
@@ -200,10 +207,19 @@ export function txRowHtml(transaction) {
 function renderFlatTxList(container, transactions, query) {
   const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
   if (!sorted.length) {
-    const msg = query
-      ? `Nenhum resultado para "<strong>${escapeHtml(query)}</strong>"`
-      : 'Nenhum lançamento neste mês';
-    container.innerHTML = `<div class="empty">${msg}</div>`;
+    container.innerHTML = query
+      ? renderEmptyState({
+        icon: 'search',
+        title: 'Nenhum resultado',
+        hint: `Nada encontrado para "${escapeHtml(query)}".`,
+      })
+      : renderEmptyState({
+        icon: 'receipt',
+        title: 'Nenhum lançamento neste mês',
+        hint: 'Registre uma movimentação para começar.',
+        ctaLabel: 'Registrar agora',
+        ctaAction: "openModal('expense')",
+      });
     return;
   }
 
@@ -377,7 +393,13 @@ function renderGroupedTransactions(container, transactions) {
     .slice(0, 50);
 
   if (!recent.length) {
-    container.innerHTML = '<div class="empty">Nenhum lançamento neste mês</div>';
+    container.innerHTML = renderEmptyState({
+      icon: 'receipt',
+      title: 'Nenhum lançamento neste mês',
+      hint: 'Registre uma movimentação para começar.',
+      ctaLabel: 'Registrar agora',
+      ctaAction: "openModal('expense')",
+    });
     return;
   }
 
