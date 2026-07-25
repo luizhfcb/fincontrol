@@ -118,14 +118,23 @@ export function openModal(type) {
   buildCategories();
 }
 
+/**
+ * Entrada/Gasto formam um `radiogroup`: o estado selecionado precisa ir junto
+ * na classe e no `aria-checked`, senão o leitor de tela anuncia os dois iguais.
+ */
+function setModeButton(button, className, checked) {
+  button.className = className;
+  button.setAttribute('aria-checked', String(checked));
+}
+
 const AUDIO_TIP_SEEN_KEY = 'fincontrol_audio_tip_seen';
 
 /** Alterna o modal para o modo de voz e ensina o uso na primeira vez. */
 function showAudioMode() {
   const incomeButton = document.getElementById('mmIncome');
   const expenseButton = document.getElementById('mmExpense');
-  if (incomeButton) incomeButton.className = 'mmBtn income';
-  if (expenseButton) expenseButton.className = 'mmBtn expense';
+  if (incomeButton) setModeButton(incomeButton, 'mmBtn income', false);
+  if (expenseButton) setModeButton(expenseButton, 'mmBtn expense', false);
 
   const textModal = document.getElementById('modal-text');
   const audioModal = document.getElementById('modal-audio');
@@ -217,8 +226,8 @@ export function setModalType(type) {
   const amountLabel = document.getElementById('mAmountLabel');
   const isEditing = Boolean(state.editingTxId);
 
-  if (incomeButton) incomeButton.className = 'mmBtn' + (type === 'income' ? ' on income' : ' income');
-  if (expenseButton) expenseButton.className = 'mmBtn' + (type === 'expense' ? ' on expense' : ' expense');
+  if (incomeButton) setModeButton(incomeButton, 'mmBtn' + (type === 'income' ? ' on income' : ' income'), type === 'income');
+  if (expenseButton) setModeButton(expenseButton, 'mmBtn' + (type === 'expense' ? ' on expense' : ' expense'), type === 'expense');
   if (textModal) textModal.style.display = 'block';
   if (audioModal) audioModal.style.display = 'none';
   modalBox?.classList.remove('is-audio');

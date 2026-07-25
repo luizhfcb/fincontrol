@@ -8,10 +8,11 @@ const css = await readFile(new URL('../css/main.css', import.meta.url), 'utf8');
 
 test('home donut exposes a calm summary and clickable category legend', () => {
   assert.match(charts, /donut-center-label/);
-  // A legenda mostra só nome + porcentagem; o valor aparece no readout ao selecionar.
+  // No mobile a legenda mostra só nome + porcentagem (valor escondido via CSS,
+  // aparece no readout ao selecionar); no desktop o valor é exibido.
   assert.match(charts, /donut-legend-percent/);
   assert.match(charts, /selectDonutLegend/);
-  assert.doesNotMatch(charts, /donut-legend-value/);
+  assert.match(css, /#mobile-app \.donut-legend-value\s*\{\s*display:none/);
   assert.match(css, /#mobile-app \.donut-hole \.donut-total\.negative[^}]*color:var\(--text\)/s);
 });
 

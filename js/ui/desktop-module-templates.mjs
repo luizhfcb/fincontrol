@@ -1,14 +1,9 @@
+import { escapeHtml } from '../core/escape-html.mjs';
+
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
   currency: 'BRL',
 });
-
-const escapeHtml = (value = '') => String(value)
-  .replaceAll('&', '&amp;')
-  .replaceAll('<', '&lt;')
-  .replaceAll('>', '&gt;')
-  .replaceAll('"', '&quot;')
-  .replaceAll("'", '&#39;');
 
 const formatCurrency = (value = 0) => currencyFormatter.format(Number(value) || 0);
 const formatMonthCurrency = (value = 0) => `${formatCurrency(value)}/mês`;

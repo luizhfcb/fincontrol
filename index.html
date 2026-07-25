@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="darkreader-lock">
+<meta name="description" content="FinControl — controle financeiro pessoal: registre entradas e gastos por texto ou voz, acompanhe categorias, limites e o ritmo de consumo do mês.">
 <meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,10 +14,10 @@
 <link rel="apple-touch-icon" href="./icon-192.svg">
 <link rel="manifest" href="./manifest.json">
 <link rel="stylesheet" href="./assets/fonts/poppins.css">
-<link rel="stylesheet" href="./css/main.css?v=cc5caf97">
+<link rel="stylesheet" href="./css/main.css?v=d86e4908">
 <title>FinControl</title>
 </head>
-<body>
+<body data-dpage="home">
 <div id="app-loading"><div class="spin brand-loader"><img src="./favicon.svg" alt="FinControl"></div><p>Preparando seu painel financeiro…</p></div>
 
 <div id="login-screen">
@@ -286,7 +287,8 @@
         </div>
         <div class="brand-copy">
           <div class="sidebar-title">Fin<em>Control</em></div>
-          <div class="brand-tier">Premium Tier</div>
+          <div class="brand-tier">Premium Turbo</div>
+          <div class="brand-version">v2.1.0</div>
           <div class="sidebar-user" id="dUserName">—</div>
         </div>
       </div>
@@ -297,11 +299,11 @@
       </button>
     </div>
     <div class="sidebar-nav">
-      <button class="snav-item on" id="dn-home" onclick="goDPage('home')" title="Gráfico">
+      <button class="snav-item on" id="dn-home" onclick="goDPage('home')" title="Início">
         <span class="ni nav-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M5 19h14"/><path d="M7 16V9"/><path d="M12 16V5"/><path d="M17 16v-3"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M4 9l8-6 8 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/></svg>
         </span>
-        <span class="snav-text">Gráfico</span>
+        <span class="snav-text">Início</span>
       </button>
       <button class="snav-item" id="dn-transactions" onclick="goDPage('transactions')" title="Transações">
         <span class="ni nav-icon" aria-hidden="true">
@@ -353,33 +355,35 @@
   <div class="d-main">
     <div class="d-topbar">
       <div class="title-stack">
-        <span class="topbar-eyebrow">Visão geral</span>
-        <h1>Seu controle financeiro em um relance</h1>
-        <p class="page-subtitle">Acompanhe saldo, categorias e padrões de consumo do mês.</p>
+        <span class="topbar-eyebrow" id="dEyebrow">Visão geral</span>
+        <h1 id="dTopbarTitle">Seu controle financeiro em um relance</h1>
+        <p class="page-subtitle" id="dTopbarSubtitle">Acompanhe saldo, categorias e padrões de consumo do mês.</p>
       </div>
       <div class="d-topbar-right">
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div class="d-topbar-group">
           <div class="sync-indicator">
             <span class="sync-dot" id="dSyncDot"></span>
             <span id="dSyncLabel">Sincronizado</span>
           </div>
           <div class="d-month-nav">
-            <button onclick="changeMonth(-1)">‹</button>
+            <svg class="d-month-calendar" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+            <button onclick="changeMonth(-1)" aria-label="Mês anterior">‹</button>
             <span id="dMonthLabel">—</span>
-            <button onclick="changeMonth(1)">›</button>
+            <button onclick="changeMonth(1)" aria-label="Próximo mês">›</button>
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;border-left:1px solid var(--border);padding-left:16px;">
-          <button class="icon-btn" aria-label="Notificações" style="background:transparent;border:none;box-shadow:none;padding:4px;color:var(--text2);">
-            <svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span class="d-topbar-divider" aria-hidden="true"></span>
+        <div class="d-topbar-group">
+          <button class="d-icon-btn" aria-label="Notificações" title="Notificações">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
           </button>
-          <button class="icon-btn" id="dFeedbackBtn" onclick="openFeedbackModal()" aria-label="Enviar feedback" title="Enviar feedback" style="background:transparent;border:none;box-shadow:none;padding:4px;color:var(--text2);">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          <button class="d-icon-btn" id="dFeedbackBtn" onclick="openFeedbackModal()" aria-label="Enviar feedback" title="Enviar feedback">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
           </button>
-          <div class="avatar-wrap" onclick="confirmLogout()" title="Conta e Opções" style="width: 36px;height: 36px;border-radius: 50%;overflow: hidden;border: 1px solid var(--border2);display:flex;align-items:center;justify-content:center;background:var(--card2);cursor:pointer;transition:transform 0.2s;">
-            <img id="dAvatarImg" src="" alt="User" style="width:100%;height:100%;object-fit:cover;display:none;" referrerpolicy="no-referrer" onerror="this.style.display='none'; document.getElementById('dAvatarInitials').style.display='block';">
-            <span id="dAvatarInitials" style="font-size:13px;font-weight:bold;color:var(--text);display:none;"></span>
-          </div>
+          <button class="d-avatar-btn" onclick="confirmLogout()" title="Conta e opções" aria-label="Conta e opções">
+            <img id="dAvatarImg" src="" alt="" referrerpolicy="no-referrer" onerror="this.style.display='none'; document.getElementById('dAvatarInitials').style.display='block';">
+            <span id="dAvatarInitials" aria-hidden="true"></span>
+          </button>
         </div>
       </div>
     </div>
@@ -387,96 +391,113 @@
     <div id="dp-home" class="d-page">
       <div class="d-hero-metrics">
         <div class="d-metric-card">
-          <div class="metric-icon si-amber">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M8.5 8.5c0-1.38 1.57-2.5 3.5-2.5s3.5 1.12 3.5 2.5S13.93 11 12 11s-3.5 1.12-3.5 2.5S10.07 16 12 16s3.5-1.12 3.5-2.5"/></svg>
+          <div class="metric-icon si-green">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
           </div>
           <label>Receita Total</label>
           <div class="val green" id="dIncome">R$ 0,00</div>
-          <small>Período atual</small>
-        </div>
-        <div class="d-metric-card">
-          <div class="metric-icon si-neutral">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/><path d="M5 5h2l2.2 9.2a1 1 0 0 0 1 .8h6.8a1 1 0 0 0 1-.8L20 8H8"/></svg>
-          </div>
-          <label>Despesas Totais</label>
-          <div class="val red" id="dExpense">R$ 0,00</div>
-          <small>Período atual</small>
-        </div>
-        <div class="d-metric-card">
-          <div class="metric-icon si-green">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l6 5-6 11L6 9l6-5Z"/><path d="M9 9h6"/></svg>
-          </div>
-          <label>Saldo Líquido</label>
-          <div class="val positive" id="dBalance">R$ 0,00</div>
-          <small>Receitas - Despesas</small>
+          <div class="metric-foot"><small>Período atual</small><span class="metric-badge" id="dIncomeBadge" hidden></span></div>
         </div>
         <div class="d-metric-card">
           <div class="metric-icon si-red">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l8 14H4L12 4Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+          </div>
+          <label>Despesas Totais</label>
+          <div class="val red" id="dExpense">R$ 0,00</div>
+          <div class="metric-foot"><small>Período atual</small><span class="metric-badge" id="dExpenseBadge" hidden></span></div>
+        </div>
+        <div class="d-metric-card">
+          <div class="metric-icon si-blue">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7H5a2 2 0 0 1 0-4h13v4"/><path d="M20 7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5"/><path d="M17 14h.01"/></svg>
+          </div>
+          <label>Saldo Líquido</label>
+          <div class="val positive" id="dBalance">R$ 0,00</div>
+          <div class="metric-foot"><small>Receitas - Despesas</small><span class="metric-badge" id="dBalanceBadge" hidden></span></div>
+        </div>
+        <div class="d-metric-card">
+          <div class="metric-icon si-amber">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
           </div>
           <label>Alertas Estoque</label>
           <div class="val amber" id="dStockAlerts">0</div>
-          <small>Itens para repor</small>
+          <div class="metric-foot"><small>Itens para repor</small><span class="metric-badge" id="dStockBadge" hidden></span></div>
         </div>
       </div>
 
       <div class="d-panels-chart">
-        <div class="d-panel">
+        <div class="d-panel d-donut-panel">
           <div class="d-panel-chart-header">
             <h3 class="panel-icon-title" id="dChartTitle">
               <span class="panel-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M7 12h10"/><path d="M10 17h4"/></svg>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V6a5 5 0 0 1 10 0v2"/><path d="M5 8h14l-1 11H6z"/><path d="M9 12h6"/></svg>
               </span>
               Gastos por Categoria
             </h3>
             <div id="dDashViewWrap" class="dash-view-wrap"></div>
           </div>
           <div class="chart-card d-donut" id="dBarChart"><div class="empty">Sem gastos neste mês</div></div>
+          <div class="d-panel-foot">
+            <button class="d-panel-btn wide" onclick="goDPage('limits')">
+              Ver todas as categorias
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+            </button>
+          </div>
         </div>
-        <div class="d-panel">
-          <h3 class="panel-icon-title">
-            <span class="panel-icon">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19h14"/><path d="M7 16V9"/><path d="M12 16V5"/><path d="M17 16v-3"/></svg>
-            </span>
-            Receitas vs Despesas – 6 Meses
-          </h3>
+        <div class="d-panel d-comparison-panel">
+          <div class="d-panel-chart-header">
+            <h3 class="panel-icon-title">
+              <span class="panel-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19h14"/><path d="M7 16V9"/><path d="M12 16V5"/><path d="M17 16v-3"/></svg>
+              </span>
+              Receitas vs Despesas – 6 Meses
+            </h3>
+            <button class="d-chart-period" type="button" aria-label="Periodicidade mensal">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+              <span>Mensal</span>
+              <svg class="period-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+            </button>
+          </div>
           <div class="bar-chart-wrap" id="dSixMonthChart"><div class="empty">Carregando histórico...</div></div>
+          <div class="d-panel-foot end">
+            <button class="d-panel-btn" onclick="goDPage('transactions')">
+              Ver relatório completo
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/></svg>
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="d-panel expense-heatmap-card" id="dExpenseHeatmap"><div class="empty">Carregando mapa de calor...</div></div>
-
-      <div class="d-panels">
-        <div class="d-panel">
-          <h3 class="panel-icon-title">
-              <span class="panel-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg>
-              </span>
-              Últimas Transações
-            </h3>
-            <div id="dTxControls" class="tx-controls-wrap" style="margin-bottom:8px;"></div>
-            <div class="grouped-list desktop" id="dTxList"><div class="empty">Nenhum lançamento</div></div>
-        </div>
-        <div class="d-panel">
+      <div class="d-panels-bottom">
+        <div class="d-panel expense-heatmap-card" id="dExpenseHeatmap"><div class="empty">Carregando mapa de calor...</div></div>
+        <div class="d-panel d-recent-panel">
           <div class="panel-head-flex">
             <h3 class="panel-icon-title">
               <span class="panel-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M5 7h14"/><path d="M5 17h8"/><circle cx="17" cy="17" r="2"/></svg>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg>
               </span>
-              Limites – Situação
+              Transações Recentes
             </h3>
-            <button class="list-btn" onclick="goDPage('limits')">Ver todos</button>
+            <button class="list-btn" onclick="goDPage('transactions')">Ver todas →</button>
           </div>
-          <div class="limits-mini-list" id="dLimitsMini"><div class="empty">Nenhum limite configurado</div></div>
+          <div class="grouped-list desktop" id="dTxList"><div class="empty">Nenhum lançamento</div></div>
         </div>
+      </div>
+
+      <div class="d-panel d-limits-row">
+        <div class="panel-head-flex">
+          <h3 class="panel-icon-title">
+            <span class="panel-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M5 7h14"/><path d="M5 17h8"/><circle cx="17" cy="17" r="2"/></svg>
+            </span>
+            Limites – Situação
+          </h3>
+          <button class="list-btn" onclick="goDPage('limits')">Ver todos</button>
+        </div>
+        <div class="limits-mini-list" id="dLimitsMini"><div class="empty">Nenhum limite configurado</div></div>
       </div>
     </div>
 
     <div id="dp-transactions" class="d-page d-module-page" style="display:none">
-      <div style="margin-bottom:18px">
-        <h2 style="font-size:26px;font-weight:900;letter-spacing:-.04em;margin-bottom:4px">Transações</h2>
-        <p style="color:var(--text2);font-size:14px">Busque, filtre e navegue por todos os lançamentos do mês.</p>
-      </div>
       <div id="dAllTxControls" class="tx-controls-wrap" style="margin-bottom:16px"></div>
       <div class="grouped-list desktop" id="dAllTxList"><div class="empty">Nenhum lançamento</div></div>
     </div>
@@ -488,7 +509,7 @@
 </div>
 
 <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
-  <div class="modal-box tx-modal-box" data-tx-type="income">
+  <div class="modal-box tx-modal-box" data-tx-type="income" role="dialog" aria-modal="true" aria-labelledby="mModalTitle">
     <div class="modal-handle"></div>
     <div class="tx-modal-head">
       <div>
@@ -499,9 +520,9 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
     </div>
-    <div class="modal-mode" role="tablist" aria-label="Tipo da transação">
-      <button class="mmBtn on income" id="mmIncome" onclick="setModalType('income')"><svg class="mm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span>Entrada</span></button>
-      <button class="mmBtn expense" id="mmExpense" onclick="setModalType('expense')"><svg class="mm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg><span>Gasto</span></button>
+    <div class="modal-mode" role="radiogroup" aria-label="Tipo da transação">
+      <button type="button" role="radio" aria-checked="true" class="mmBtn on income" id="mmIncome" onclick="setModalType('income')"><svg class="mm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span>Entrada</span></button>
+      <button type="button" role="radio" aria-checked="false" class="mmBtn expense" id="mmExpense" onclick="setModalType('expense')"><svg class="mm-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg><span>Gasto</span></button>
     </div>
     <div id="modal-text">
       <button class="tx-amount-card" id="mAmountCard" type="button" onclick="openAmountKeypad()" aria-label="Editar valor">
@@ -564,7 +585,7 @@
     </div>
     <div id="modal-audio" style="display:none">
       <div class="audio-center">
-        <div class="mic-outer" id="micBtn" onclick="handleMic()"><svg class="mic-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg></div>
+        <button type="button" class="mic-outer" id="micBtn" onclick="handleMic()" aria-label="Gravar transação por voz"><svg class="mic-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg></button>
         <div class="mic-hint" id="micHint">Toque para gravar</div>
         <div class="mic-timer" id="micTimer"></div>
       </div>
@@ -607,7 +628,7 @@
 </div>
 
 <div class="modal-overlay" id="genericFormModal" style="display:none" onclick="if(event.target===this) this.style.display='none'">
-  <div class="modal-box">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="gfmTitle">
     <div class="modal-handle"></div>
     <div class="modal-title" id="gfmTitle">Formulário</div>
     <div id="gfmBody" style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
@@ -621,9 +642,9 @@
 </div>
 
 <div class="modal-overlay" id="logoutModal" onclick="if(event.target===this) document.getElementById('logoutModal').style.display='none'">
-  <div class="modal-box" style="max-width: 340px; text-align:center; padding-bottom: 24px; padding-top: 32px;">
+  <div class="modal-box" style="max-width: 340px; text-align:center; padding-bottom: 24px; padding-top: 32px;" role="dialog" aria-modal="true" aria-labelledby="logoutTitle">
     <div class="modal-handle"></div>
-    <div class="modal-title" style="margin-bottom: 12px; font-size:22px;">Sair da conta?</div>
+    <div class="modal-title" id="logoutTitle" style="margin-bottom: 12px; font-size:22px;">Sair da conta?</div>
     <p style="color: var(--text2); font-size: 15px; margin-bottom: 28px; line-height: 1.5;">Tem certeza que deseja desconectar?<br>Você precisará fazer login novamente para acessar seus dados.</p>
     <div style="display:flex; gap:12px;">
       <button class="btn-cancel" style="flex:1; padding:14px; border-radius:16px;" onclick="document.getElementById('logoutModal').style.display='none'">Cancelar</button>
@@ -634,20 +655,20 @@
 
 <div class="fab-backdrop" id="fabBackdrop"></div>
 <div class="fab-wrap" id="fabWrap">
-  <div class="fab-menu" id="fabMenu">
+  <div class="fab-menu" id="fabMenu" inert>
     <div class="fab-item fi-income"><button class="fab-action fa-green" onclick="openModal('income')" aria-label="Adicionar entrada"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></button><span class="fab-label">Entrada</span></div>
     <div class="fab-item fi-audio"><button class="fab-action fa-neutral" onclick="openModal('audio')" aria-label="Gravar áudio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg></button><span class="fab-label">Voz</span></div>
     <div class="fab-item fi-expense"><button class="fab-action fa-red" onclick="openModal('expense')" aria-label="Adicionar gasto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg></button><span class="fab-label">Gasto</span></div>
   </div>
-  <button class="fab" id="fabBtn" onclick="toggleFab()" aria-label="Adicionar transação"><svg class="fab-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+  <button class="fab" id="fabBtn" onclick="toggleFab()" aria-label="Adicionar transação" aria-haspopup="true" aria-expanded="false"><svg class="fab-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <!-- Modal: Histórico Detalhado por Descrição -->
 <div class="modal-overlay" id="txHistoryModal" onclick="if(event.target===this) closeTxHistory()"></div>
 
-<script type="module" src="./js/main.js?v=cc5caf97"></script>
+<script type="module" src="./js/main.js?v=d86e4908"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

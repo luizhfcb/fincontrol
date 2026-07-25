@@ -72,42 +72,47 @@ export function renderSixMonthChart(containerId, allTransactions) {
 
   const data   = Object.values(monthsMap);
   const maxVal = data.reduce((m, d) => Math.max(m, d.income, d.expense), 1);
+  // Eixo Y: 5 marcas do máximo até zero (alinhadas às gridlines de 25%).
+  const axisTicks = [1, 0.75, 0.5, 0.25, 0]
+    .map((f) => `<span>${formatCompactCurrency(maxVal * f)}</span>`)
+    .join('');
 
-  const barsHTML = data.map((d) => {
-    const incPct = (d.income  / maxVal) * 100;
-    const expPct = (d.expense / maxVal) * 100;
+  const sixmCol = (d, tone, value) => {
+    const pct = (value / maxVal) * 100;
+    const toneLabel = tone === 'income' ? 'Receitas' : 'Despesas';
     return `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
-        <div style="font-size:9px;color:var(--text3);height:12px;font-weight:bold;white-space:nowrap">
-          ${d.income > 0 ? formatCompactCurrency(d.income) : ''}
-        </div>
-        <div style="height:120px;width:100%;display:flex;gap:4px;align-items:flex-end;justify-content:center">
-          <div class="sixm-bar" role="button" tabindex="0"
-               data-label="${d.label} · Receitas" data-value="${formatCurrency(d.income)}" data-tone="income"
-               onclick="selectSixMonthBar(this)" onkeydown="${BAR_KEY_SIXM}"
-               title="${d.label} · Receitas: ${formatCurrency(d.income)}"
-               style="height:${incPct}%;width:16px;background:var(--green);border-radius:4px 4px 0 0;transition:height .3s;cursor:pointer"></div>
-          <div class="sixm-bar" role="button" tabindex="0"
-               data-label="${d.label} · Despesas" data-value="${formatCurrency(d.expense)}" data-tone="expense"
-               onclick="selectSixMonthBar(this)" onkeydown="${BAR_KEY_SIXM}"
-               title="${d.label} · Despesas: ${formatCurrency(d.expense)}"
-               style="height:${expPct}%;width:16px;background:var(--red);border-radius:4px 4px 0 0;transition:height .3s;cursor:pointer"></div>
-        </div>
-        <div style="font-size:9px;color:var(--text3);height:12px;font-weight:bold;white-space:nowrap">
-          ${d.expense > 0 ? formatCompactCurrency(d.expense) : ''}
-        </div>
-        <div style="font-size:11px;font-weight:bold;color:var(--text2);text-transform:capitalize;margin-top:8px">${d.label}</div>
+      <div class="sixm-col">
+        <span class="sixm-cap">${value > 0 ? formatCompactCurrency(value) : ''}</span>
+        <div class="sixm-bar ${tone}" role="button" tabindex="0"
+             data-label="${d.label} · ${toneLabel}" data-value="${formatCurrency(value)}" data-tone="${tone}"
+             onclick="selectSixMonthBar(this)" onkeydown="${BAR_KEY_SIXM}"
+             title="${d.label} · ${toneLabel}: ${formatCurrency(value)}"
+             style="height:${pct.toFixed(1)}%"></div>
+      </div>`;
+  };
+
+  const monthsHTML = data.map((d) => `
+    <div class="sixm-month">
+      <div class="sixm-pair">
+        ${sixmCol(d, 'income', d.income)}
+        ${sixmCol(d, 'expense', d.expense)}
       </div>
-    `;
-  }).join('');
+      <span class="sixm-month-label">${d.label}</span>
+    </div>
+  `).join('');
 
   container.innerHTML = `
-    <div data-sixmonth style="padding:24px;background:var(--card);border-radius:24px;border:1px solid var(--border)">
-      <div style="display:flex;justify-content:space-between;align-items:flex-end">${barsHTML}</div>
-      <div class="fin-bar-readout" aria-live="polite"></div>
-      <div style="display:flex;justify-content:center;gap:20px;margin-top:20px;font-size:13px;font-weight:bold;color:var(--text2)">
-        <div style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:var(--green)"></span> Receitas</div>
-        <div style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:var(--red)"></span> Despesas</div>
+    <div data-sixmonth class="sixm-shell">
+      <div class="sixm-panel">
+        <div class="sixm-plot">
+          <div class="sixm-axis" aria-hidden="true">${axisTicks}</div>
+          <div class="sixm-months">${monthsHTML}</div>
+        </div>
+        <div class="fin-bar-readout" aria-live="polite"></div>
+        <div class="sixm-legend">
+          <div><span class="sixm-sw income"></span> Receitas</div>
+          <div><span class="sixm-sw expense"></span> Despesas</div>
+        </div>
       </div>
     </div>
   `;
@@ -327,6 +332,7 @@ function buildDonutMarkup(sortedCategories, totalValue, isIncome) {
                 <span class="donut-legend-dot" style="background:${colors[index]}" aria-hidden="true"></span>
                 <span class="donut-legend-name">${safeCategory}</span>
                 <strong class="donut-legend-percent">${percent}%</strong>
+                <span class="donut-legend-value priv">${formatCurrency(value)}</span>
               </div>
             `;
           }).join('')}

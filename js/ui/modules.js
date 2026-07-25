@@ -1,7 +1,8 @@
 import { state } from '../core/state.js';
 import { transactionDateFields } from '../core/dates.js';
 import { buildModuleTransactionDocId, getDueSubscriptionPosts } from '../core/subscription-sync.mjs';
-import { formatCurrency, getMonthlyTransactions } from '../core/utils.js';
+import { getMonthlyTransactions } from '../core/utils.js';
+import { countStockAlerts, listStockAlerts } from '../core/stock-alerts.mjs';
 import { showToast } from './feedback.js';
 import { db, deleteDoc, doc, getDoc, onSnapshot, setDoc, updateDoc } from '../config/firebase.js';
 import { DEFAULT_CATEGORIES } from '../core/constants.js';
@@ -17,7 +18,7 @@ import {
   renderMobileStockModule,
   renderMobileSubscriptionsModule,
 } from './mobile-module-templates.mjs';
-import { escapeHtml } from './render.js';
+import { escapeHtml } from '../core/escape-html.mjs';
 import { maybeStartOnboarding } from './onboarding.js';
 
 const STORAGE_KEY_BASE = 'fincontrol_modules_v1';
@@ -169,7 +170,13 @@ function loadData() {
 const cloneDefaults = () => JSON.parse(JSON.stringify(defaultData));
 
 function persistLocal() {
-  localStorage.setItem(storageKey(), JSON.stringify(state.modules));
+  // Cota estourada / modo privado do Safari fazem setItem lançar. O cache local
+  // é só otimização — perder ele não pode abortar a gravação na nuvem.
+  try {
+    localStorage.setItem(storageKey(), JSON.stringify(state.modules));
+  } catch (error) {
+    console.warn('[Módulos] Cache local indisponível:', error);
+  }
 }
 
 async function persist() {
@@ -234,33 +241,8 @@ function renderLimits() {
   const within = limits.filter((item) => (spentMap[item.category] || 0) <= item.limit).length;
   const high = limits.filter((item) => ((spentMap[item.category] || 0) / item.limit) >= 0.7).length;
 
-  el.innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:14px;">
-      <h2 style="font-size:28px; font-weight:900; letter-spacing:-0.04em;">🏷️ Limites & Categorias</h2>
-      <button class="list-btn" onclick="addLimit()">+ Novo Limite</button>
-    </div>
-    <div class="module-grid two">
-      <div class="module-card">
-        <h3>🏷️ Categorias</h3>
-        <div class="chip-wrap">${state.modules.categories.map((c) => `<span class="chip">${escapeHtml(c.name)} <small>${escapeHtml(c.type)}</small></span>`).join('')}</div>
-      </div>
-      <div class="module-card">
-        <h3>🎯 Limites por categoria</h3>
-        <div class="list-wrap">
-          ${limits.map((item) => {
-            const spent = spentMap[item.category] || 0;
-            const pct = Math.min(100, Math.round((spent / item.limit) * 100));
-            return `<div class="limit-row"><div><strong>${escapeHtml(item.category)}</strong><small>Gasto: ${formatCurrency(spent)} / ${formatCurrency(item.limit)}</small></div><div style="display:flex; align-items:center; gap:12px;"><span>${pct}%</span><button onclick="editLimit('${item.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">✏️</button><button onclick="removeLimit('${item.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">🗑</button></div><div class="progress"><i style="width:${pct}%"></i></div></div>`;
-          }).join('')}
-        </div>
-      </div>
-      <div class="module-card">
-        <h3>📊 Resumo de limites</h3>
-        <div class="notice ok">• ${within} categorias dentro do limite</div>
-        <div class="notice warn">• ${high} categorias acima de 70%</div>
-      </div>
-    </div>`;
-
+  // O template já traz "+ Nova categoria" e os botões de editar/remover em
+  // cada chip — não há pós-processamento em DOM depois desta atribuição.
   el.innerHTML = renderDesktopLimitsModule({
     categories: state.modules.categories,
     limits: limits.map((item) => {
@@ -271,52 +253,12 @@ function renderLimits() {
     within,
     high,
   });
-
-  // Botão para adicionar categoria personalizada
-  const catSection = el.querySelector('.chip-wrap')?.closest('.module-card');
-  if (catSection) {
-    const addCatBtn = document.createElement('button');
-    addCatBtn.className = 'list-btn';
-    addCatBtn.style.marginTop = '12px';
-    addCatBtn.textContent = '+ Nova Categoria';
-    addCatBtn.onclick = () => addCategory();
-    catSection.appendChild(addCatBtn);
-
-    // Tornar chips de categoria clicáveis para remoção
-    catSection.querySelectorAll('.chip').forEach((chip) => {
-      const id = chip.dataset.id;
-      if (id) {
-        const delBtn = document.createElement('button');
-        delBtn.innerHTML = ' ✕';
-        delBtn.style.cssText = 'background:transparent;border:none;cursor:pointer;color:var(--text3);font-size:11px;padding:0 0 0 4px;';
-        delBtn.onclick = (e) => { e.stopPropagation(); removeCategory(id); };
-        chip.appendChild(delBtn);
-      }
-    });
-  }
 }
 
 function renderSubscriptions() {
   const el = document.getElementById('dp-subscriptions');
   if (!el) return;
   const totalMonth = state.modules.subscriptions.reduce((sum, s) => sum + s.value, 0);
-
-  el.innerHTML = `
-  <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:14px;">
-    <h2 style="font-size:28px; font-weight:900; letter-spacing:-0.04em;">📱 Assinaturas</h2>
-    <button class="list-btn" onclick="addSubscription()">+ Nova</button>
-  </div>
-  <div class="module-grid three">
-    <div class="module-card metric"><label>Total mensal</label><strong>${formatCurrency(totalMonth)}</strong></div>
-    <div class="module-card metric"><label>Total anual</label><strong>${formatCurrency(totalMonth * 12)}</strong></div>
-    <div class="module-card metric"><label>Nº de assinaturas</label><strong>${state.modules.subscriptions.length}</strong></div>
-  </div>
-  <div class="module-card">
-    <h3>🎬 Minhas Assinaturas</h3>
-    <div class="list-wrap">
-      ${state.modules.subscriptions.map((s) => `<div class="sub-row"><div><strong>${escapeHtml(s.name)}</strong><small>${escapeHtml(s.plan)}</small></div><div style="text-align:right"><strong>${formatCurrency(s.value)}/mês</strong><small>Desconto dia ${s.day} <button onclick="editSubscription('${s.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer; margin-left:6px">✏️</button><button onclick="removeSubscription('${s.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer; margin-left:6px">🗑</button></small></div></div>`).join('')}
-    </div>
-  </div>`;
 
   el.innerHTML = renderDesktopSubscriptionsModule({
     subscriptions: state.modules.subscriptions,
@@ -327,18 +269,7 @@ function renderSubscriptions() {
 function renderStock() {
   const el = document.getElementById('dp-stock');
   if (!el) return;
-  const alerts = state.modules.stockItems.filter((i) => i.qty <= i.min);
-
-  el.innerHTML = `
-  <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:14px;">
-    <h2 style="font-size:28px; font-weight:900; letter-spacing:-0.04em;">📦 Estoque Doméstico</h2>
-    <button class="list-btn" onclick="addStockItem()">+ Item</button>
-  </div>
-  <div class="module-grid two">
-    <div class="module-card"><h3>🚨 Alertas de reposição</h3><div class="list-wrap">${alerts.map((a) => `<div class="notice ${a.qty === 0 ? 'danger' : 'warn'}">${escapeHtml(a.name)} — estoque ${a.qty === 0 ? 'zerado' : 'baixo'}</div>`).join('') || '<div class="notice ok">Sem alertas no momento</div>'}</div></div>
-    <div class="module-card"><h3>📅 Próximas reposições</h3><div class="list-wrap">${state.modules.stockItems.map((i) => `<div class="sub-row"><div><strong>${escapeHtml(i.name)}</strong><small>${i.dueIn < 0 ? 'Vencido' : `Em ${i.dueIn} dias`}</small></div><strong>${formatCurrency(i.price)}</strong></div>`).join('')}</div></div>
-  </div>
-  <div class="module-card"><h3>📦 Itens do estoque</h3><div class="stock-grid">${state.modules.stockItems.map((i) => `<div class="stock-item"><div style="display:flex; justify-content:space-between"><strong>${escapeHtml(i.name)}</strong> <button onclick="removeStockItem('${i.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">🗑</button></div><small>${escapeHtml(i.category)}</small><div class="progress"><i style="width:${Math.min(100, (i.qty / Math.max(1, i.min)) * 100)}%"></i></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px"><p style="margin:0">${i.qty} un. (mín ${i.min})</p><div><button onclick="changeStockQty('${i.id}', -1)" style="padding:2px 6px; border-radius:4px">-</button> <button onclick="changeStockQty('${i.id}', 1)" style="padding:2px 6px; border-radius:4px">+</button></div></div></div>`).join('')}</div></div>`;
+  const alerts = listStockAlerts(state.modules);
 
   el.innerHTML = renderDesktopStockModule({
     stockItems: state.modules.stockItems,
@@ -351,17 +282,6 @@ function renderBills() {
   if (!el) return;
   const total = state.modules.bills.reduce((sum, b) => sum + b.value, 0);
   const paid = state.modules.bills.filter((b) => b.paid).reduce((sum, b) => sum + b.value, 0);
-
-  el.innerHTML = `
-  <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:14px;">
-    <h2 style="font-size:28px; font-weight:900; letter-spacing:-0.04em;">🗓️ Controle de Contas</h2>
-    <button class="list-btn" onclick="addBill()">+ Conta</button>
-  </div>
-  <div class="module-card">
-    <div class="bill-summary"><span class="ok">✓ Pago: ${formatCurrency(paid)}</span><span class="danger">✗ Pendente: ${formatCurrency(total - paid)}</span><span>Total: ${formatCurrency(total)}</span></div>
-    <table class="bill-table" style="width:100%"><thead><tr><th>Conta</th><th>Categoria</th><th>Vencimento</th><th>Valor</th><th>Pago?</th><th></th></tr></thead>
-    <tbody>${state.modules.bills.map((b) => `<tr><td>${escapeHtml(b.name)}</td><td>${escapeHtml(b.category)}</td><td>Dia ${b.day}</td><td>${formatCurrency(b.value)}</td><td><input type="checkbox" ${b.paid ? 'checked' : ''} onchange="toggleBillPaid('${b.id}', this.checked)"></td><td><button onclick="editBill('${b.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">✏️</button><button onclick="removeBill('${b.id}')" style="background:transparent; border:none; color:var(--text3); cursor:pointer">🗑</button></td></tr>`).join('')}</tbody></table>
-  </div>`;
 
   el.innerHTML = renderDesktopBillsModule({
     bills: state.modules.bills,
@@ -378,41 +298,10 @@ function renderMobileModules() {
   if (!limitsEl || !subscriptionsEl || !billsEl || !stockEl) return;
 
   const totalMonth = state.modules.subscriptions.reduce((sum, s) => sum + s.value, 0);
-  const alerts = state.modules.stockItems.filter((i) => i.qty <= i.min).length;
+  const alerts = countStockAlerts(state.modules);
   const totalBills = state.modules.bills.reduce((sum, b) => sum + b.value, 0);
   const paidBills = state.modules.bills.filter((b) => b.paid).reduce((sum, b) => sum + b.value, 0);
   const spentMap = expensesByCategory();
-
-  limitsEl.innerHTML = `
-    <button class="list-btn" style="margin-bottom:10px" onclick="addLimit()">+ Novo limite</button>
-    <div class="list-wrap">
-      ${state.modules.limits.map((item) => {
-        const spent = spentMap[item.category] || 0;
-        const pct = Math.min(100, Math.round((spent / item.limit) * 100));
-        return `<div class="limit-row"><div><strong>${escapeHtml(item.category)}</strong><small>${formatCurrency(spent)} de ${formatCurrency(item.limit)}</small></div><div style="display:flex;align-items:center;gap:8px"><span>${pct}%</span><button onclick="editLimit('${item.id}')" class="mini-action">✏️</button><button onclick="removeLimit('${item.id}')" class="mini-action">🗑</button></div><div class="progress"><i style="width:${pct}%"></i></div></div>`;
-      }).join('') || '<div class="empty">Nenhum limite configurado</div>'}
-    </div>`;
-
-  subscriptionsEl.innerHTML = `
-    <button class="list-btn" style="margin-bottom:10px" onclick="addSubscription()">+ Nova assinatura</button>
-    <div class="notice ok" style="margin-bottom:10px">${state.modules.subscriptions.length} assinatura(s) · ${formatCurrency(totalMonth)}/mês</div>
-    <div class="list-wrap">
-      ${state.modules.subscriptions.map((s) => `<div class="sub-row"><div><strong>${escapeHtml(s.name)}</strong><small>${escapeHtml(s.plan)}</small></div><div style="text-align:right"><strong>${formatCurrency(s.value)}</strong><small>Dia ${s.day} <button onclick="editSubscription('${s.id}')" class="mini-action">✏️</button><button onclick="removeSubscription('${s.id}')" class="mini-action">🗑</button></small></div></div>`).join('') || '<div class="empty">Nenhuma assinatura</div>'}
-    </div>`;
-
-  billsEl.innerHTML = `
-    <button class="list-btn" style="margin-bottom:10px" onclick="addBill()">+ Nova conta</button>
-    <div class="notice warn" style="margin-bottom:10px">Pago ${formatCurrency(paidBills)} de ${formatCurrency(totalBills)}</div>
-    <div class="list-wrap">
-      ${state.modules.bills.map((b) => `<div class="sub-row"><div><strong>${escapeHtml(b.name)}</strong><small>Vence dia ${b.day}</small></div><div style="display:flex;align-items:center;gap:8px"><input type="checkbox" ${b.paid ? 'checked' : ''} onchange="toggleBillPaid('${b.id}', this.checked)"><button onclick="editBill('${b.id}')" class="mini-action">✏️</button><button onclick="removeBill('${b.id}')" class="mini-action">🗑</button></div></div>`).join('') || '<div class="empty">Sem contas cadastradas</div>'}
-    </div>`;
-
-  stockEl.innerHTML = `
-    <button class="list-btn" style="margin-bottom:10px" onclick="addStockItem()">+ Novo item</button>
-    <div class="notice ${alerts ? 'warn' : 'ok'}" style="margin-bottom:10px">${alerts} alerta(s) em ${state.modules.stockItems.length} item(ns)</div>
-    <div class="list-wrap">
-      ${state.modules.stockItems.map((i) => `<div class="sub-row"><div><strong>${escapeHtml(i.name)}</strong><small>${i.qty} un. (mín ${i.min})</small></div><div style="display:flex;align-items:center;gap:6px"><button onclick="changeStockQty('${i.id}', -1)" class="mini-action">-</button><button onclick="changeStockQty('${i.id}', 1)" class="mini-action">+</button><button onclick="removeStockItem('${i.id}')" class="mini-action">🗑</button></div></div>`).join('') || '<div class="empty">Sem itens no estoque</div>'}
-    </div>`;
 
   limitsEl.innerHTML = renderMobileLimitsModule({
     categories: state.modules.categories,

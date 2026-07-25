@@ -1,7 +1,9 @@
 // Orquestrador da UI: refreshUI() calcula métricas do dashboard e delega a
 // renderização às views especializadas (tx-list, heatmap, charts, modules).
 import { MONTHS } from '../core/constants.js';
+import { buildDashboardComparison } from '../core/dashboard-comparison.mjs';
 import { state } from '../core/state.js';
+import { countStockAlerts } from '../core/stock-alerts.mjs';
 import { formatCompactCurrency, formatCurrency, getMonthlyTransactions, setText } from '../core/utils.js';
 import { renderModules } from './modules.js';
 import { renderExpenseHeatmap } from './heatmap.js';
@@ -43,7 +45,7 @@ export function refreshUI() {
   const expense = expenseTransactions.reduce((s, t) => s + t.val, 0);
   const balance = income - expense;
 
-  const stockAlerts  = (state.stock || []).filter((i) => i.qty <= (i.min || 0)).length;
+  const stockAlerts  = countStockAlerts(state.modules);
   const activeDays   = new Set(monthlyTransactions.map((t) => new Date(t.date).toDateString()));
   const dailyAverage = activeDays.size ? expense / activeDays.size : 0;
   const highestExpense = [...expenseTransactions].sort((a, b) => b.val - a.val)[0];
@@ -117,6 +119,40 @@ export function refreshUI() {
   setText('dBigSub', highestExpense ? `${highestExpense.cat} — ${highestExpense.desc}` : '—');
   setText('monthLabel', `${MONTHS[state.currentMonth]} ${state.currentYear}`);
 
+  // ── Badges de tendência nos cards desktop (vs mês anterior) ────────────────
+  const prevDate = new Date(state.currentYear, state.currentMonth - 1, 1);
+  const prevTxs = state.transactions.filter(
+    (t) => t.month === prevDate.getMonth() && t.year === prevDate.getFullYear(),
+  );
+  const prevIncome  = prevTxs.filter((t) => t.type === 'income').reduce((s, t) => s + t.val, 0);
+  const prevExpense = prevTxs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.val, 0);
+  const prevBalance = prevIncome - prevExpense;
+  const prevShort = MONTHS[prevDate.getMonth()].slice(0, 3);
+  const setMetricBadge = (id, current, previous, goodWhenUp) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cmp = buildDashboardComparison(current, previous, prevShort);
+    if (!cmp) { el.hidden = true; return; }
+    const up = cmp.percent >= 0;
+    el.hidden = false;
+    el.textContent = `${up ? '↑' : '↓'} ${Math.abs(cmp.percent)}% vs ${prevShort}`;
+    el.className = `metric-badge ${up === goodWhenUp ? 'is-good' : 'is-bad'}`;
+  };
+  setMetricBadge('dIncomeBadge', income, prevIncome, true);
+  setMetricBadge('dExpenseBadge', expense, prevExpense, false);
+  setMetricBadge('dBalanceBadge', balance, prevBalance, true);
+  const stockBadge = document.getElementById('dStockBadge');
+  if (stockBadge) {
+    stockBadge.hidden = false;
+    if (stockAlerts > 0) {
+      stockBadge.textContent = `${stockAlerts} p/ repor`;
+      stockBadge.className = 'metric-badge is-bad';
+    } else {
+      stockBadge.textContent = '✓ Tudo certo!';
+      stockBadge.className = 'metric-badge is-good';
+    }
+  }
+
   // ── Seletor de visão (dropdown pill) ──────────────────────────────────────
   renderDashViewSelector('mDashViewWrap');
   renderDashViewSelector('dDashViewWrap');
@@ -130,6 +166,7 @@ export function refreshUI() {
   renderExpenseHeatmap('dExpenseHeatmap', monthlyTransactions);
   renderTransactionsPage(monthlyTransactions);
   renderRecentTransactions('mRecentTx', monthlyTransactions);
+  renderRecentTransactions('dTxList', monthlyTransactions, 5);
   renderAnalytics(state.transactions);
   renderDonutCharts(sortedCategories, chartTotal, chartIsIncome);
   renderWeekdayChart('mWeekdayChart', monthlyTransactions);

@@ -3,15 +3,17 @@
  *
  * Calcula um hash do conteúdo de CSS/JS/fontes e grava esse hash em:
  *   - index.html: ?v=<hash> nos <link>/<script> de main.css e main.js
- *   - sw.js:      CACHE_NAME = 'fincontrol-static-<hash>'
+ *   - sw.js:      CACHE_NAME = 'fincontrol-static-<hash>' + lista MODULE_ASSETS
  *
  * Assim o navegador e o service worker só rebaixam quando algo muda de fato,
- * e você nunca esquece de trocar a versão na mão. Rode antes de publicar:
+ * e você nunca esquece de trocar a versão nem de precachear um módulo novo.
+ * Rode antes de publicar:
  *   npm run cache-bust
  */
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { listModuleAssets, writeSwModuleAssets } from './sw-assets.mjs';
 
 const root = resolve('.');
 
@@ -43,10 +45,12 @@ html = html
   .replace(/(\.\/js\/main\.js)(\?v=[^"']*)?/g, `$1?v=${version}`);
 writeFileSync(indexPath, html);
 
-// sw.js: CACHE_NAME
+// sw.js: CACHE_NAME + lista de módulos precacheados (gerada do disco)
 const swPath = join(root, 'sw.js');
+const moduleAssets = listModuleAssets(root);
 let sw = readFileSync(swPath, 'utf8');
 sw = sw.replace(/const CACHE_NAME = '[^']*';/, `const CACHE_NAME = 'fincontrol-static-${version}';`);
+sw = writeSwModuleAssets(sw, moduleAssets);
 writeFileSync(swPath, sw);
 
-console.log(`cache-bust: versão ${version} aplicada em index.html e sw.js (${files.length} arquivos no hash)`);
+console.log(`cache-bust: versão ${version} aplicada em index.html e sw.js (${files.length} arquivos no hash, ${moduleAssets.length} módulos no precache)`);

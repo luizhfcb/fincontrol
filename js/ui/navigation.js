@@ -1,29 +1,46 @@
 import { MONTHS } from '../core/constants.js';
 import { state } from '../core/state.js';
 import { setText } from '../core/utils.js';
-import { renderModules } from './modules.js';
 import { refreshUI } from './render.js';
 import { maybeSwipeHint } from './onboarding.js';
 
-export function toggleFab() {
-  const isOpen = document.getElementById('fabMenu')?.classList.toggle('show') ?? false;
-  document.getElementById('fabBtn')?.classList.toggle('open', isOpen);
+/**
+ * O menu do FAB fechado é só `opacity:0` — sem `inert` as três ações seguem no
+ * tab order e podem ser acionadas às cegas pelo teclado.
+ */
+function syncFabState(isOpen) {
+  const menu = document.getElementById('fabMenu');
+  const button = document.getElementById('fabBtn');
+  if (menu) menu.inert = !isOpen;
+  button?.classList.toggle('open', isOpen);
+  button?.setAttribute('aria-expanded', String(isOpen));
   document.body.classList.toggle('fab-open', isOpen);
+}
+
+export function toggleFab() {
+  syncFabState(document.getElementById('fabMenu')?.classList.toggle('show') ?? false);
 }
 
 export function closeFab() {
   document.getElementById('fabMenu')?.classList.remove('show');
-  document.getElementById('fabBtn')?.classList.remove('open');
-  document.body.classList.remove('fab-open');
+  syncFabState(false);
+}
+
+/** Marca o item ativo da navegação para leitores de tela, não só no visual. */
+function setNavCurrent(buttons, activeButton) {
+  buttons.forEach((button) => {
+    button.classList.toggle('on', button === activeButton);
+    if (button === activeButton) button.setAttribute('aria-current', 'page');
+    else button.removeAttribute('aria-current');
+  });
 }
 
 export function goMobilePage(name) {
   document.querySelectorAll('.m-page').forEach((page) => page.classList.remove('active'));
-  document.querySelectorAll('.nbtn').forEach((button) => button.classList.remove('on'));
   document.getElementById(`mp-${name}`)?.classList.add('active');
   const morePages = new Set(['limits', 'stock', 'subscriptions', 'bills']);
   const navName = morePages.has(name) ? 'more' : name;
-  document.getElementById(`mn-${navName}`)?.classList.add('on');
+  setNavCurrent(document.querySelectorAll('.nbtn'), document.getElementById(`mn-${navName}`));
   document.querySelector('.m-scroller')?.scrollTo({ top: 0 });
   closeFab();
   if (name === 'transactions') {
@@ -32,13 +49,54 @@ export function goMobilePage(name) {
   }
 }
 
+// Metadados do topbar desktop por página — o cabeçalho acompanha a seção
+// ativa em vez de repetir sempre o mesmo hero genérico.
+const DESKTOP_PAGE_META = {
+  home: {
+    eyebrow: 'Visão geral',
+    title: 'Seu controle financeiro em um relance',
+    subtitle: 'Acompanhe saldo, categorias e padrões de consumo do mês.',
+  },
+  transactions: {
+    eyebrow: 'Lançamentos',
+    title: 'Transações',
+    subtitle: 'Busque, filtre e navegue por todos os lançamentos do mês.',
+  },
+  limits: {
+    eyebrow: 'Orçamento',
+    title: 'Limites & Categorias',
+    subtitle: 'Controle seus tetos mensais com leitura rápida por categoria.',
+  },
+  subscriptions: {
+    eyebrow: 'Recorrências',
+    title: 'Assinaturas',
+    subtitle: 'Acompanhe serviços recorrentes e o custo acumulado no mês.',
+  },
+  stock: {
+    eyebrow: 'Casa',
+    title: 'Estoque Doméstico',
+    subtitle: 'Acompanhe itens, alertas e necessidades de reposição.',
+  },
+  bills: {
+    eyebrow: 'Compromissos',
+    title: 'Contas a Pagar',
+    subtitle: 'Organize vencimentos, categorias e o status de pagamento do mês.',
+  },
+};
+
 export function goDesktopPage(name) {
   document.querySelectorAll('.d-page').forEach((page) => {
     page.style.display = page.id === `dp-${name}` ? 'block' : 'none';
   });
 
-  document.querySelectorAll('.snav-item').forEach((button) => button.classList.remove('on'));
-  document.getElementById(`dn-${name}`)?.classList.add('on');
+  setNavCurrent(document.querySelectorAll('.snav-item'), document.getElementById(`dn-${name}`));
+
+  document.body.dataset.dpage = name;
+  const meta = DESKTOP_PAGE_META[name] || DESKTOP_PAGE_META.home;
+  setText('dEyebrow', meta.eyebrow);
+  setText('dTopbarTitle', meta.title);
+  setText('dTopbarSubtitle', meta.subtitle);
+  document.querySelector('.d-main')?.scrollTo({ top: 0 });
 }
 
 export function changeMonth(delta) {
@@ -62,8 +120,8 @@ export function changeMonth(delta) {
   const label = `${MONTHS[state.currentMonth]} ${state.currentYear}`;
   setText('monthLabel', label);
   setText('dMonthLabel', label);
+  // refreshUI() já termina chamando renderModules() — não repetir.
   refreshUI();
-  renderModules();
 }
 
 // ─── Seletor de mês (dropdown no topbar mobile) ──────────────────────────────
@@ -113,5 +171,4 @@ export function pickMonth(month) {
   setText('dMonthLabel', label);
   closeMonthPicker();
   refreshUI();
-  renderModules();
 }

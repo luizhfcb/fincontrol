@@ -2,6 +2,9 @@
 // gráficos, histórico). Sem estado próprio — só funções puras e constantes.
 import { CATEGORY_COLORS } from '../core/constants.js';
 
+// Re-export: consumidores de UI seguem importando escapeHtml daqui.
+export { escapeHtml } from '../core/escape-html.mjs';
+
 // Cores vívidas e distintas p/ composição do dia — legíveis em tema claro E escuro
 export const COMPO_PALETTE = [
   '#29D6FF', '#FF6B6B', '#FFD166', '#06D6A0',
@@ -32,13 +35,4 @@ export function formatDateTime(value) {
     day: '2-digit', month: '2-digit', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
   }).replace(',', ' ·');
-}
-
-export function escapeHtml(value) {
-  return String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 }

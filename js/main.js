@@ -1,4 +1,4 @@
-import { initAuth, loginGoogle, confirmLogout, executeLogout } from './services/auth.js?v=welcome-profile-v1';
+import { initAuth, loginGoogle, confirmLogout, executeLogout } from './services/auth.js';
 import { handleMic } from './services/audio.js';
 import { initTheme, toggleTheme, initPrivacy, togglePrivacy } from './services/theme.js';
 import { removeTransaction } from './services/transactions.js';
@@ -12,6 +12,7 @@ import { changeMonth, closeFab, goDesktopPage, goMobilePage, toggleFab, toggleMo
 import { setTxSearch, setTxFilter, setTxGrouped, openTxHistory, closeTxHistory, setDashView, toggleDashViewDropdown, selectExpenseHeatmapDay, toggleReportBlock } from './ui/render.js';
 import { handleAnalyticsPeriodKey, setAnalyticsPeriod, toggleAnalyticsCategories } from './ui/analytics.js';
 import { initRipple } from './ui/ripple.js';
+import { initDialogs } from './ui/dialog.js';
 
 window.loginGoogle = loginGoogle;
 window.confirmLogout = confirmLogout;
@@ -90,6 +91,7 @@ initDesktopSidebar();
 initModules();
 initAuth();
 initRipple();
+initDialogs();
 
 window.addEventListener('resize', updateResponsiveAppView);
 document.addEventListener('click', (event) => {
@@ -105,4 +107,13 @@ document.addEventListener('click', (event) => {
   if (!event.target.closest('.m-monthpick')) {
     closeMonthPicker();
   }
+});
+
+// Escape também fecha os popovers. Diálogos são tratados em ui/dialog.js e
+// chegam aqui já com defaultPrevented — um Escape fecha uma camada só.
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape' || event.defaultPrevented) return;
+  closeFab();
+  closeMonthPicker();
+  document.querySelectorAll('.dash-view-dropdown.open').forEach((d) => d.classList.remove('open'));
 });

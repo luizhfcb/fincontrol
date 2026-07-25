@@ -19,11 +19,11 @@ export function openTxHistory(desc) {
   const monthLabel = `${MONTHS[state.currentMonth]} ${state.currentYear}`;
 
   modal.innerHTML = `
-    <div class="tx-history-sheet" id="txHistorySheet">
+    <div class="tx-history-sheet" id="txHistorySheet" role="dialog" aria-modal="true" aria-labelledby="txHistoryTitle">
       <div class="modal-handle"></div>
       <div class="tx-history-header">
         <div class="tx-history-title-wrap">
-          <div class="tx-history-title">${escapeHtml(desc)}</div>
+          <div class="tx-history-title" id="txHistoryTitle">${escapeHtml(desc)}</div>
           <div class="tx-history-period">${monthLabel} · ${sorted.length} lançamento${sorted.length !== 1 ? 's' : ''}</div>
         </div>
         <button class="tx-history-close" onclick="closeTxHistory()" aria-label="Fechar">✕</button>
