@@ -69,7 +69,8 @@ export function refreshUI() {
     chartTotal   = expense;
     chartIsIncome = false;
   } else {
-    heroValue    = Math.abs(balance);
+    // Saldo mantém o sinal: sem ele, um mês no vermelho fica igual a um positivo.
+    heroValue    = balance;
     heroClass    = balance >= 0 ? 'positive' : 'negative';
     balanceLabel = 'SALDO DO MÊS';
     chartTxs     = expenseTransactions;

@@ -14,76 +14,39 @@
 <link rel="apple-touch-icon" href="./icon-192.svg">
 <link rel="manifest" href="./manifest.json">
 <link rel="stylesheet" href="./assets/fonts/poppins.css">
-<link rel="stylesheet" href="./css/main.css?v=d86e4908">
+<link rel="stylesheet" href="./css/main.css?v=294478a3">
 <title>FinControl</title>
 </head>
 <body data-dpage="home">
 <div id="app-loading"><div class="spin brand-loader"><img src="./favicon.svg" alt="FinControl"></div><p>Preparando seu painel financeiro…</p></div>
 
 <div id="login-screen">
-  <div class="login-shell">
-    <section class="login-hero">
-      <span class="login-badge">Finanças pessoais em um painel simples</span>
-      <h1 class="login-title">Fin<span>Control</span></h1>
-      <p class="login-sub">Organize entradas, despesas e hábitos de consumo em uma experiência mais limpa, mais rápida e pensada para uso diário.</p>
+  <main class="login-card">
+    <button class="login-theme-btn" id="loginThemeBtn" onclick="toggleTheme()" aria-label="Ativar tema claro" title="Ativar tema claro"></button>
 
-      <div class="login-highlights">
-        <div class="hero-stat-card">
-          <small>Visão do mês</small>
-          <strong>Saldo, categorias e ritmo de gastos</strong>
-        </div>
-        <div class="hero-stat-card">
-          <small>Registro ágil</small>
-          <strong>Manual ou por voz, direto no app</strong>
-        </div>
-        <div class="hero-stat-card">
-          <small>Sincronização</small>
-          <strong>Seus dados salvos na nuvem com Google</strong>
-        </div>
-      </div>
+    <div class="login-mark"><img src="./favicon.svg" alt=""></div>
+    <h1 class="login-title">Fin<span>Control</span></h1>
+    <p class="login-sub">Entradas, gastos e limites do mês em um painel só.</p>
 
-      <div class="hero-preview-card">
-        <div class="hero-preview-top">
-          <span class="preview-dot"></span>
-          <span>Painel inteligente</span>
-        </div>
-        <div class="hero-preview-balance">
-          <label>Saldo projetado</label>
-          <strong>R$ 5.450,20</strong>
-        </div>
-        <div class="hero-preview-grid">
-          <div>
-            <span>Entradas</span>
-            <strong class="positive">R$ 8.000,00</strong>
-          </div>
-          <div>
-            <span>Saídas</span>
-            <strong class="negative">R$ 2.549,80</strong>
-          </div>
-        </div>
-      </div>
-    </section>
+    <button class="login-btn" id="loginBtn" onclick="loginGoogle()">
+      <svg class="login-g" viewBox="0 0 18 18" aria-hidden="true" focusable="false">
+        <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.91c1.7-1.57 2.69-3.88 2.69-6.62z"/>
+        <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.26c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.33A9 9 0 0 0 9 18z"/>
+        <path fill="#FBBC05" d="M3.96 10.71a5.41 5.41 0 0 1 0-3.42V4.96H.96a9 9 0 0 0 0 8.08l3-2.33z"/>
+        <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.96l3 2.33C4.67 5.16 6.66 3.58 9 3.58z"/>
+      </svg>
+      <span class="login-btn-label">Continuar com Google</span>
+      <span class="login-spinner" aria-hidden="true"></span>
+    </button>
 
-    <aside class="login-panel">
-      <div class="login-panel-inner">
-        <div class="login-logo"><img src="./favicon.svg" alt="FinControl"></div>
-        <h2>Entrar no FinControl</h2>
-        <p>Use sua conta Google para acessar seus lançamentos e continuar de onde parou.</p>
+    <ul class="login-points">
+      <li>Registre por texto ou ditando por voz</li>
+      <li>Limites e categorias com acompanhamento mensal</li>
+      <li>Seus lançamentos sincronizados na sua conta Google</li>
+    </ul>
 
-        <button class="login-btn" onclick="loginGoogle()">
-          <img src="https://www.google.com/favicon.ico" alt="G"> Entrar com Google
-        </button>
-
-        <div class="login-trust-list">
-          <div><span>✓</span> Layout focado em leitura rápida</div>
-          <div><span>✓</span> Resumo mensal e categorias em destaque</div>
-          <div><span>✓</span> Histórico agrupado para achar gastos mais rápido</div>
-        </div>
-
-        <div class="login-note">Seu acesso é individual. Cada pessoa visualiza apenas os próprios dados.</div>
-      </div>
-    </aside>
-  </div>
+    <p class="login-note">Acesso individual: você enxerga apenas os próprios lançamentos.</p>
+  </main>
 </div>
 
 <div id="mobile-app">
@@ -668,7 +631,7 @@
 <!-- Modal: Histórico Detalhado por Descrição -->
 <div class="modal-overlay" id="txHistoryModal" onclick="if(event.target===this) closeTxHistory()"></div>
 
-<script type="module" src="./js/main.js?v=d86e4908"></script>
+<script type="module" src="./js/main.js?v=294478a3"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

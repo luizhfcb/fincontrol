@@ -19,7 +19,7 @@ export function applyTheme(theme) {
   const metaThemeColor = document.querySelector('meta[name="theme-color"]');
   if (metaThemeColor) metaThemeColor.setAttribute('content', THEME_COLORS[theme] || THEME_COLORS.dark);
 
-  document.querySelectorAll('#mThemeBtn, #dThemeBtn').forEach((button) => {
+  document.querySelectorAll('#mThemeBtn, #dThemeBtn, #loginThemeBtn').forEach((button) => {
     button.innerHTML = renderThemeIcon(theme);
     button.setAttribute('aria-label', theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro');
     button.setAttribute('title', theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro');

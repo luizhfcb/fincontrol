@@ -15,11 +15,21 @@ import { initModules } from '../ui/modules.js';
 import { startListening } from './transactions.js';
 
 export async function loginGoogle() {
+  const button = document.getElementById('loginBtn');
+  // O popup do Google leva alguns segundos e o botão não dava retorno nenhum:
+  // um segundo clique abria uma segunda janela de autenticação.
+  if (button?.getAttribute('aria-busy') === 'true') return;
+  button?.setAttribute('aria-busy', 'true');
+
   try {
     await signInWithPopup(auth, googleProvider);
   } catch (error) {
     console.error('Firebase login error:', error);
     showToast(error?.code ? `Erro: ${error.code}` : 'Erro ao entrar.', true);
+  } finally {
+    // Em caso de sucesso a tela de login sai de cena, mas o estado precisa
+    // voltar para o caso de a pessoa deslogar depois.
+    button?.setAttribute('aria-busy', 'false');
   }
 }
 

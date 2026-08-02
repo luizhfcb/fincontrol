@@ -324,50 +324,53 @@ button,input{font:inherit}
 @keyframes rot{to{transform:rotate(360deg)}}
 #app-loading p{font-size:14px;color:var(--text2);margin-top:14px;letter-spacing:.02em}
 
-#login-screen{display:none;align-items:center;justify-content:center;min-height:100dvh;padding:28px;background:var(--bg)}
+#login-screen{display:none;min-height:100dvh;padding:24px;background:var(--bg)}
 body.logged-out{overflow-y:auto}
-body.logged-out #login-screen{display:flex;min-height:100dvh;align-items:stretch;overflow-y:auto;-webkit-overflow-scrolling:touch}
+/* O centro vem do `margin:auto` do cartão, não de align-items: com
+   `align-items:center` um cartão mais alto que a viewport tem o topo cortado
+   e fica inalcançável pelo scroll. */
+body.logged-out #login-screen{display:flex;min-height:100dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
 body.logged-out #mobile-app,
 body.logged-out #desktop-app{display:none!important}
 
-.login-shell{width:min(1160px,100%);display:grid;grid-template-columns:minmax(0,1.15fr) minmax(360px,.85fr);gap:26px;align-items:stretch}
-.login-hero,.login-panel{position:relative;border:1px solid var(--border);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));box-shadow:var(--shadow);overflow:hidden}
-.login-hero{padding:42px;display:flex;flex-direction:column;justify-content:space-between;min-height:620px}
-.login-hero::before,.login-panel::before{content:"";position:absolute;inset:auto auto 0 0;width:240px;height:240px;background:radial-gradient(circle, rgba(255,255,255,.08), transparent 72%);filter:blur(14px);pointer-events:none}
-.login-panel{padding:20px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02))}
-.login-panel-inner{width:100%;max-width:380px;padding:18px}
-.login-badge{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;background:var(--accent-bg);border:1px solid var(--border);color:var(--text2);font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:20px}
-.login-title{font-size:clamp(44px,6vw,76px);line-height:.95;font-weight:900;letter-spacing:-.06em;margin-bottom:18px}
-.login-title span{color:var(--accent-strong)}
-.login-sub{max-width:620px;font-size:18px;line-height:1.7;color:var(--text2);margin-bottom:28px}
-.login-highlights{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
-.hero-stat-card{background:rgba(255,255,255,.035);border:1px solid var(--border);border-radius:22px;padding:18px;min-height:120px;display:flex;flex-direction:column;justify-content:space-between}
-.hero-stat-card small{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);font-weight:800}
-.hero-stat-card strong{font-size:17px;line-height:1.35;font-weight:700}
-.hero-preview-card{border-radius:28px;padding:22px;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02));border:1px solid var(--border);max-width:440px;box-shadow:var(--shadow-soft)}
-.hero-preview-top{display:flex;align-items:center;gap:10px;color:var(--text2);font-size:13px;margin-bottom:24px}
-.preview-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 0 6px rgba(34,197,94,.12)}
-.hero-preview-balance label{display:block;color:var(--text3);font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
-.hero-preview-balance strong{display:block;font-size:38px;font-weight:900;letter-spacing:-.05em;margin-bottom:24px}
-.hero-preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.hero-preview-grid div{padding:16px;border-radius:18px;background:rgba(0,0,0,.14);border:1px solid var(--border)}
-.hero-preview-grid span{display:block;font-size:12px;color:var(--text2);margin-bottom:6px}
-.hero-preview-grid strong{font-size:22px;font-weight:800}
+/* ── Login ───────────────────────────────────────────────────────────────────
+   Um cartão só, centrado. A porta de entrada de um app pessoal não precisa de
+   página de vendas — e o painel falso que ficava aqui exibia valores em reais
+   inventados, que num app de finanças se leem como dados reais.               */
+.login-card{position:relative;width:min(420px,100%);margin:auto;padding:40px 32px 32px;border:1px solid var(--border);border-radius:28px;background:var(--card);box-shadow:var(--shadow);text-align:center}
+.login-card::before{content:"";position:absolute;inset:-1px -1px auto;height:150px;border-radius:28px 28px 0 0;background:linear-gradient(180deg,var(--accent-bg),transparent);pointer-events:none}
+.login-card>*{position:relative}
+
+.login-theme-btn{position:absolute;top:16px;right:16px;width:38px;height:38px;display:grid;place-items:center;padding:0;border:1px solid var(--border);border-radius:12px;background:var(--card2);color:var(--text2);cursor:pointer;transition:color .2s,border-color .2s}
+.login-theme-btn:hover{color:var(--text);border-color:var(--border2)}
+.login-theme-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.login-mark{width:64px;height:64px;margin:0 auto 20px;display:grid;place-items:center;border:1px solid var(--border2);border-radius:20px;background:var(--accent-bg)}
+.login-mark img{width:40px;height:40px;display:block}
+.login-title{font-size:clamp(32px,7vw,40px);line-height:1.05;font-weight:900;letter-spacing:-.045em;margin-bottom:10px}
+.login-title span{color:var(--accent)}
+.login-sub{font-size:15px;line-height:1.6;color:var(--text2);margin-bottom:28px;text-wrap:balance}
+
+.login-btn{width:100%;min-height:54px;display:flex;align-items:center;justify-content:center;gap:12px;padding:15px 20px;border:1px solid var(--border2);border-radius:16px;background:var(--accent);color:#fff;font-size:16px;font-weight:800;cursor:pointer;transition:filter .15s ease,transform .15s ease}
+.login-btn:hover{filter:brightness(1.08)}
+.login-btn:active{transform:scale(.99)}
+.login-g{width:20px;height:20px;flex-shrink:0;padding:3px;border-radius:50%;background:#fff;box-sizing:content-box}
+/* Estado pendente: o popup do Google demora e sem retorno visual a pessoa
+   clica de novo, abrindo uma segunda janela de autenticação. */
+.login-btn[aria-busy="true"]{pointer-events:none;opacity:.72}
+.login-btn[aria-busy="true"] .login-g,.login-btn[aria-busy="true"] .login-btn-label{display:none}
+.login-spinner{display:none;width:20px;height:20px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:rot .7s linear infinite}
+.login-btn[aria-busy="true"] .login-spinner{display:block}
+
+.login-points{list-style:none;display:grid;gap:11px;margin-top:26px;padding-top:24px;border-top:1px solid var(--border);text-align:left}
+.login-points li{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;line-height:1.5;color:var(--text2)}
+.login-points li::before{content:"";flex-shrink:0;width:16px;height:16px;margin-top:2px;border-radius:50%;background:var(--accent-bg) no-repeat center;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230099FF' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");background-size:10px}
+.login-note{margin-top:22px;font-size:12px;line-height:1.6;color:var(--text3)}
+/* O spinner fica: é o único retorno de que o login está em andamento. */
+@media(prefers-reduced-motion:reduce){.login-btn{transition:none}}
+
 .positive,.green{color:var(--green)!important}
 .negative,.red{color:var(--red)!important}
-
-.login-logo{width:74px;height:74px;border-radius:22px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(87,167,255,.18),rgba(87,167,255,.05));border:1px solid var(--border2);margin-bottom:18px;box-shadow:var(--shadow-soft)}
-.login-logo img{width:52px;height:52px;display:block}
-.login-panel h2{font-size:30px;font-weight:900;letter-spacing:-.04em;margin-bottom:10px}
-.login-panel p{font-size:15px;line-height:1.7;color:var(--text2);margin-bottom:24px}
-.login-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:18px 22px;border:none;border-radius:18px;background:linear-gradient(180deg,#ffffff,#d4d4d4);color:#111;font-size:17px;font-weight:800;cursor:pointer;box-shadow:0 14px 40px rgba(255,255,255,.12);transition:transform .15s ease, box-shadow .2s ease}
-.login-btn:hover{transform:translateY(-1px);box-shadow:0 18px 44px rgba(255,255,255,.18)}
-.login-btn:active{transform:scale(.985)}
-.login-btn img{width:22px;height:22px}
-.login-trust-list{display:grid;gap:12px;margin-top:22px;padding-top:22px;border-top:1px solid var(--border)}
-.login-trust-list div{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text2)}
-.login-trust-list span{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--accent-bg);border:1px solid var(--border);color:var(--accent-strong);font-size:12px;flex-shrink:0}
-.login-note{margin-top:24px;font-size:12px;line-height:1.7;color:var(--text3)}
 
 #mobile-app{display:none;flex-direction:column;height:100dvh;width:100%;background:transparent;overflow:hidden}
 .m-topbar{flex-shrink:0;padding:env(safe-area-inset-top,0) 16px 0;background:var(--bg);border-bottom:1px solid transparent}
@@ -1087,11 +1090,6 @@ body.desktop-sidebar-collapsed .d-main{margin-left:var(--sidebar-width-collapsed
 #genericFormModal .modal-box{border-radius:24px;max-width:460px;padding-bottom:20px}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-@media(max-width:1080px){
-  .login-shell{grid-template-columns:1fr}
-  .login-hero{min-height:auto}
-}
-
 @media(max-width:1280px){
   #desktop-app{--sidebar-width:244px;--sidebar-width-collapsed:78px}
   .d-main{padding:22px 20px 32px}
@@ -1103,28 +1101,12 @@ body.desktop-sidebar-collapsed .d-main{margin-left:var(--sidebar-width-collapsed
 @media(max-width:767px){
   html,body{height:auto;min-height:100%}
   body.logged-out{overflow-y:auto}
-  #login-screen{padding:16px 14px 24px;align-items:flex-start}
-  .login-shell{grid-template-columns:1fr;gap:14px;width:100%}
-  .login-hero,.login-panel{width:100%;max-width:100%;min-width:0;overflow:visible}
-  .login-hero{padding:20px;border-radius:24px;min-height:auto}
-  .login-badge{margin-bottom:14px;font-size:11px;padding:9px 14px}
-  .login-title{font-size:clamp(42px,16vw,62px);line-height:.92;margin-bottom:14px;word-break:break-word}
-  .login-sub{font-size:16px;line-height:1.55;max-width:none;margin-bottom:18px}
-  .login-highlights{grid-template-columns:1fr;gap:12px;margin-bottom:18px}
-  .hero-stat-card{min-height:auto;padding:16px}
-  .hero-stat-card strong{font-size:15px;line-height:1.4}
-  .hero-preview-card{max-width:none;padding:18px;border-radius:22px}
-  .hero-preview-balance strong{font-size:28px;margin-bottom:18px}
-  .hero-preview-grid{grid-template-columns:1fr;gap:10px}
-  .hero-preview-grid div{padding:14px}
-  .login-panel{border-radius:24px}
-  .login-panel-inner{max-width:none;padding:4px}
-  .login-panel h2{font-size:28px;line-height:1.05}
-  .login-panel p{font-size:15px;line-height:1.55;margin-bottom:18px}
-  .login-btn{padding:16px 18px;font-size:16px;max-width:100%}
-  .login-trust-list{gap:10px;margin-top:18px;padding-top:18px}
-  .login-trust-list div{font-size:13px;align-items:flex-start}
-  .login-note{margin-top:18px}
+  #login-screen{padding:16px 14px 24px}
+  .login-card{padding:34px 22px 26px;border-radius:24px}
+  .login-mark{width:56px;height:56px;border-radius:18px;margin-bottom:16px}
+  .login-mark img{width:34px;height:34px}
+  .login-sub{margin-bottom:24px}
+  .login-points{margin-top:22px;padding-top:20px}
   .chart-layout{grid-template-columns:1fr;gap:12px}
   .donut-chart{width:170px;height:170px;margin:0 auto}
   .chart-highlight{display:none}
@@ -1780,16 +1762,6 @@ body.logged-out .d-main {
   background: var(--card2);
 }
 
-[data-theme="light"] .login-hero,
-[data-theme="light"] .login-panel {
-  background: var(--card);
-  border-color: var(--border);
-  box-shadow: var(--shadow-soft);
-}
-
-[data-theme="light"] .login-hero::before,
-[data-theme="light"] .login-panel::before { display: none; }
-
 [data-theme="light"] .d-topbar {
   background: var(--card);
   border-color: var(--border);
@@ -1912,13 +1884,13 @@ body.logged-out .d-main {
 [data-theme="light"] .tx-ico.expense { background: var(--red-bg); }
 [data-theme="light"] .group-icon { background: color-mix(in srgb, currentColor 14%, transparent); border-color: color-mix(in srgb, currentColor 26%, transparent); }
 
-/* ── Login page ────────────────────────────────────────────────────────────── */
-[data-theme="light"] .login-hero,
-[data-theme="light"] .login-panel { background: var(--card); border-color: var(--border); }
-[data-theme="light"] .login-hero::before,
-[data-theme="light"] .login-panel::before { display: none; }
-[data-theme="light"] .hero-stat-card { background: var(--card2); border-color: var(--border); }
-[data-theme="light"] .hero-preview-card { background: var(--card); }
+/* ── Login page ──────────────────────────────────────────────────────────────
+   Só o que não sai dos tokens: o check dos itens é um SVG embutido em url(),
+   que não enxerga var(--accent). */
+[data-theme="light"] .login-card { box-shadow: var(--shadow-soft); }
+[data-theme="light"] .login-points li::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230066cc' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+}
 
 /* ── Scroller e background geral ───────────────────────────────────────────── */
 [data-theme="light"] #mobile-app,
