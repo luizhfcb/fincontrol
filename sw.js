@@ -39,6 +39,7 @@ const MODULE_ASSETS = [
   './js/ui/charts.js',
   './js/ui/desktop-module-templates.mjs',
   './js/ui/dialog.js',
+  './js/ui/donut-grouping.mjs',
   './js/ui/empty-state.js',
   './js/ui/feedback-modal.js',
   './js/ui/feedback.js',

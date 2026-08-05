@@ -4,6 +4,7 @@ import { CATEGORY_COLORS, MONTHS } from '../core/constants.js';
 import { state } from '../core/state.js';
 import { formatCompactCurrency, formatCurrency } from '../core/utils.js';
 import { assignDistinctDonutColors } from './chart-colors.mjs';
+import { compactDonutCategories } from './donut-grouping.mjs';
 import { renderEmptyState } from './empty-state.js';
 import { escapeHtml, WEEKDAY_FULL } from './ui-helpers.js';
 
@@ -265,6 +266,11 @@ function buildDonutMarkup(sortedCategories, totalValue, isIncome) {
   }
 
   const compactCategories = compactDonutCategories(sortedCategories);
+  // Conta as categorias reais: a fatia agregada representa várias, não uma.
+  const categoryCount = compactCategories.reduce(
+    (total, [, , grouped]) => total + (grouped ? grouped.length : 1),
+    0,
+  );
 
   // Atribui uma cor a cada categoria de uma vez só, garantindo unicidade —
   // duas fatias nunca saem com o mesmo tom (bug de Assinaturas × Teste).
@@ -277,7 +283,7 @@ function buildDonutMarkup(sortedCategories, totalValue, isIncome) {
   const radius = 46;
   const circumference = 2 * Math.PI * radius;
   let currentLength = 0;
-  const arcs = compactCategories.map(([category, value], index) => {
+  const arcs = compactCategories.map(([category, value, grouped], index) => {
     const segmentLength = (value / totalValue) * circumference;
     const visibleLength = Math.max(1, segmentLength - 2.2);
     const finalOffset = -currentLength;
@@ -285,6 +291,7 @@ function buildDonutMarkup(sortedCategories, totalValue, isIncome) {
     currentLength += segmentLength;
     const safeCategory = escapeHtml(category);
     const valueLabel = formatCurrency(value);
+    const hint = grouped ? ` (${escapeHtml(grouped.join(', '))})` : '';
     return `
       <circle class="donut-arc" data-arc-index="${index}" cx="60" cy="60" r="${radius}" fill="none"
         stroke="${colors[index]}" stroke-width="9" pathLength="${circumference.toFixed(2)}"
@@ -298,8 +305,8 @@ function buildDonutMarkup(sortedCategories, totalValue, isIncome) {
         stroke-dashoffset="${finalOffset.toFixed(2)}"
         style="--arc-start:${finalOffset.toFixed(2)}"
         transform="rotate(-90 60 60)" role="button" tabindex="0"
-        aria-label="${safeCategory}: ${valueLabel}"
-        data-label="${safeCategory}" data-value="${valueLabel}" data-tone="${isIncome ? 'income' : 'expense'}"
+        aria-label="${safeCategory}: ${valueLabel}${hint}"
+        data-label="${safeCategory}${hint}" data-value="${valueLabel}" data-tone="${isIncome ? 'income' : 'expense'}"
         onclick="selectDonutArc(this)"
         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectDonutArc(this)}" />`;
   }).join('');
@@ -315,18 +322,20 @@ function buildDonutMarkup(sortedCategories, totalValue, isIncome) {
           <div class="donut-hole">
             <span class="donut-center-label">${isIncome ? 'Receitas' : 'Gastos'}</span>
             <strong class="donut-total ${isIncome ? 'positive' : 'negative'} priv" data-donut-total>${formatCompactCurrency(totalValue)}</strong>
-            <small>${compactCategories.length} ${compactCategories.length === 1 ? 'categoria' : 'categorias'}</small>
+            <small>${categoryCount} ${categoryCount === 1 ? 'categoria' : 'categorias'}</small>
           </div>
         </div>
       </div>
       <div class="donut-side">
         <div class="donut-legend">
-          ${compactCategories.map(([category, value], index) => {
+          ${compactCategories.map(([category, value, grouped], index) => {
             const percent = ((value / totalValue) * 100).toFixed(0);
             const safeCategory = escapeHtml(category);
+            const hint = grouped ? ` (${escapeHtml(grouped.join(', '))})` : '';
             return `
               <div class="donut-legend-row" data-arc-index="${index}" role="button" tabindex="0"
-                aria-label="${safeCategory}: ${formatCurrency(value)}, ${percent}%"
+                title="${safeCategory}${hint}"
+                aria-label="${safeCategory}: ${formatCurrency(value)}, ${percent}%${hint}"
                 onclick="selectDonutLegend(this)"
                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectDonutLegend(this)}">
                 <span class="donut-legend-dot" style="background:${colors[index]}" aria-hidden="true"></span>
@@ -341,18 +350,6 @@ function buildDonutMarkup(sortedCategories, totalValue, isIncome) {
       <div class="fin-bar-readout donut-readout" aria-live="polite"></div>
     </div>
   `;
-}
-
-function compactDonutCategories(sortedCategories, limit = 6) {
-  const positive = sortedCategories.filter(([, value]) => Number(value) > 0);
-  if (positive.length <= limit) return positive;
-
-  const visible = positive.slice(0, limit - 1).map(([category, value]) => [category, value]);
-  const remainder = positive.slice(limit - 1).reduce((sum, [, value]) => sum + value, 0);
-  const other = visible.find(([category]) => category === 'Outros');
-  if (other) other[1] += remainder;
-  else visible.push(['Outros', remainder]);
-  return visible;
 }
 
 function animateDonutTotal(container, totalValue) {
