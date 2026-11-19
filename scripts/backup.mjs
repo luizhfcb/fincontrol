@@ -2,15 +2,11 @@
  * Backup completo do Firestore para JSON local.
  *
  * Pré-requisitos:
- *   1. Chave de service account em ./serviceAccountKey.json
- *      (Console Firebase → Configurações do projeto → Contas de serviço
- *       → Gerar nova chave privada). NUNCA commitar esse arquivo.
- *   2. npm install (instala firebase-admin como devDependency)
+ *   1. Chave de service account em ./serviceAccountKey.json (NUNCA commitar).
+ *   2. npm install (firebase-admin como devDependency, se for usar o script).
  *
  * Uso:
  *   npm run backup
- *
- * Saída: backups/firestore-backup-<timestamp>.json
  */
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -18,7 +14,7 @@ import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
 const KEY_PATH = resolve('serviceAccountKey.json');
-const COLLECTIONS = ['transactions', 'modules', 'feedback'];
+const COLLECTIONS = ['transactions', 'modules', 'groups', 'feedback'];
 
 let credentials;
 try {

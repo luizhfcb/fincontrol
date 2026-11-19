@@ -1,13 +1,11 @@
-import test from 'node:test';
 import assert from 'node:assert/strict';
-
-let createAmountState = () => ({});
-let pressAmountKey = () => ({});
-let getAmountValue = () => 0;
-let formatAmountDisplay = () => '';
-try {
-  ({ createAmountState, pressAmountKey, getAmountValue, formatAmountDisplay } = await import('../js/core/amount-keypad.mjs'));
-} catch {}
+import test from 'node:test';
+import {
+  createAmountState,
+  formatAmountDisplay,
+  getAmountValue,
+  pressAmountKey,
+} from '../src/core/amount-keypad.mjs';
 
 function enter(keys, initial = createAmountState()) {
   return keys.reduce((state, key) => pressAmountKey(state, key), initial);
