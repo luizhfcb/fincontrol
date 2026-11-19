@@ -1,4 +1,4 @@
-import { validateFeedbackPayload } from '../js/core/feedback-validation.mjs';
+import { validateFeedbackPayload } from '../src/core/feedback-validation.mjs';
 
 const ALLOWED_HOSTS = ['controlfin1.vercel.app', 'localhost', '127.0.0.1'];
 
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({ chat_id: chatId, text }),
     });
     res.status(200).json({ ok: true });
-  } catch (err) {
+  } catch {
     res.status(200).json({ ok: false, error: 'Telegram request failed' });
   }
 }
