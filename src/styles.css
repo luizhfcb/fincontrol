@@ -3506,3 +3506,243 @@ select.input option {
   background: var(--card-solid);
   color: var(--text);
 }
+
+/* =========================================================
+   WHATS NEW ONBOARDING MODAL (One-time Family Mode Slides)
+   ========================================================= */
+.wn-overlay {
+  align-items: center;
+  padding: 18px;
+}
+
+.wn-card {
+  width: min(420px, 100%);
+  background: var(--card-solid);
+  border: 1px solid var(--border-strong);
+  border-radius: 26px;
+  padding: 20px 22px 22px;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wn-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.wn-skip {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+  padding: 5px 10px;
+  border-radius: 10px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.wn-skip:hover {
+  color: var(--text);
+  background: var(--card2);
+}
+
+.wn-slide {
+  text-align: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.wn-art {
+  position: relative;
+  height: 148px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #0B1930 0%, #102647 55%, #0B2A3B 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  margin-bottom: 18px;
+  padding: 16px;
+}
+
+.wn-art-glow {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.28) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.wn-art-orbit {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.wn-art-center {
+  width: 68px;
+  height: 68px;
+  border-radius: 22px;
+  background: var(--accent-grad);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 12px 28px -6px rgba(14, 165, 233, 0.6);
+}
+
+.wn-art-bubble {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #7DD3FC;
+  display: grid;
+  place-items: center;
+}
+
+.wn-art-bubble.b2 {
+  color: #6EE7B7;
+}
+
+.wn-code-preview {
+  position: relative;
+  width: 100%;
+  max-width: 260px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px dashed rgba(56, 189, 248, 0.55);
+  text-align: left;
+}
+
+.wn-code-preview small {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #94A3B8;
+  margin-bottom: 6px;
+}
+
+.wn-code-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wn-code-row strong {
+  font-size: 22px;
+  letter-spacing: 0.1em;
+  color: #38BDF8;
+}
+
+.wn-code-chip {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 9px;
+  background: rgba(56, 189, 248, 0.18);
+  color: #E0F2FE;
+}
+
+.wn-privacy-preview {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wn-priv-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 13px;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  text-align: left;
+}
+
+.wn-priv-ico {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: rgba(56, 189, 248, 0.16);
+  color: #38BDF8;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.wn-priv-ico.shared {
+  background: rgba(52, 211, 153, 0.16);
+  color: #34D399;
+}
+
+.wn-priv-txt {
+  flex: 1;
+  min-width: 0;
+}
+
+.wn-priv-txt b {
+  display: block;
+  font-size: 12.5px;
+  color: #F8FAFC;
+  line-height: 1.2;
+}
+
+.wn-priv-txt small {
+  font-size: 11px;
+  color: #94A3B8;
+}
+
+.wn-slide h2 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.wn-slide p {
+  font-size: 13.5px;
+  color: var(--text2);
+  line-height: 1.5;
+  min-height: 62px;
+}
+
+.wn-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 18px 0;
+}
+
+.wn-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 99px;
+  background: var(--border-strong);
+  transition: width 0.2s ease, background-color 0.2s ease;
+}
+
+.wn-dot.active {
+  width: 24px;
+  background: var(--accent);
+}
+
+.wn-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 10px;
+}
+
+.wn-actions .btn {
+  height: 46px;
+  padding: 0 14px;
+  white-space: nowrap;
+}

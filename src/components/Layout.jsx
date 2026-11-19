@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext.jsx';
 import { countStockAlerts } from '../core/stock-alerts.mjs';
 import Icon from './Icon.jsx';
 import TxModal from './TxModal.jsx';
+import WhatsNewModal from './WhatsNewModal.jsx';
 
 const initials = (name = 'U') =>
   name.split(' ').filter(Boolean).map((p) => p[0]).join('').slice(0, 2).toUpperCase();
@@ -243,6 +244,7 @@ export default function Layout() {
       </div>
 
       {txModal && <TxModal />}
+      <WhatsNewModal />
     </div>
   );
 }
