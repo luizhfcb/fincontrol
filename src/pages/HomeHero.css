@@ -1,0 +1,429 @@
+/* =========================================================
+   HOME HERO BENTO — Desktop 2-column flagship layout
+   Scoped under .home-hero-bento so specificity cleanly wins
+   over src/styles.css while leaving mobile (< 960px) intact.
+   ========================================================= */
+
+.home-hero-bento {
+  display: block;
+}
+
+/* Transparent wrappers on mobile/tablet so approved vertical rhythm stays exact */
+.home-hero-bento .hero-main,
+.home-hero-bento .hero-bottom,
+.home-hero-bento .hero-flow-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+.home-hero-bento .hero-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: none;
+  background: #34D399;
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.75);
+}
+
+.home-hero-bento .hero-status-dot.is-neg {
+  background: #FB7185;
+  box-shadow: 0 0 8px rgba(251, 113, 133, 0.75);
+}
+
+.home-hero-bento .hero-eyebrow {
+  flex-wrap: wrap;
+  gap: 7px;
+  min-width: 0;
+}
+
+.home-hero-bento .hero-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: #BAE6FD;
+  background: rgba(56, 189, 248, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.34);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.home-hero-bento .hero-reset-btn:hover {
+  background: rgba(56, 189, 248, 0.26);
+  color: #FFFFFF;
+}
+
+.home-hero-bento .hero-wallet-tag {
+  max-width: 175px;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+.home-hero-bento .hero-wallet-tag svg.i {
+  flex: none;
+  color: #7DD3FC;
+}
+
+/* Flow micro-legend: desktop bento only to keep mobile compact */
+.home-hero-bento .hero-flow-meta {
+  display: none;
+}
+
+.home-hero-bento .km-link-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.home-hero-bento .km-link-arrow {
+  opacity: 0.6;
+  transition: transform 0.16s ease, opacity 0.16s ease;
+}
+
+.home-hero-bento .kpi-link:hover .km-link-arrow {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+/* Intermediate desktop (960px–1023px): sidebar is visible (616px–679px content width),
+   so keep a clean 2x2 KPI grid instead of 4 narrow columns */
+@media (min-width: 960px) and (max-width: 1023px) {
+  .home-hero-bento .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Desktop Bento (>= 1024px): Hero card paired side-by-side with 2x2 KPI cluster */
+@media (min-width: 1024px) {
+  .home-hero-bento {
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+    gap: var(--gap);
+    margin-bottom: var(--gap);
+    align-items: stretch;
+  }
+
+  .home-hero-bento > .hero-card {
+    height: 100%;
+    margin-bottom: 0;
+    padding: 20px 22px;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+    background: linear-gradient(142deg, #0A172B 0%, #0E2240 52%, #0A283A 100%);
+    border: 1px solid rgba(56, 189, 248, 0.24);
+    box-shadow:
+      0 20px 44px -16px rgba(2, 12, 27, 0.62),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+
+  [data-theme="light"] .home-hero-bento > .hero-card {
+    background: linear-gradient(142deg, #0D1B33 0%, #12284A 54%, #0E3044 100%);
+    border-color: rgba(15, 23, 42, 0.18);
+    box-shadow:
+      0 18px 36px -14px rgba(15, 23, 42, 0.34),
+      0 4px 12px -4px rgba(15, 23, 42, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+
+  /* Tuned ambient glow placement for compact hero card proportions */
+  .home-hero-bento .hero-card::before {
+    width: 280px;
+    height: 280px;
+    right: -90px;
+    top: -115px;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.24) 0%, transparent 68%);
+  }
+
+  .home-hero-bento .hero-card::after {
+    width: 230px;
+    height: 230px;
+    left: -75px;
+    bottom: -105px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.16) 0%, transparent 68%);
+  }
+
+  .home-hero-bento .hero-top {
+    gap: 10px;
+  }
+
+  .home-hero-bento .hero-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: #94A3B8;
+  }
+
+  .home-hero-bento .hero-wallet-tag {
+    max-width: 195px;
+    padding: 4px 10px;
+    font-size: 11.5px;
+    background: rgba(255, 255, 255, 0.075);
+    border-color: rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(8px);
+  }
+
+  .home-hero-bento .hero-main {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 2px 0;
+  }
+
+  .home-hero-bento .hero-card .hero-val {
+    font-size: clamp(28px, 2.55vw, 38px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .home-hero-bento .hero-card .hero-val.is-pos {
+    color: #6EE7B7;
+    text-shadow: 0 0 28px rgba(52, 211, 153, 0.18);
+  }
+
+  .home-hero-bento .hero-card .hero-val.is-neg {
+    color: #FDA4AF;
+    text-shadow: 0 0 28px rgba(251, 113, 133, 0.18);
+  }
+
+  .home-hero-bento .hero-sub {
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: #94A3B8;
+    margin-bottom: 0;
+  }
+
+  .home-hero-bento .hero-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .home-hero-bento .hero-flow-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.015em;
+    margin-bottom: 6px;
+  }
+
+  .home-hero-bento .hero-flow-meta .hfm-in {
+    color: #6EE7B7;
+  }
+
+  .home-hero-bento .hero-flow-meta .hfm-out {
+    color: #FDA4AF;
+  }
+
+  .home-hero-bento .hero-flow {
+    height: 6px;
+    margin-bottom: 0;
+    background: linear-gradient(90deg, rgba(251, 113, 133, 0.55) 0%, rgba(244, 63, 94, 0.8) 100%);
+  }
+
+  .home-hero-bento .hero-flow > span {
+    background: linear-gradient(90deg, #10B981 0%, #34D399 100%);
+    box-shadow: 0 0 10px rgba(52, 211, 153, 0.35);
+  }
+
+  .home-hero-bento .hero-pills {
+    gap: 8px;
+  }
+
+  .home-hero-bento .hero-pill {
+    padding: 9px 11px;
+    gap: 8px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    transition: transform 0.16s ease, background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+  }
+
+  .home-hero-bento .hero-pill:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+  }
+
+  .home-hero-bento .hero-pill.in.active {
+    border-color: rgba(52, 211, 153, 0.62);
+    background: rgba(52, 211, 153, 0.13);
+    box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.22);
+  }
+
+  .home-hero-bento .hero-pill.out.active {
+    border-color: rgba(251, 113, 133, 0.62);
+    background: rgba(251, 113, 133, 0.13);
+    box-shadow: 0 0 0 1px rgba(251, 113, 133, 0.22);
+  }
+
+  .home-hero-bento .hero-pill .hp-ico {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+  }
+
+  .home-hero-bento .hero-pill .hp-txt {
+    flex: 1;
+    min-width: 0;
+    gap: 2px;
+  }
+
+  .home-hero-bento .hero-pill .hp-top {
+    justify-content: space-between;
+    width: 100%;
+    gap: 4px;
+  }
+
+  .home-hero-bento .hero-pill small {
+    font-size: 11px;
+    font-weight: 500;
+    color: #94A3B8;
+  }
+
+  .home-hero-bento .hero-pill b {
+    font-size: 14px;
+    color: #F8FAFC;
+    letter-spacing: -0.015em;
+  }
+
+  /* Right column: 2x2 KPI cluster stretching cleanly to match Hero height */
+  .home-hero-bento > .stats-grid {
+    height: 100%;
+    margin-bottom: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .home-hero-bento .kpi-mini {
+    height: 100%;
+    min-height: 0;
+    padding: 14px 15px;
+    border-radius: 20px;
+    gap: 6px;
+    transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  [data-theme="light"] .home-hero-bento .kpi-mini {
+    border-color: rgba(15, 23, 42, 0.085);
+    box-shadow:
+      0 4px 16px -6px rgba(15, 23, 42, 0.07),
+      0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+
+  .home-hero-bento .kpi-mini:hover {
+    border-color: var(--border-strong);
+  }
+
+  .home-hero-bento .kpi-mini.kpi-link:hover {
+    border-color: var(--border2);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
+  }
+
+  .home-hero-bento .km-head > span:first-child {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text2);
+    letter-spacing: -0.005em;
+  }
+
+  .home-hero-bento .km-ico {
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+  }
+
+  .home-hero-bento .kpi-mini strong {
+    font-size: clamp(17px, 1.65vw, 22px);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .home-hero-bento .km-foot {
+    font-size: 11.5px;
+    padding-top: 7px;
+  }
+
+  .home-hero-bento .km-foot-bar {
+    gap: 6px;
+    font-size: 11.5px;
+  }
+}
+
+/* Spacious flagship proportions on standard desktop (1200px–1440px+) */
+@media (min-width: 1200px) {
+  .home-hero-bento {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  }
+
+  .home-hero-bento > .hero-card {
+    padding: 24px 26px 22px;
+    gap: 18px;
+  }
+
+  .home-hero-bento .hero-sub {
+    font-size: 13px;
+  }
+
+  .home-hero-bento .hero-bottom {
+    gap: 14px;
+  }
+
+  .home-hero-bento .hero-pills {
+    gap: 12px;
+  }
+
+  .home-hero-bento .hero-pill {
+    padding: 11px 14px;
+    gap: 11px;
+    border-radius: 16px;
+  }
+
+  .home-hero-bento .hero-pill .hp-ico {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
+  .home-hero-bento .hero-pill b {
+    font-size: 15.5px;
+  }
+
+  .home-hero-bento > .stats-grid {
+    gap: 14px;
+  }
+
+  .home-hero-bento .kpi-mini {
+    padding: 16px 18px;
+    gap: 8px;
+  }
+
+  .home-hero-bento .km-ico {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+  }
+
+  .home-hero-bento .km-foot {
+    padding-top: 8px;
+  }
+}

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import './HomeHero.css';
 import {
   Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
@@ -77,128 +78,158 @@ export default function Home() {
         </button>
       </div>
 
-      <section className="hero-card">
-        <div className="hero-top">
-          <span className="hero-eyebrow">{heroLabel}</span>
-          <span className="hero-wallet-tag"><Icon name="wallet" size={14} /> {walletName}</span>
-        </div>
-
-        <strong className={`hero-val num ${heroTone}`}>{fmt(hero)}</strong>
-
-        <p className="hero-sub">
-          {monthlyTransactions.length === 0
-            ? 'Nenhuma movimentação registrada neste mês ainda.'
-            : savingsRate != null && savingsRate >= 0
-              ? `Você guardou ${savingsRate}% da receita em ${MONTHS[month].toLowerCase()}.`
-              : `As saídas superaram as receitas em ${MONTHS[month].toLowerCase()}.`}
-        </p>
-
-        <div className="hero-flow" aria-hidden="true">
-          <span style={{ width: `${flowPct}%` }} />
-        </div>
-
-        <div className="hero-pills" role="group" aria-label="Visão do painel">
-          <button
-            type="button"
-            className={`hero-pill in ${view === 'income' ? 'active' : ''}`}
-            aria-pressed={view === 'income'}
-            onClick={() => setOrToggle('income')}
-          >
-            <span className="hp-ico"><Icon name="arrowDown" size={15} /></span>
-            <span className="hp-txt">
-              <span className="hp-top">
-                <small>Receitas</small>
-                <PillDelta current={cur.income} previous={prev.income} label={prevLabel} goodWhenUp />
-              </span>
-              <b className="num">{fmt(cur.income)}</b>
+      <div className="home-hero-bento">
+        <section className={`hero-card ${view !== 'all' ? 'is-filtered' : ''}`}>
+          <div className="hero-top">
+            <span className="hero-eyebrow">
+              <i className={`hero-status-dot ${heroTone}`} aria-hidden="true" />
+              {heroLabel}
+              {view !== 'all' && (
+                <button
+                  type="button"
+                  className="hero-reset-btn"
+                  onClick={() => setView('all')}
+                  aria-label="Voltar para saldo do mês"
+                >
+                  Ver saldo
+                </button>
+              )}
             </span>
-          </button>
-          <button
-            type="button"
-            className={`hero-pill out ${view === 'expense' ? 'active' : ''}`}
-            aria-pressed={view === 'expense'}
-            onClick={() => setOrToggle('expense')}
-          >
-            <span className="hp-ico"><Icon name="arrowUp" size={15} /></span>
-            <span className="hp-txt">
-              <span className="hp-top">
-                <small>Despesas</small>
-                <PillDelta current={cur.expense} previous={prev.expense} label={prevLabel} goodWhenUp={false} />
-              </span>
-              <b className="num">{fmt(cur.expense)}</b>
-            </span>
-          </button>
-        </div>
-      </section>
-
-      <div className="stats-grid">
-        <div className="card kpi-mini">
-          <div className="km-head">
-            <span>Média diária</span>
-            <span className="km-ico accent"><Icon name="calendar" size={15} /></span>
-          </div>
-          <strong className="num">{fmt(stats.dailyAverage)}</strong>
-          <div className="km-foot">
-            <span className="ellipsis">{stats.activeDays} {stats.activeDays === 1 ? 'dia ativo' : 'dias ativos'} · {stats.count} {stats.count === 1 ? 'item' : 'itens'}</span>
-          </div>
-        </div>
-
-        <div className="card kpi-mini">
-          <div className="km-head">
-            <span>Maior gasto</span>
-            <span className="km-ico red"><Icon name="arrowUp" size={15} /></span>
-          </div>
-          <strong className="num neg">{stats.biggest ? fmt(stats.biggest.val) : '—'}</strong>
-          <div className="km-foot">
-            <span className="ellipsis">
-              {stats.biggest ? `${stats.biggest.desc} · ${stats.biggest.cat}` : 'Nenhuma saída no mês'}
+            <span className="hero-wallet-tag" title={walletName}>
+              <Icon name="wallet" size={14} />
+              <span className="ellipsis">{walletName}</span>
             </span>
           </div>
-        </div>
 
-        <div className="card kpi-mini">
-          <div className="km-head">
-            <span>Economia</span>
-            <span className={`km-ico ${savingsRate != null && savingsRate < 0 ? 'red' : 'green'}`}>
-              <Icon name="shield" size={15} />
-            </span>
+          <div className="hero-main">
+            <strong className={`hero-val num ${heroTone}`}>{fmt(hero)}</strong>
+
+            <p className="hero-sub">
+              {monthlyTransactions.length === 0
+                ? 'Nenhuma movimentação registrada neste mês ainda.'
+                : savingsRate != null && savingsRate >= 0
+                  ? `Você guardou ${savingsRate}% da receita em ${MONTHS[month].toLowerCase()}.`
+                  : `As saídas superaram as receitas em ${MONTHS[month].toLowerCase()}.`}
+            </p>
           </div>
-          <strong className={`num ${savingsRate != null && savingsRate < 0 ? 'neg' : 'pos'}`}>
-            {savingsRate != null ? `${savingsRate}%` : '—'}
-          </strong>
-          <div className="km-foot-bar">
-            <div className={`bar ${savingsRate != null && savingsRate < 0 ? 'over' : 'ok'}`}>
-              <span style={{ width: `${savingsClamp}%` }} />
+
+          <div className="hero-bottom">
+            <div className="hero-flow-wrap">
+              {cur.income + cur.expense > 0 && (
+                <div className="hero-flow-meta" aria-hidden="true">
+                  <span className="hfm-in">{Math.round(flowPct)}% entradas</span>
+                  <span className="hfm-out">{100 - Math.round(flowPct)}% saídas</span>
+                </div>
+              )}
+              <div className="hero-flow" aria-hidden="true">
+                <span style={{ width: `${flowPct}%` }} />
+              </div>
             </div>
-            <span className="ellipsis">
-              {savingsRate != null
-                ? (cur.balance >= 0 ? `Saldo de ${fmtCompact(cur.balance)}` : 'Gastos acima da receita')
-                : 'Sem receitas no mês'}
-            </span>
-          </div>
-        </div>
 
-        <Link to="/mais/limites" className="card kpi-mini kpi-link">
-          <div className="km-head">
-            <span>Orçamento</span>
-            <span className={`km-ico ${limitStatus === 'over' ? 'red' : limitStatus === 'warn' ? 'amber' : 'purple'}`}>
-              <Icon name="sliders" size={15} />
-            </span>
-          </div>
-          <strong className={`num ${limitStatus === 'over' ? 'neg' : limitStatus === 'warn' ? 'warn-txt' : ''}`}>
-            {limitPct != null ? `${limitPct}%` : '—'}
-          </strong>
-          <div className="km-foot-bar">
-            <div className={`bar ${limitStatus}`}>
-              <span style={{ width: `${Math.min(100, limitPct || 0)}%` }} />
+            <div className="hero-pills" role="group" aria-label="Visão do painel">
+              <button
+                type="button"
+                className={`hero-pill in ${view === 'income' ? 'active' : ''}`}
+                aria-pressed={view === 'income'}
+                onClick={() => setOrToggle('income')}
+              >
+                <span className="hp-ico"><Icon name="arrowDown" size={15} /></span>
+                <span className="hp-txt">
+                  <span className="hp-top">
+                    <small>Receitas</small>
+                    <PillDelta current={cur.income} previous={prev.income} label={prevLabel} goodWhenUp />
+                  </span>
+                  <b className="num">{fmt(cur.income)}</b>
+                </span>
+              </button>
+              <button
+                type="button"
+                className={`hero-pill out ${view === 'expense' ? 'active' : ''}`}
+                aria-pressed={view === 'expense'}
+                onClick={() => setOrToggle('expense')}
+              >
+                <span className="hp-ico"><Icon name="arrowUp" size={15} /></span>
+                <span className="hp-txt">
+                  <span className="hp-top">
+                    <small>Despesas</small>
+                    <PillDelta current={cur.expense} previous={prev.expense} label={prevLabel} goodWhenUp={false} />
+                  </span>
+                  <b className="num">{fmt(cur.expense)}</b>
+                </span>
+              </button>
             </div>
-            <span className="ellipsis">
-              {limitPct != null
-                ? `${fmtCompact(totalLimitSpent)} de ${fmtCompact(totalLimit)}`
-                : 'Definir limites'}
-            </span>
           </div>
-        </Link>
+        </section>
+
+        <div className="stats-grid">
+          <div className="card kpi-mini">
+            <div className="km-head">
+              <span>Média diária</span>
+              <span className="km-ico accent"><Icon name="calendar" size={15} /></span>
+            </div>
+            <strong className="num">{fmt(stats.dailyAverage)}</strong>
+            <div className="km-foot">
+              <span className="ellipsis">{stats.activeDays} {stats.activeDays === 1 ? 'dia ativo' : 'dias ativos'} · {stats.count} {stats.count === 1 ? 'item' : 'itens'}</span>
+            </div>
+          </div>
+
+          <div className="card kpi-mini">
+            <div className="km-head">
+              <span>Maior gasto</span>
+              <span className="km-ico red"><Icon name="arrowUp" size={15} /></span>
+            </div>
+            <strong className="num neg">{stats.biggest ? fmt(stats.biggest.val) : '—'}</strong>
+            <div className="km-foot">
+              <span className="ellipsis">
+                {stats.biggest ? `${stats.biggest.desc} · ${stats.biggest.cat}` : 'Nenhuma saída no mês'}
+              </span>
+            </div>
+          </div>
+
+          <div className="card kpi-mini">
+            <div className="km-head">
+              <span>Economia</span>
+              <span className={`km-ico ${savingsRate != null && savingsRate < 0 ? 'red' : 'green'}`}>
+                <Icon name="shield" size={15} />
+              </span>
+            </div>
+            <strong className={`num ${savingsRate != null && savingsRate < 0 ? 'neg' : 'pos'}`}>
+              {savingsRate != null ? `${savingsRate}%` : '—'}
+            </strong>
+            <div className="km-foot-bar">
+              <div className={`bar ${savingsRate != null && savingsRate < 0 ? 'over' : 'ok'}`}>
+                <span style={{ width: `${savingsClamp}%` }} />
+              </div>
+              <span className="ellipsis">
+                {savingsRate != null
+                  ? (cur.balance >= 0 ? `Saldo de ${fmtCompact(cur.balance)}` : 'Gastos acima da receita')
+                  : 'Sem receitas no mês'}
+              </span>
+            </div>
+          </div>
+
+          <Link to="/mais/limites" className="card kpi-mini kpi-link">
+            <div className="km-head">
+              <span className="km-link-label">Orçamento <Icon name="right" size={12} className="km-link-arrow" /></span>
+              <span className={`km-ico ${limitStatus === 'over' ? 'red' : limitStatus === 'warn' ? 'amber' : 'purple'}`}>
+                <Icon name="sliders" size={15} />
+              </span>
+            </div>
+            <strong className={`num ${limitStatus === 'over' ? 'neg' : limitStatus === 'warn' ? 'warn-txt' : ''}`}>
+              {limitPct != null ? `${limitPct}%` : '—'}
+            </strong>
+            <div className="km-foot-bar">
+              <div className={`bar ${limitStatus}`}>
+                <span style={{ width: `${Math.min(100, limitPct || 0)}%` }} />
+              </div>
+              <span className="ellipsis">
+                {limitPct != null
+                  ? `${fmtCompact(totalLimitSpent)} de ${fmtCompact(totalLimit)}`
+                  : 'Definir limites'}
+              </span>
+            </div>
+          </Link>
+        </div>
       </div>
 
       <div className="grid-2">

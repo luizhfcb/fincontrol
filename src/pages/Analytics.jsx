@@ -248,67 +248,65 @@ export default function Analytics() {
         </div>
       </div>
 
-      <div className="grid-2 wide-left">
+      <section className="card hm-card">
+        <ExpenseHeatmap transactions={monthlyTransactions} />
+      </section>
+
+      <div className="grid-2">
         <section className="card">
-          <ExpenseHeatmap transactions={monthlyTransactions} />
+          <div className="card-head">
+            <div>
+              <span className="eyebrow-sm">Comportamento</span>
+              <h3>Gasto médio por dia</h3>
+            </div>
+          </div>
+          <p className="chart-note top">
+            {d.weekday.phrase ? <>Você gasta mais <b>{d.weekday.phrase}</b></> : 'Sem despesas neste mês'}
+          </p>
+          <div className="chart-box short">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={d.weekday.rows} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
+                <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} />
+                <YAxis hide />
+                <Tooltip cursor={{ fill: 'var(--chart-cursor)' }} content={<ChartTooltip fmt={fmt} labelFormatter={(l, p) => `${p?.[0]?.payload?.fullLabel || l} (média)`} />} />
+                <Bar dataKey="avg" name="Média" radius={[6, 6, 6, 6]} maxBarSize={26}>
+                  {d.weekday.rows.map((r) => (
+                    <Cell key={r.dow} fill={d.weekday.peak?.dow === r.dow ? 'var(--accent)' : 'var(--chart-muted)'} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </section>
 
-        <div className="stack">
-          <section className="card">
-            <div className="card-head">
-              <div>
-                <span className="eyebrow-sm">Comportamento</span>
-                <h3>Gasto médio por dia</h3>
-              </div>
+        <section className="card">
+          <div className="card-head">
+            <div>
+              <span className="eyebrow-sm">Tendência</span>
+              <h3>Despesas · 6 meses</h3>
             </div>
-            <p className="chart-note top">
-              {d.weekday.phrase ? <>Você gasta mais <b>{d.weekday.phrase}</b></> : 'Sem despesas neste mês'}
-            </p>
-            <div className="chart-box short">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={d.weekday.rows} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
-                  <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} />
-                  <YAxis hide />
-                  <Tooltip cursor={{ fill: 'var(--chart-cursor)' }} content={<ChartTooltip fmt={fmt} labelFormatter={(l, p) => `${p?.[0]?.payload?.fullLabel || l} (média)`} />} />
-                  <Bar dataKey="avg" name="Média" radius={[6, 6, 6, 6]} maxBarSize={26}>
-                    {d.weekday.rows.map((r) => (
-                      <Cell key={r.dow} fill={d.weekday.peak?.dow === r.dow ? 'var(--accent)' : 'var(--chart-muted)'} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="head-metric">
+              <small>Média/mês</small>
+              <strong className="num">{fmtCompact(d.trendInfo.average)}</strong>
             </div>
-          </section>
-
-          <section className="card">
-            <div className="card-head">
-              <div>
-                <span className="eyebrow-sm">Tendência</span>
-                <h3>Despesas · 6 meses</h3>
-              </div>
-              <div className="head-metric">
-                <small>Média/mês</small>
-                <strong className="num">{fmtCompact(d.trendInfo.average)}</strong>
-              </div>
-            </div>
-            <p className="chart-note top">{trendNote}</p>
-            <div className="chart-box short">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={d.trend} margin={{ top: 18, right: 4, left: 0, bottom: 0 }}>
-                  <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} />
-                  <YAxis hide />
-                  <Tooltip cursor={{ fill: 'var(--chart-cursor)' }} content={<ChartTooltip fmt={fmt} labelFormatter={(l, p) => `${l} ${p?.[0]?.payload?.year ?? ''}`} />} />
-                  {d.trendInfo.average > 0 && <ReferenceLine y={d.trendInfo.average} stroke="var(--amber)" strokeDasharray="5 4" />}
-                  <Bar dataKey="expense" name="Despesas" radius={[6, 6, 0, 0]} maxBarSize={28}>
-                    {d.trend.map((t, i) => (
-                      <Cell key={`${t.label}${t.year}`} fill={i === d.trend.length - 1 ? 'var(--accent)' : 'var(--chart-muted)'} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </section>
-        </div>
+          </div>
+          <p className="chart-note top">{trendNote}</p>
+          <div className="chart-box short">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={d.trend} margin={{ top: 18, right: 4, left: 0, bottom: 0 }}>
+                <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} />
+                <YAxis hide />
+                <Tooltip cursor={{ fill: 'var(--chart-cursor)' }} content={<ChartTooltip fmt={fmt} labelFormatter={(l, p) => `${l} ${p?.[0]?.payload?.year ?? ''}`} />} />
+                {d.trendInfo.average > 0 && <ReferenceLine y={d.trendInfo.average} stroke="var(--amber)" strokeDasharray="5 4" />}
+                <Bar dataKey="expense" name="Despesas" radius={[6, 6, 0, 0]} maxBarSize={28}>
+                  {d.trend.map((t, i) => (
+                    <Cell key={`${t.label}${t.year}`} fill={i === d.trend.length - 1 ? 'var(--accent)' : 'var(--chart-muted)'} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
       </div>
 
       <div className="grid-2">
