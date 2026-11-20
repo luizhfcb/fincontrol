@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useApp } from '../context/AppContext.jsx';
 import {
   createAmountState,
@@ -9,6 +9,7 @@ import {
 } from '../core/amount-keypad.mjs';
 import { DEFAULT_CATEGORIES } from '../core/constants.js';
 import { toLocalDateInputValue } from '../core/local-date.mjs';
+import { useDialogA11y } from '../core/useDialogA11y.js';
 import CategoryBadge, { CATEGORY_ICON_CHOICES } from './CategoryIcon.jsx';
 import Icon from './Icon.jsx';
 
@@ -21,33 +22,75 @@ const KEYPAD_ROWS = [
 
 const OPERATORS = new Set(['÷', '×', '−', '+']);
 
+function renderAmountValue(state, showDetails) {
+  if (!showDetails && typeof state?.current === 'string' && state.current.endsWith(',')) {
+    const intRaw = state.current.slice(0, -1) || '0';
+    const intNumber = Number(intRaw);
+    const intFormatted = Number.isFinite(intNumber)
+      ? intNumber.toLocaleString('pt-BR')
+      : intRaw;
+    return (
+      <>
+        <span>{intFormatted},</span>
+        <span className="tx-keypad-comma-pending" aria-hidden="true">00</span>
+      </>
+    );
+  }
+  return <span>{formatAmountDisplay(state)}</span>;
+}
+
 export default function TxModal() {
   const {
     txModal, closeTxModal, saveTransaction, modules, updateModules,
     group, visibleWallets, walletId,
   } = useApp();
   const editing = txModal.tx;
-  const wallets = visibleWallets?.length ? visibleWallets : group.wallets;
+  const wallets = visibleWallets?.length ? visibleWallets : (group?.wallets || []);
 
   const [type, setType] = useState(editing?.type || 'expense');
-  const [amountState, setAmountState] = useState(() => createAmountState(editing?.val || 0));
+  const [amountState, setAmountState] = useState(() =>
+    createAmountState(editing?.val || 0, { replace: Boolean(editing) }),
+  );
   const [showDetails, setShowDetails] = useState(Boolean(editing));
   const [desc, setDesc] = useState(editing?.desc || '');
   const [cat, setCat] = useState(editing?.cat || '');
   const [catOpen, setCatOpen] = useState(false);
+  const [catDropUp, setCatDropUp] = useState(false);
   const [addingCat, setAddingCat] = useState(false);
   const [newCatName, setNewCatName] = useState('');
   const [newCatIcon, setNewCatIcon] = useState('');
   const [date, setDate] = useState(toLocalDateInputValue(editing?.date || new Date()));
   const [wallet, setWallet] = useState(
-    editing?.walletId || (walletId !== 'all' ? walletId : wallets[0].id),
+    editing?.walletId || (walletId !== 'all' ? walletId : (wallets[0]?.id || '')),
   );
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
+  const sheetRef = useRef(null);
   const descRef = useRef(null);
   const catWrapRef = useRef(null);
+  const catTriggerRef = useRef(null);
+  const catDropdownRef = useRef(null);
   const newCatRef = useRef(null);
+  const keyHandlerRef = useRef(null);
+  const openCatViaKeyRef = useRef(false);
+  const swipeStartYRef = useRef(null);
+  const swipeDeltaYRef = useRef(0);
+
+  const handleDialogEscape = useCallback(() => {
+    if (catOpen) {
+      setCatOpen(false);
+      catTriggerRef.current?.focus();
+      return;
+    }
+    if (addingCat) {
+      setAddingCat(false);
+      return;
+    }
+    closeTxModal();
+  }, [catOpen, addingCat, closeTxModal]);
+
+  useDialogA11y(true, handleDialogEscape, sheetRef);
 
   const rawCategories = modules?.categories?.length ? modules.categories : DEFAULT_CATEGORIES;
   const names = [...new Set([
@@ -80,41 +123,174 @@ export default function TxModal() {
   };
 
   // Suporte a teclado físico quando a calculadora de valor estiver aberta
-  useEffect(() => {
-    const onKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        if (catOpen) { setCatOpen(false); return; }
-        if (addingCat) { setAddingCat(false); return; }
-        closeTxModal();
-        return;
-      }
-      if (showDetails) return;
-      if (e.target?.tagName === 'INPUT' || e.target?.tagName === 'SELECT') return;
+  keyHandlerRef.current = (e) => {
+    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (showDetails) return;
+    const tag = e.target?.tagName;
+    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
 
-      if (/^\d$/.test(e.key)) { e.preventDefault(); onPressKey(e.key); }
-      else if (e.key === ',' || e.key === '.') { e.preventDefault(); onPressKey(','); }
-      else if (e.key === 'Backspace') { e.preventDefault(); onPressKey('backspace'); }
-      else if (e.key === 'Delete') { e.preventDefault(); onPressKey('clear'); }
-      else if (e.key === '+') { e.preventDefault(); onPressKey('+'); }
-      else if (e.key === '-') { e.preventDefault(); onPressKey('−'); }
-      else if (e.key === '*') { e.preventDefault(); onPressKey('×'); }
-      else if (e.key === '/') { e.preventDefault(); onPressKey('÷'); }
-      else if (e.key === '=') { e.preventDefault(); onPressKey('='); }
-      else if (e.key === 'Enter') { e.preventDefault(); finishAmount(); }
-    };
+    if (/^\d$/.test(e.key)) { e.preventDefault(); onPressKey(e.key); }
+    else if (e.key === ',' || e.key === '.') { e.preventDefault(); onPressKey(','); }
+    else if (e.key === 'Backspace') { e.preventDefault(); onPressKey('backspace'); }
+    else if (e.key === 'Delete') { e.preventDefault(); onPressKey('clear'); }
+    else if (e.key === '+') { e.preventDefault(); onPressKey('+'); }
+    else if (e.key === '-') { e.preventDefault(); onPressKey('−'); }
+    else if (e.key === '*') { e.preventDefault(); onPressKey('×'); }
+    else if (e.key === '/') { e.preventDefault(); onPressKey('÷'); }
+    else if (e.key === '=') { e.preventDefault(); onPressKey('='); }
+    else if (e.key === 'Enter') {
+      if (e.target?.closest?.('.tx-keypad-clear, .tx-type-switch, .sheet-head .icon-btn')) return;
+      e.preventDefault();
+      finishAmount();
+    }
+  };
+
+  useEffect(() => {
+    const onKeyDown = (e) => keyHandlerRef.current?.(e);
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  });
+  }, []);
 
-  // Fecha o dropdown de categoria ao clicar fora
+  // Ajusta altura máxima do modal quando o teclado virtual reduz a viewport no mobile
   useEffect(() => {
-    if (!catOpen) return undefined;
+    const vv = window.visualViewport;
+    if (!vv) return undefined;
+    const syncViewportHeight = () => {
+      const el = sheetRef.current;
+      if (!el) return;
+      if (vv.height < window.innerHeight - 40) {
+        el.style.maxHeight = `${Math.max(240, Math.floor(vv.height * 0.94))}px`;
+      } else {
+        el.style.maxHeight = '';
+      }
+    };
+    syncViewportHeight();
+    vv.addEventListener('resize', syncViewportHeight);
+    vv.addEventListener('scroll', syncViewportHeight);
+    return () => {
+      vv.removeEventListener('resize', syncViewportHeight);
+      vv.removeEventListener('scroll', syncViewportHeight);
+    };
+  }, []);
+
+  // Fecha o dropdown de categoria ao clicar fora e posiciona (para cima/baixo) conforme espaço disponível
+  useEffect(() => {
+    if (!catOpen) {
+      openCatViaKeyRef.current = false;
+      return undefined;
+    }
+
+    const triggerRect = catTriggerRef.current?.getBoundingClientRect();
+    if (triggerRect) {
+      const vpHeight = window.visualViewport?.height || window.innerHeight;
+      const spaceBelow = vpHeight - triggerRect.bottom;
+      const spaceAbove = triggerRect.top;
+      setCatDropUp(spaceBelow < 200 && spaceAbove > spaceBelow);
+    }
+
+    const raf = requestAnimationFrame(() => {
+      const dropdown = catDropdownRef.current;
+      if (!dropdown) return;
+      const selected = dropdown.querySelector('.cat-option.on') || dropdown.querySelector('.cat-option');
+      selected?.scrollIntoView({ block: 'nearest' });
+      if (openCatViaKeyRef.current) {
+        selected?.focus();
+        openCatViaKeyRef.current = false;
+      }
+    });
+
     const onDoc = (e) => {
       if (catWrapRef.current && !catWrapRef.current.contains(e.target)) setCatOpen(false);
     };
     document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
+    return () => {
+      cancelAnimationFrame(raf);
+      document.removeEventListener('mousedown', onDoc);
+    };
   }, [catOpen]);
+
+  const onCatTriggerKeyDown = (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (!catOpen) {
+        openCatViaKeyRef.current = true;
+        setCatOpen(true);
+      } else {
+        const opts = catDropdownRef.current?.querySelectorAll('.cat-option');
+        if (opts?.length) {
+          const target = e.key === 'ArrowDown' ? opts[0] : opts[opts.length - 1];
+          target?.focus();
+        }
+      }
+    } else if (e.key === 'Escape' && catOpen) {
+      e.preventDefault();
+      e.stopPropagation();
+      setCatOpen(false);
+    }
+  };
+
+  const onCatListKeyDown = (e) => {
+    const opts = Array.from(catDropdownRef.current?.querySelectorAll('.cat-option') || []);
+    if (!opts.length) return;
+    const idx = opts.indexOf(document.activeElement);
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const next = opts[(idx + 1) % opts.length];
+      next?.focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prev = opts[(idx - 1 + opts.length) % opts.length];
+      prev?.focus();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      opts[0]?.focus();
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      opts[opts.length - 1]?.focus();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      setCatOpen(false);
+      catTriggerRef.current?.focus();
+    } else if (e.key === 'Tab') {
+      setCatOpen(false);
+    }
+  };
+
+  const onHandleTouchStart = (e) => {
+    if (e.touches.length !== 1) return;
+    swipeStartYRef.current = e.touches[0].clientY;
+    swipeDeltaYRef.current = 0;
+    if (sheetRef.current) sheetRef.current.style.transition = 'none';
+  };
+
+  const onHandleTouchMove = (e) => {
+    if (swipeStartYRef.current === null || !e.touches.length) return;
+    const deltaY = Math.max(0, e.touches[0].clientY - swipeStartYRef.current);
+    swipeDeltaYRef.current = deltaY;
+    if (sheetRef.current) {
+      sheetRef.current.style.transform = deltaY > 0 ? `translateY(${deltaY}px)` : '';
+    }
+  };
+
+  const onHandleTouchEnd = () => {
+    if (swipeStartYRef.current === null) return;
+    const deltaY = swipeDeltaYRef.current;
+    swipeStartYRef.current = null;
+    swipeDeltaYRef.current = 0;
+    if (sheetRef.current) {
+      sheetRef.current.style.transition = '';
+      sheetRef.current.style.transform = '';
+    }
+    if (deltaY > 80) closeTxModal();
+  };
+
+  const scrollFieldIntoView = (target) => {
+    setTimeout(() => {
+      target?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
+    }, 120);
+  };
 
   const handleSaveNewCat = async () => {
     const name = newCatName.trim();
@@ -167,7 +343,10 @@ export default function TxModal() {
   };
 
   const isExpense = type === 'expense';
-  const expression = amountState.error || formatAmountExpression(amountState);
+  const isCommaPending = !showDetails && typeof amountState?.current === 'string' && amountState.current.endsWith(',');
+  const expression = amountState.error
+    || formatAmountExpression(amountState)
+    || (isCommaPending ? 'Digite os centavos' : '');
   const title = editing
     ? (isExpense ? 'Editar gasto' : 'Editar entrada')
     : (isExpense ? 'Novo gasto' : 'Nova entrada');
@@ -175,6 +354,7 @@ export default function TxModal() {
   return (
     <div className="overlay" onClick={closeTxModal}>
       <form
+        ref={sheetRef}
         className={`sheet tx-sheet ${showDetails ? 'shows-details' : ''}`}
         data-tx-type={type}
         onClick={(e) => e.stopPropagation()}
@@ -182,8 +362,16 @@ export default function TxModal() {
         role="dialog"
         aria-modal="true"
         aria-label={title}
+        tabIndex={-1}
       >
-        <div className="sheet-handle" aria-hidden="true" />
+        <div
+          className="sheet-handle"
+          aria-hidden="true"
+          onTouchStart={onHandleTouchStart}
+          onTouchMove={onHandleTouchMove}
+          onTouchEnd={onHandleTouchEnd}
+          onTouchCancel={onHandleTouchEnd}
+        />
 
         <div className="sheet-head">
           <div>
@@ -225,9 +413,13 @@ export default function TxModal() {
           <span className="tac-label">{isExpense ? 'Valor do gasto' : 'Valor da entrada'}</span>
           <strong className="num">
             <small>R$</small>
-            <span>{formatAmountDisplay(amountState)}</span>
+            {renderAmountValue(amountState, showDetails)}
           </strong>
-          {!showDetails && <em className={amountState.error ? 'neg' : ''}>{expression || '\u00A0'}</em>}
+          {!showDetails && (
+            <em className={amountState.error ? 'neg' : ''} aria-live="polite">
+              {expression || '\u00A0'}
+            </em>
+          )}
           {showDetails && <span className="tac-edit">Editar</span>}
         </button>
 
@@ -284,18 +476,22 @@ export default function TxModal() {
                 placeholder={isExpense ? 'Ex.: Mercado, Uber, almoço…' : 'Ex.: Salário, freelance…'}
                 value={desc}
                 onChange={(e) => { setDesc(e.target.value); if (error) setError(''); }}
+                onFocus={(e) => scrollFieldIntoView(e.target)}
                 autoComplete="off"
               />
             </div>
 
             <div className="field" ref={catWrapRef}>
-              <label>Categoria</label>
+              <label id="cat-label" onClick={() => catTriggerRef.current?.focus()}>Categoria</label>
               <div className="cat-select">
                 <button
+                  ref={catTriggerRef}
                   type="button"
                   className={`cat-trigger ${catOpen ? 'open' : ''}`}
                   aria-haspopup="listbox"
                   aria-expanded={catOpen}
+                  aria-labelledby="cat-label"
+                  onKeyDown={onCatTriggerKeyDown}
                   onClick={() => setCatOpen((o) => !o)}
                 >
                   <span className="cat-trigger-main">
@@ -306,7 +502,13 @@ export default function TxModal() {
                 </button>
 
                 {catOpen && (
-                  <div className="cat-dropdown" role="listbox" aria-label="Categorias">
+                  <div
+                    ref={catDropdownRef}
+                    className={`cat-dropdown ${catDropUp ? 'cat-dropdown-up' : ''}`.trim()}
+                    role="listbox"
+                    aria-labelledby="cat-label"
+                    onKeyDown={onCatListKeyDown}
+                  >
                     {names.map((n) => {
                       const on = n === catValue;
                       return (
@@ -316,7 +518,11 @@ export default function TxModal() {
                           role="option"
                           aria-selected={on}
                           className={`cat-option ${on ? 'on' : ''}`}
-                          onClick={() => { setCat(n); setCatOpen(false); }}
+                          onClick={() => {
+                            setCat(n);
+                            setCatOpen(false);
+                            catTriggerRef.current?.focus();
+                          }}
                         >
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
                             <CategoryBadge cat={n} type={type} size="sm" />
@@ -353,9 +559,10 @@ export default function TxModal() {
                       maxLength={32}
                       value={newCatName}
                       onChange={(e) => setNewCatName(e.target.value)}
+                      onFocus={(e) => scrollFieldIntoView(e.target)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') { e.preventDefault(); handleSaveNewCat(); }
-                        if (e.key === 'Escape') { e.preventDefault(); setAddingCat(false); }
+                        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); setAddingCat(false); }
                       }}
                     />
                     <div className="inline-cat-actions">

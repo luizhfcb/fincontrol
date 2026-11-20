@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext.jsx';
+import { useDialogA11y } from '../core/useDialogA11y.js';
 import Icon from './Icon.jsx';
 
 const STORAGE_PREFIX = 'fc_whats_new_family_v1';
@@ -91,6 +92,7 @@ export default function WhatsNewModal() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(() => Boolean(user && !hasSeen(user.uid)));
   const [step, setStep] = useState(0);
+  const cardRef = useRef(null);
 
   useEffect(() => {
     if (user && !hasSeen(user.uid)) {
@@ -99,13 +101,17 @@ export default function WhatsNewModal() {
     }
   }, [user]);
 
+  const dismiss = useCallback(() => {
+    markSeen(user?.uid);
+    setOpen(false);
+  }, [user]);
+
+  useDialogA11y(open, dismiss, cardRef);
+
   useEffect(() => {
     if (!open) return undefined;
     const onKey = (e) => {
-      if (e.key === 'Escape') {
-        markSeen(user?.uid);
-        setOpen(false);
-      } else if (e.key === 'ArrowRight' && step < SLIDES.length - 1) {
+      if (e.key === 'ArrowRight' && step < SLIDES.length - 1) {
         setStep((s) => s + 1);
       } else if (e.key === 'ArrowLeft' && step > 0) {
         setStep((s) => s - 1);
@@ -113,14 +119,9 @@ export default function WhatsNewModal() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [open, step, user]);
+  }, [open, step]);
 
   if (!open) return null;
-
-  const dismiss = () => {
-    markSeen(user?.uid);
-    setOpen(false);
-  };
 
   const goExplore = () => {
     markSeen(user?.uid);
@@ -134,11 +135,13 @@ export default function WhatsNewModal() {
   return (
     <div className="overlay wn-overlay" onClick={dismiss}>
       <div
+        ref={cardRef}
         className="wn-card"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="wnTitle"
+        tabIndex={-1}
       >
         <div className="wn-top">
           <span className="badge neutral">{current.badge}</span>

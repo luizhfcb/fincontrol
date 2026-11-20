@@ -11,7 +11,7 @@ import Icon from './Icon.jsx';
  * (composição, maior compra, multiplicador do dia típico e lista).
  */
 export default function ExpenseHeatmap({ transactions }) {
-  const { month, year, fmt } = useApp();
+  const { month, year, fmt, hideValues } = useApp();
   const heat = useMemo(() => buildHeatmap(transactions, month, year), [transactions, month, year]);
 
   const defaultDay = () => {
@@ -46,7 +46,7 @@ export default function ExpenseHeatmap({ transactions }) {
             <span>
               <b>{heat.insight.label}</b> concentra{' '}
               <span className="num">{fmt(heat.insight.total)}</span>{' '}
-              <em>({heat.insight.share}% do mês)</em>
+              <em>({hideValues ? '••%' : `${heat.insight.share}%`} do mês)</em>
             </span>
           </div>
         )}
@@ -98,6 +98,19 @@ export default function ExpenseHeatmap({ transactions }) {
             })}
           </div>
 
+          <div className="hm-selected-bar" aria-live="polite">
+            <span className="hm-selected-date">
+              <span className="hm-selected-dot" aria-hidden="true" />
+              <span>
+                {detail.weekdayLabel.slice(0, 3)}, {detail.day} de {monthName}
+                {detail.count > 0 ? ` · ${detail.count} ${detail.count === 1 ? 'item' : 'itens'}` : ''}
+              </span>
+            </span>
+            <strong className={`num ${detail.total > 0 ? 'neg' : ''}`}>
+              {detail.total > 0 ? fmt(detail.total) : 'Sem gastos'}
+            </strong>
+          </div>
+
           <div className="hm-cal-footer">
             <span className="hm-avg-note">
               {heat.dailyAvg > 0 ? (
@@ -146,7 +159,7 @@ export default function ExpenseHeatmap({ transactions }) {
                   <span className="hm-section-title">Composição do dia</span>
                   {detail.composition.length > 0 && (
                     <span className="hm-section-meta">
-                      Maior fatia: <b>{detail.composition[0].pct.toFixed(0)}%</b>
+                      Maior fatia: <b>{hideValues ? '••%' : `${detail.composition[0].pct.toFixed(0)}%`}</b>
                     </span>
                   )}
                 </div>
@@ -155,7 +168,7 @@ export default function ExpenseHeatmap({ transactions }) {
                     <span
                       key={c.tx.id}
                       style={{ width: `${Math.max(c.pct, 2)}%`, background: c.color }}
-                      title={`${c.tx.desc}: ${fmt(c.tx.val)} (${c.pct.toFixed(0)}%)`}
+                      title={`${c.tx.desc}: ${fmt(c.tx.val)} (${hideValues ? '••%' : `${c.pct.toFixed(0)}%`})`}
                     />
                   ))}
                 </div>

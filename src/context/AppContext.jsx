@@ -5,6 +5,7 @@ import { USE_FIREBASE, api } from '../services/index.js';
 
 const AppContext = createContext(null);
 export const useApp = () => useContext(AppContext);
+const EMPTY_GROUP = { name: '', members: [], wallets: [] };
 
 function readPref(key, fallback) {
   try {
@@ -116,9 +117,19 @@ export function AppProvider({ children }) {
     setYear(today.getFullYear());
   };
 
+  const safeGroup = useMemo(() => {
+    if (!group) return EMPTY_GROUP;
+    return {
+      ...group,
+      name: group.name || '',
+      members: Array.isArray(group.members) ? group.members : [],
+      wallets: Array.isArray(group.wallets) ? group.wallets : [],
+    };
+  }, [group]);
+
   const visibleWallets = useMemo(
-    () => visibleWalletsForUser(group?.wallets || [], user?.uid),
-    [group, user],
+    () => visibleWalletsForUser(safeGroup.wallets, user?.uid),
+    [safeGroup, user],
   );
 
   const transactions = useMemo(
@@ -165,7 +176,7 @@ export function AppProvider({ children }) {
     isFirebase: USE_FIREBASE,
     user, booting, login, logout,
     transactions, allTransactions, monthlyTransactions,
-    modules, goals, group, visibleWallets,
+    modules, goals, group: safeGroup, visibleWallets,
     month, year, shiftMonth, goToCurrentMonth,
     walletId, setWalletId,
     txModal, openTxModal: (tx = null) => setTxModal({ tx }), closeTxModal: () => setTxModal(null),

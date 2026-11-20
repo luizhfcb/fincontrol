@@ -25,12 +25,17 @@ function useCountUp(target, duration = 700) {
   return value;
 }
 
+function AnimatedCurrency({ value, fmtCompact }) {
+  const animated = useCountUp(value);
+  return <>{fmtCompact(animated)}</>;
+}
+
 /**
  * Donut SVG animado (fatias desenhadas em sequência), com seleção por fatia
  * ou legenda e leitura do valor exato. Porta do renderDonutCharts original.
  */
 export default function DonutChart({ rows, isIncome = false, limit = 6, showValues = true }) {
-  const { fmt, fmtCompact } = useApp();
+  const { fmt, fmtCompact, hideValues } = useApp();
   const [active, setActive] = useState(null);
 
   const slices = useMemo(() => {
@@ -40,7 +45,6 @@ export default function DonutChart({ rows, isIncome = false, limit = 6, showValu
   }, [rows, isIncome, limit]);
 
   const total = slices.reduce((s, r) => s + r.value, 0);
-  const animated = useCountUp(total);
   const categoryCount = slices.reduce((n, s) => n + (s.grouped ? s.grouped.length : 1), 0);
   const key = slices.map((s) => `${s.cat}:${s.value}`).join('|');
 
@@ -89,6 +93,7 @@ export default function DonutChart({ rows, isIncome = false, limit = 6, showValu
                   transform="rotate(-90 60 60)"
                   role="button"
                   tabIndex={0}
+                  aria-pressed={active === a.i}
                   aria-label={`${a.cat}: ${fmt(a.value)}`}
                   onClick={() => toggle(a.i)}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(a.i); } }}
@@ -101,12 +106,14 @@ export default function DonutChart({ rows, isIncome = false, limit = 6, showValu
               <>
                 <span className="donut-center-label">{sel.cat}</span>
                 <strong className={`num ${isIncome ? 'pos' : 'neg'}`}>{fmtCompact(sel.value)}</strong>
-                <small>{sel.percent.toFixed(0)}% do total</small>
+                <small>{hideValues ? '••%' : `${sel.percent.toFixed(0)}%`} do total</small>
               </>
             ) : (
               <>
                 <span className="donut-center-label">{isIncome ? 'Receitas' : 'Gastos'}</span>
-                <strong className={`num ${isIncome ? 'pos' : 'neg'}`}>{fmtCompact(animated)}</strong>
+                <strong className={`num ${isIncome ? 'pos' : 'neg'}`}>
+                  <AnimatedCurrency value={total} fmtCompact={fmtCompact} />
+                </strong>
                 <small>{categoryCount} {categoryCount === 1 ? 'categoria' : 'categorias'}</small>
               </>
             )}
@@ -119,12 +126,13 @@ export default function DonutChart({ rows, isIncome = false, limit = 6, showValu
               type="button"
               key={s.cat}
               className={`donut-row ${active === i ? 'active' : ''}`}
+              aria-pressed={active === i}
               onClick={() => toggle(i)}
               title={s.grouped ? s.grouped.join(', ') : s.cat}
             >
               <i className="donut-dot" style={{ background: s.color }} />
               <span className="d-name">{s.cat}</span>
-              <span className="d-pct num">{s.percent.toFixed(0)}%</span>
+              <span className="d-pct num">{hideValues ? '••%' : `${s.percent.toFixed(0)}%`}</span>
               {showValues && <span className="d-val num">{fmt(s.value)}</span>}
             </button>
           ))}

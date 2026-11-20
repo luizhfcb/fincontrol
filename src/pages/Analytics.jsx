@@ -17,8 +17,8 @@ import { assignDistinctDonutColors } from '../core/chart-colors.mjs';
 import { CATEGORY_COLORS, MONTHS } from '../core/constants.js';
 import { buildDailySeries, buildMonthStats, buildWeekdayAverage, trendInsight } from '../core/insights.js';
 
-function Delta({ current, previous, label, goodWhenUp = false }) {
-  if (!label || !(previous > 0)) return null;
+function Delta({ current, previous, label, goodWhenUp = false, hideValues = false }) {
+  if (hideValues || !label || !(previous > 0)) return null;
   const change = ((current - previous) / previous) * 100;
   const up = change >= 0;
   return (
@@ -72,7 +72,7 @@ function buildPeriodSeries(period, def, current, previous, all, month, year) {
 }
 
 export default function Analytics() {
-  const { transactions, monthlyTransactions, modules, month, year, fmt, fmtCompact } = useApp();
+  const { transactions, monthlyTransactions, modules, month, year, fmt, fmtCompact, hideValues } = useApp();
   const [period, setPeriod] = useState('month');
   const [showAll, setShowAll] = useState(false);
 
@@ -116,7 +116,7 @@ export default function Analytics() {
         <MonthBar />
         <div className="seg seg-inline" role="radiogroup" aria-label="Período">
           {PERIODS.map((p) => (
-            <button key={p} role="radio" aria-checked={period === p} aria-pressed={period === p} onClick={() => setPeriod(p)}>
+            <button type="button" key={p} role="radio" aria-checked={period === p} onClick={() => setPeriod(p)}>
               {PERIOD_LABELS[p]}
             </button>
           ))}
@@ -128,15 +128,15 @@ export default function Analytics() {
           <span className="eyebrow-sm">{d.def.heading}</span>
           <div className="summary-val-row">
             <strong className="summary-val num neg">{fmt(d.cur.expense)}</strong>
-            <Delta current={d.cur.expense} previous={d.prev.expense} label={d.def.previousLabel} />
+            <Delta current={d.cur.expense} previous={d.prev.expense} label={d.def.previousLabel} hideValues={hideValues} />
           </div>
-          <div className="flow-bar" aria-hidden="true"><span style={{ width: `${flowPct}%` }} /></div>
+          <div className="flow-bar" aria-hidden="true"><span style={{ width: `${hideValues ? 50 : flowPct}%` }} /></div>
         </div>
         <div className="summary-side">
           <div>
             <small>Receitas</small>
             <b className="num pos">{fmt(d.cur.income)}</b>
-            <Delta current={d.cur.income} previous={d.prev.income} label={d.def.previousLabel} goodWhenUp />
+            <Delta current={d.cur.income} previous={d.prev.income} label={d.def.previousLabel} goodWhenUp hideValues={hideValues} />
           </div>
           <div>
             <small>Saldo</small>
@@ -163,7 +163,14 @@ export default function Analytics() {
               <BarChart data={d.series.data} barGap={3} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
                 <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="4 4" vertical={false} />
                 <XAxis dataKey="label" tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={6} tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} />
-                <YAxis width={44} tickLine={false} axisLine={false} tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} tickFormatter={(v) => fmtCompact(v)} />
+                <YAxis
+                  hide={hideValues}
+                  width={44}
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: 'var(--chart-axis)', fontSize: 11 }}
+                  tickFormatter={(v) => (hideValues ? '' : fmtCompact(v))}
+                />
                 <Tooltip cursor={{ fill: 'var(--chart-cursor)' }} content={<ChartTooltip fmt={fmt} labelFormatter={(l, p) => p?.[0]?.payload?.full || l} />} />
                 {!d.series.hasPrev && d.seriesAvg > 0 && (
                   <ReferenceLine y={d.seriesAvg} stroke="var(--amber)" strokeDasharray="5 4" strokeWidth={1.5} />
@@ -205,9 +212,9 @@ export default function Analytics() {
                       <span className="amt num">{fmt(r.value)}</span>
                     </div>
                     <div className="progress-top" style={{ marginTop: 2 }}>
-                      <small className="muted tiny">{r.percent.toFixed(1)}% das saídas</small>
+                      <small className="muted tiny">{hideValues ? '••%' : `${r.percent.toFixed(1)}%`} das saídas</small>
                     </div>
-                    <div className="bar"><span style={{ width: `${r.percent}%`, background: r.color }} /></div>
+                    <div className="bar"><span style={{ width: `${hideValues ? 0 : r.percent}%`, background: r.color }} /></div>
                   </div>
                 </div>
               ))}
@@ -222,7 +229,13 @@ export default function Analytics() {
       </div>
 
       <div className="section-head">
-        <div className="section-title">Comportamento em {MONTHS[month].toLowerCase()}</div>
+        <div>
+          <div className="section-title">Comportamento em {MONTHS[month].toLowerCase()} de {year}</div>
+          <p className="section-sub muted tiny">
+            Referente ao mês selecionado na barra acima{period !== 'month' ? ` · independente do filtro "${PERIOD_LABELS[period]}"` : ''}
+          </p>
+        </div>
+        <span className="badge neutral">{MONTHS[month].slice(0, 3)}/{year}</span>
       </div>
 
       <div className="stats-grid">
@@ -328,7 +341,14 @@ export default function Analytics() {
                 </defs>
                 <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="4 4" vertical={false} />
                 <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: 'var(--chart-axis)', fontSize: 12 }} />
-                <YAxis width={44} tickLine={false} axisLine={false} tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} tickFormatter={(v) => fmtCompact(v)} />
+                <YAxis
+                  hide={hideValues}
+                  width={44}
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: 'var(--chart-axis)', fontSize: 11 }}
+                  tickFormatter={(v) => (hideValues ? '' : fmtCompact(v))}
+                />
                 <Tooltip content={<ChartTooltip fmt={fmt} labelFormatter={(l, p) => `${l} ${p?.[0]?.payload?.year ?? ''}`} />} />
                 <ReferenceLine y={0} stroke="var(--border-strong)" />
                 <Area type="monotone" dataKey="net" name="Saldo" stroke="var(--green-strong)" strokeWidth={2.5} fill="url(#netFill)" dot={{ r: 3.5, fill: 'var(--green-strong)', strokeWidth: 0 }} activeDot={{ r: 5 }} />
@@ -355,9 +375,11 @@ export default function Analytics() {
                     <b style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                       <CategoryBadge cat={l.category} size="xs" /> {l.category}
                     </b>
-                    <span className={`badge ${l.status === 'over' ? 'bad' : l.status === 'warn' ? 'warn' : 'good'}`}>{l.percent.toFixed(0)}%</span>
+                    <span className={`badge ${l.status === 'over' ? 'bad' : l.status === 'warn' ? 'warn' : 'good'}`}>
+                      {hideValues ? '••%' : `${l.percent.toFixed(0)}%`}
+                    </span>
                   </div>
-                  <div className={`bar ${l.status}`}><span style={{ width: `${Math.min(100, l.percent)}%` }} /></div>
+                  <div className={`bar ${l.status}`}><span style={{ width: `${hideValues ? 0 : Math.min(100, l.percent)}%` }} /></div>
                   <small className="muted tiny num">{fmt(l.spent)} de {fmt(l.limit)}</small>
                 </div>
               ))}

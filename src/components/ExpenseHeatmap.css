@@ -698,3 +698,49 @@
     font-size: 17px;
   }
 }
+
+/* ---------- Mobile Selected Day Feedback Bar ---------- */
+.heatmap .hm-selected-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 11px;
+  border-radius: 11px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text2);
+}
+
+[data-theme="light"] .heatmap .hm-selected-bar {
+  background: #FFFFFF;
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+.heatmap .hm-selected-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.heatmap .hm-selected-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+@media (min-width: 820px) {
+  .heatmap .hm-selected-bar {
+    display: none;
+  }
+}

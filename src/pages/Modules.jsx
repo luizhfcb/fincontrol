@@ -1,30 +1,77 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import CategoryBadge, { CATEGORY_ICON_CHOICES } from '../components/CategoryIcon.jsx';
+import ConfirmDialog from '../components/ConfirmDialog.jsx';
 import Icon from '../components/Icon.jsx';
 import { useApp } from '../context/AppContext.jsx';
 import { buildLimitProgress } from '../core/analytics.js';
+import { DEFAULT_CATEGORIES } from '../core/constants.js';
+import { parsePtBrNumber } from '../core/parse-number.mjs';
 import { listStockAlerts } from '../core/stock-alerts.mjs';
 
 const uid = () => String(Date.now() + Math.random());
+const CUSTOM_OPTION = '__custom__';
+
+function buildNormalizedCategories(modules) {
+  const source = modules?.categories?.length ? modules.categories : DEFAULT_CATEGORIES;
+  const seen = new Set();
+  const list = [];
+  for (const c of source) {
+    if (c.type && c.type !== 'expense') continue;
+    const name = String(c.name || '').trim();
+    if (!name) continue;
+    const key = name.toLocaleLowerCase('pt-BR');
+    if (seen.has(key)) continue;
+    seen.add(key);
+    list.push(name);
+  }
+  if (!seen.has('outros')) list.push('Outros');
+  return list;
+}
 
 function AddForm({ title, fields, onAdd, label = 'Adicionar' }) {
-  const blank = Object.fromEntries(fields.map((f) => [f.key, f.defaultValue ?? '']));
-  const [v, setV] = useState(blank);
+  const buildBlank = () => Object.fromEntries(
+    fields.map((f) => [f.key, f.defaultValue ?? (f.options?.[0]?.value ?? '')]),
+  );
+  const [v, setV] = useState(buildBlank);
+  const [customs, setCustoms] = useState({});
   const [err, setErr] = useState('');
+
   const submit = (e) => {
     e.preventDefault();
     const out = {};
     for (const f of fields) {
-      const raw = String(v[f.key] ?? '').trim();
+      let raw = String(v[f.key] ?? '').trim();
+      if (f.allowCustom && raw === CUSTOM_OPTION) {
+        raw = String(customs[f.key] ?? '').trim();
+      }
       if (!raw && !f.optional) return setErr(`Preencha ${f.label.toLowerCase()}.`);
-      out[f.key] = f.number ? Number(raw.replace(',', '.')) : raw;
-      if (f.number && !(out[f.key] >= 0)) return setErr(`${f.label} inválido.`);
+      if (f.number) {
+        const parsed = parsePtBrNumber(raw);
+        if (!Number.isFinite(parsed)) return setErr(`${f.label} inválido.`);
+        if (f.positive && !(parsed > 0)) return setErr(`${f.label} deve ser maior que zero.`);
+        if (f.integer && !Number.isInteger(parsed)) return setErr(`${f.label} deve ser um número inteiro.`);
+        if (f.min != null && parsed < f.min) {
+          return setErr(
+            f.max != null
+              ? `${f.label} deve estar entre ${f.min} e ${f.max}.`
+              : `${f.label} deve ser no mínimo ${f.min}.`,
+          );
+        }
+        if (f.max != null && parsed > f.max) {
+          return setErr(`${f.label} deve estar entre ${f.min ?? 0} e ${f.max}.`);
+        }
+        out[f.key] = parsed;
+      } else {
+        out[f.key] = raw;
+      }
     }
     setErr('');
-    setV(blank);
+    setV(buildBlank());
+    setCustoms({});
     onAdd(out);
   };
+
   return (
     <form className="card" onSubmit={submit}>
       {title && <h3>{title}</h3>}
@@ -33,22 +80,36 @@ function AddForm({ title, fields, onAdd, label = 'Adicionar' }) {
           <div className="field" key={f.key}>
             <label htmlFor={`f-${f.key}`}>{f.label}</label>
             {f.options ? (
-              <select
-                id={`f-${f.key}`}
-                className="input"
-                value={v[f.key]}
-                onChange={(e) => setV({ ...v, [f.key]: e.target.value })}
-              >
-                {f.options.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+              <>
+                <select
+                  id={`f-${f.key}`}
+                  className="input"
+                  value={v[f.key]}
+                  onChange={(e) => setV({ ...v, [f.key]: e.target.value })}
+                >
+                  {f.options.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                  {f.allowCustom && <option value={CUSTOM_OPTION}>Outra categoria...</option>}
+                </select>
+                {f.allowCustom && v[f.key] === CUSTOM_OPTION && (
+                  <input
+                    id={`f-${f.key}-custom`}
+                    className="input"
+                    style={{ marginTop: 8 }}
+                    placeholder={f.customPlaceholder || 'Digite a categoria'}
+                    aria-label={f.customPlaceholder || `Personalizar ${f.label.toLowerCase()}`}
+                    value={customs[f.key] || ''}
+                    onChange={(e) => setCustoms({ ...customs, [f.key]: e.target.value })}
+                  />
+                )}
+              </>
             ) : (
               <input
                 id={`f-${f.key}`}
                 className="input"
                 placeholder={f.placeholder}
-                inputMode={f.number ? 'decimal' : 'text'}
+                inputMode={f.number ? (f.integer ? 'numeric' : 'decimal') : 'text'}
                 value={v[f.key]}
                 onChange={(e) => setV({ ...v, [f.key]: e.target.value })}
               />
@@ -64,7 +125,7 @@ function AddForm({ title, fields, onAdd, label = 'Adicionar' }) {
 
 function Del({ onClick, label }) {
   return (
-    <button className="icon-btn danger" onClick={onClick} aria-label={label} title={label}>
+    <button type="button" className="icon-btn danger" onClick={onClick} aria-label={label} title={label}>
       <Icon name="trash" size={17} />
     </button>
   );
@@ -73,8 +134,10 @@ function Del({ onClick, label }) {
 export default function Modules() {
   const { section } = useParams();
   const { modules, updateModules, monthlyTransactions, fmt } = useApp();
+  const [pendingDelete, setPendingDelete] = useState(null);
   const patch = (key, fn) => updateModules({ ...modules, [key]: fn(modules[key]) });
   const remove = (key, id) => patch(key, (l) => l.filter((x) => x.id !== id));
+  const askDelete = (key, id, title, message) => setPendingDelete({ key, id, title, message });
 
   let title;
   let body;
@@ -85,6 +148,7 @@ export default function Modules() {
     const totalLimit = rows.reduce((s, r) => s + r.limit, 0);
     const totalSpent = rows.reduce((s, r) => s + r.spent, 0);
     const STATUS_LABEL = { ok: ['good', 'Dentro do limite'], warn: ['warn', 'Atenção'], over: ['bad', 'Excedido'] };
+    const categoryOptions = buildNormalizedCategories(modules).map((name) => ({ value: name, label: name }));
 
     body = (
       <>
@@ -118,18 +182,29 @@ export default function Modules() {
                       <span style={{ width: `${Math.min(100, r.percent)}%` }} />
                     </div>
                   </div>
-                  <Del label={`Remover limite de ${r.category}`} onClick={() => remove('limits', r.id)} />
+                  <Del
+                    label={`Remover limite de ${r.category}`}
+                    onClick={() => askDelete('limits', r.id, 'Remover limite', `Deseja remover o limite da categoria "${r.category}"?`)}
+                  />
                 </div>
               );
             })}
           </section>
 
           <AddForm
+            key={section}
             title="Novo teto de gasto"
             label="Definir limite"
             fields={[
-              { key: 'category', label: 'Categoria', placeholder: 'Ex.: Alimentação, Lazer...' },
-              { key: 'limit', label: 'Limite mensal (R$)', placeholder: '500,00', number: true },
+              {
+                key: 'category',
+                label: 'Categoria',
+                defaultValue: categoryOptions[0]?.value || 'Outros',
+                options: categoryOptions,
+                allowCustom: true,
+                customPlaceholder: 'Ex.: Educação, Pets...',
+              },
+              { key: 'limit', label: 'Limite mensal (R$)', placeholder: '500,00', number: true, positive: true },
             ]}
             onAdd={(o) => patch('limits', (l) => [...l, { id: uid(), ...o }])}
           />
@@ -169,17 +244,21 @@ export default function Modules() {
                   </div>
                 </div>
                 <span className="amt num">{fmt(s.value)}</span>
-                <Del label={`Remover ${s.name}`} onClick={() => remove('subscriptions', s.id)} />
+                <Del
+                  label={`Remover ${s.name}`}
+                  onClick={() => askDelete('subscriptions', s.id, 'Remover assinatura', `Deseja remover a assinatura "${s.name}"?`)}
+                />
               </div>
             ))}
           </section>
 
           <AddForm
+            key={section}
             title="Cadastrar assinatura"
             fields={[
               { key: 'name', label: 'Serviço', placeholder: 'Ex.: Netflix, Spotify, Academia...' },
-              { key: 'value', label: 'Valor mensal (R$)', placeholder: '39,90', number: true },
-              { key: 'day', label: 'Dia da cobrança', placeholder: '10', number: true },
+              { key: 'value', label: 'Valor mensal (R$)', placeholder: '39,90', number: true, positive: true },
+              { key: 'day', label: 'Dia da cobrança', placeholder: '10', number: true, integer: true, min: 1, max: 31 },
             ]}
             onAdd={(o) => patch('subscriptions', (l) => [...l, { id: uid(), plan: 'Recorrente', ...o }])}
           />
@@ -228,17 +307,21 @@ export default function Modules() {
                   </div>
                 </div>
                 <span className="amt num">{fmt(b.value)}</span>
-                <Del label={`Remover ${b.name}`} onClick={() => remove('bills', b.id)} />
+                <Del
+                  label={`Remover ${b.name}`}
+                  onClick={() => askDelete('bills', b.id, 'Remover conta fixa', `Deseja remover a conta "${b.name}"?`)}
+                />
               </div>
             ))}
           </section>
 
           <AddForm
+            key={section}
             title="Nova conta fixa"
             fields={[
               { key: 'name', label: 'Descrição', placeholder: 'Ex.: Aluguel, Condomínio, Luz...' },
-              { key: 'value', label: 'Valor (R$)', placeholder: '250,00', number: true },
-              { key: 'day', label: 'Dia do vencimento', placeholder: '15', number: true },
+              { key: 'value', label: 'Valor (R$)', placeholder: '250,00', number: true, positive: true },
+              { key: 'day', label: 'Dia do vencimento', placeholder: '15', number: true, integer: true, min: 1, max: 31 },
             ]}
             onAdd={(o) => patch('bills', (l) => [...l, { id: uid(), category: 'Despesa Fixa', paid: false, ...o }])}
           />
@@ -276,17 +359,21 @@ export default function Modules() {
                 <b className={`num ${low.has(i.id) ? 'neg' : ''}`}>{i.qty}</b>
                 <button type="button" onClick={() => qty(i.id, 1)} aria-label={`Aumentar ${i.name}`}>+</button>
               </div>
-              <Del label={`Remover ${i.name}`} onClick={() => remove('stockItems', i.id)} />
+              <Del
+                label={`Remover ${i.name}`}
+                onClick={() => askDelete('stockItems', i.id, 'Remover item', `Deseja remover "${i.name}" do estoque?`)}
+              />
             </div>
           ))}
         </section>
 
         <AddForm
+          key={section}
           title="Adicionar item ao estoque"
           fields={[
             { key: 'name', label: 'Produto / Item', placeholder: 'Ex.: Café, Azeite, Sabão...' },
-            { key: 'qty', label: 'Quantidade atual', placeholder: '2', number: true },
-            { key: 'min', label: 'Quantidade mínima', placeholder: '1', number: true },
+            { key: 'qty', label: 'Quantidade atual', placeholder: '2', number: true, min: 0 },
+            { key: 'min', label: 'Quantidade mínima', placeholder: '1', number: true, min: 0 },
           ]}
           onAdd={(o) => patch('stockItems', (l) => [...l, { id: uid(), ...o }])}
         />
@@ -316,12 +403,16 @@ export default function Modules() {
                   <option key={ch.key || 'auto'} value={ch.key}>{ch.label}</option>
                 ))}
               </select>
-              <Del label={`Remover ${c.name}`} onClick={() => remove('categories', c.id)} />
+              <Del
+                label={`Remover ${c.name}`}
+                onClick={() => askDelete('categories', c.id, 'Remover categoria', `Deseja remover a categoria "${c.name}"?`)}
+              />
             </div>
           ))}
         </section>
 
         <AddForm
+          key={section}
           title="Nova categoria"
           fields={[
             { key: 'name', label: 'Nome da categoria', placeholder: 'Ex.: Educação, Pets, Investimentos...' },
@@ -350,7 +441,12 @@ export default function Modules() {
       </div>
     );
   } else {
-    return <p className="empty">Seção não encontrada.</p>;
+    return (
+      <>
+        <Link to="/mais" className="back"><Icon name="left" size={16} /> Voltar aos módulos</Link>
+        <p className="empty">Seção não encontrada.</p>
+      </>
+    );
   }
 
   return (
@@ -358,6 +454,20 @@ export default function Modules() {
       <Link to="/mais" className="back"><Icon name="left" size={16} /> Voltar aos módulos</Link>
       <div className="section-title" style={{ marginTop: 4 }}>{title}</div>
       {body}
+
+      <ConfirmDialog
+        open={Boolean(pendingDelete)}
+        title={pendingDelete?.title || 'Confirmar exclusão'}
+        message={pendingDelete?.message || ''}
+        confirmLabel="Remover"
+        cancelLabel="Cancelar"
+        danger
+        onConfirm={() => {
+          if (pendingDelete) remove(pendingDelete.key, pendingDelete.id);
+          setPendingDelete(null);
+        }}
+        onCancel={() => setPendingDelete(null)}
+      />
     </>
   );
 }
