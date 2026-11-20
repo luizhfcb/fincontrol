@@ -1,34 +1,39 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import ConfirmDialog from '../components/ConfirmDialog.jsx';
 import Icon from '../components/Icon.jsx';
 import { useApp } from '../context/AppContext.jsx';
 import { goalProgress } from '../core/analytics.js';
+import { parsePtBrNumber } from '../core/parse-number.mjs';
 
 export default function Goals() {
-  const { goals, updateGoals, group, fmt } = useApp();
-  const [form, setForm] = useState({ name: '', target: '', deadline: '', walletId: group.wallets[0].id });
+  const { goals, updateGoals, group, visibleWallets, fmt } = useApp();
+  const wallets = visibleWallets?.length ? visibleWallets : (group?.wallets || []);
+  const [form, setForm] = useState({ name: '', target: '', deadline: '', walletId: wallets[0]?.id || '' });
   const [add, setAdd] = useState({});
   const [err, setErr] = useState('');
+  const [confirmGoal, setConfirmGoal] = useState(null);
 
+  const selectedWalletId = wallets.some((w) => w.id === form.walletId) ? form.walletId : (wallets[0]?.id || '');
   const totalSaved = goals.reduce((s, g) => s + g.saved, 0);
   const totalTarget = goals.reduce((s, g) => s + g.target, 0);
   const overallPct = totalTarget > 0 ? Math.min(100, (totalSaved / totalTarget) * 100) : 0;
 
   const create = (e) => {
     e.preventDefault();
-    const target = Number(String(form.target).replace(',', '.'));
+    const target = parsePtBrNumber(form.target);
     if (!form.name.trim()) return setErr('Dê um nome para a meta.');
     if (!(target > 0)) return setErr('Informe um valor alvo maior que zero.');
     setErr('');
     updateGoals([
       ...goals,
-      { id: String(Date.now()), name: form.name.trim(), target, saved: 0, deadline: form.deadline, walletId: form.walletId },
+      { id: String(Date.now()), name: form.name.trim(), target, saved: 0, deadline: form.deadline, walletId: selectedWalletId },
     ]);
     setForm({ ...form, name: '', target: '', deadline: '' });
   };
 
   const contributeAmount = (id, rawVal) => {
-    const v = Number(String(rawVal || '').replace(',', '.'));
+    const v = parsePtBrNumber(rawVal);
     if (!(v > 0)) return;
     updateGoals(goals.map((g) => (g.id === id ? { ...g, saved: g.saved + v } : g)));
     setAdd({ ...add, [id]: '' });
@@ -68,7 +73,7 @@ export default function Goals() {
         <div className="cards-grid">
           {goals.map((g) => {
             const p = goalProgress(g);
-            const wallet = group.wallets.find((w) => w.id === g.walletId);
+            const wallet = (group?.wallets || []).find((w) => w.id === g.walletId);
             return (
               <section className="card" key={g.id}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
@@ -87,9 +92,10 @@ export default function Goals() {
                     </div>
                   </div>
                   <button
+                    type="button"
                     className="icon-btn danger"
                     aria-label={`Excluir meta ${g.name}`}
-                    onClick={() => updateGoals(goals.filter((x) => x.id !== g.id))}
+                    onClick={() => setConfirmGoal(g)}
                   >
                     <Icon name="trash" size={17} />
                   </button>
@@ -195,10 +201,15 @@ export default function Goals() {
             <select
               id="gw"
               className="input"
-              value={form.walletId}
+              value={selectedWalletId}
               onChange={(e) => setForm({ ...form, walletId: e.target.value })}
+              disabled={wallets.length === 0}
             >
-              {group.wallets.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
+              {wallets.length === 0 ? (
+                <option value="">Nenhuma carteira disponível</option>
+              ) : (
+                wallets.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)
+              )}
             </select>
           </div>
         </div>
@@ -207,6 +218,20 @@ export default function Goals() {
           <Icon name="plus" size={17} /> Adicionar meta
         </button>
       </form>
+
+      <ConfirmDialog
+        open={Boolean(confirmGoal)}
+        title="Excluir meta"
+        message={confirmGoal ? `Deseja excluir a meta "${confirmGoal.name}"? Esta ação não pode ser desfeita.` : ''}
+        confirmLabel="Excluir"
+        cancelLabel="Cancelar"
+        danger
+        onConfirm={() => {
+          if (confirmGoal) updateGoals(goals.filter((x) => x.id !== confirmGoal.id));
+          setConfirmGoal(null);
+        }}
+        onCancel={() => setConfirmGoal(null)}
+      />
     </>
   );
 }

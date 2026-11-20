@@ -17,7 +17,8 @@ import { MONTHS } from '../core/constants.js';
 import { buildDashboardComparison } from '../core/dashboard-comparison.mjs';
 import { buildMonthStats } from '../core/insights.js';
 
-function PillDelta({ current, previous, label, goodWhenUp }) {
+function PillDelta({ current, previous, label, goodWhenUp, hideValues }) {
+  if (hideValues) return null;
   const cmp = buildDashboardComparison(current, previous, label);
   if (!cmp) return null;
   const up = cmp.percent >= 0;
@@ -31,7 +32,7 @@ function PillDelta({ current, previous, label, goodWhenUp }) {
 export default function Home() {
   const {
     transactions, monthlyTransactions, month, year,
-    walletId, group, modules, goals, openTxModal, fmt, fmtCompact,
+    walletId, group, modules, goals, openTxModal, fmt, fmtCompact, hideValues,
   } = useApp();
   const [view, setView] = useState('all');
 
@@ -73,9 +74,6 @@ export default function Home() {
     <>
       <div className="page-toolbar">
         <MonthBar />
-        <button type="button" className="btn sm toolbar-cta" onClick={() => openTxModal()}>
-          <Icon name="plus" size={16} /> <span>Lançar transação</span>
-        </button>
       </div>
 
       <div className="home-hero-bento">
@@ -107,9 +105,11 @@ export default function Home() {
             <p className="hero-sub">
               {monthlyTransactions.length === 0
                 ? 'Nenhuma movimentação registrada neste mês ainda.'
-                : savingsRate != null && savingsRate >= 0
-                  ? `Você guardou ${savingsRate}% da receita em ${MONTHS[month].toLowerCase()}.`
-                  : `As saídas superaram as receitas em ${MONTHS[month].toLowerCase()}.`}
+                : hideValues
+                  ? `Resumo de ${MONTHS[month].toLowerCase()} em modo privado.`
+                  : savingsRate != null && savingsRate >= 0
+                    ? `Você guardou ${savingsRate}% da receita em ${MONTHS[month].toLowerCase()}.`
+                    : `As saídas superaram as receitas em ${MONTHS[month].toLowerCase()}.`}
             </p>
           </div>
 
@@ -117,12 +117,12 @@ export default function Home() {
             <div className="hero-flow-wrap">
               {cur.income + cur.expense > 0 && (
                 <div className="hero-flow-meta" aria-hidden="true">
-                  <span className="hfm-in">{Math.round(flowPct)}% entradas</span>
-                  <span className="hfm-out">{100 - Math.round(flowPct)}% saídas</span>
+                  <span className="hfm-in">{hideValues ? '••%' : `${Math.round(flowPct)}%`} entradas</span>
+                  <span className="hfm-out">{hideValues ? '••%' : `${100 - Math.round(flowPct)}%`} saídas</span>
                 </div>
               )}
               <div className="hero-flow" aria-hidden="true">
-                <span style={{ width: `${flowPct}%` }} />
+                <span style={{ width: `${hideValues ? 50 : flowPct}%` }} />
               </div>
             </div>
 
@@ -137,7 +137,7 @@ export default function Home() {
                 <span className="hp-txt">
                   <span className="hp-top">
                     <small>Receitas</small>
-                    <PillDelta current={cur.income} previous={prev.income} label={prevLabel} goodWhenUp />
+                    <PillDelta current={cur.income} previous={prev.income} label={prevLabel} goodWhenUp hideValues={hideValues} />
                   </span>
                   <b className="num">{fmt(cur.income)}</b>
                 </span>
@@ -152,7 +152,7 @@ export default function Home() {
                 <span className="hp-txt">
                   <span className="hp-top">
                     <small>Despesas</small>
-                    <PillDelta current={cur.expense} previous={prev.expense} label={prevLabel} goodWhenUp={false} />
+                    <PillDelta current={cur.expense} previous={prev.expense} label={prevLabel} goodWhenUp={false} hideValues={hideValues} />
                   </span>
                   <b className="num">{fmt(cur.expense)}</b>
                 </span>
@@ -189,21 +189,23 @@ export default function Home() {
           <div className="card kpi-mini">
             <div className="km-head">
               <span>Economia</span>
-              <span className={`km-ico ${savingsRate != null && savingsRate < 0 ? 'red' : 'green'}`}>
+              <span className={`km-ico ${!hideValues && savingsRate != null && savingsRate < 0 ? 'red' : 'green'}`}>
                 <Icon name="shield" size={15} />
               </span>
             </div>
-            <strong className={`num ${savingsRate != null && savingsRate < 0 ? 'neg' : 'pos'}`}>
-              {savingsRate != null ? `${savingsRate}%` : '—'}
+            <strong className={`num ${!hideValues && savingsRate != null && savingsRate < 0 ? 'neg' : 'pos'}`}>
+              {savingsRate != null ? (hideValues ? '••%' : `${savingsRate}%`) : '—'}
             </strong>
             <div className="km-foot-bar">
-              <div className={`bar ${savingsRate != null && savingsRate < 0 ? 'over' : 'ok'}`}>
-                <span style={{ width: `${savingsClamp}%` }} />
+              <div className={`bar ${!hideValues && savingsRate != null && savingsRate < 0 ? 'over' : 'ok'}`}>
+                <span style={{ width: `${hideValues ? 0 : savingsClamp}%` }} />
               </div>
               <span className="ellipsis">
-                {savingsRate != null
-                  ? (cur.balance >= 0 ? `Saldo de ${fmtCompact(cur.balance)}` : 'Gastos acima da receita')
-                  : 'Sem receitas no mês'}
+                {hideValues
+                  ? 'Valores ocultos'
+                  : savingsRate != null
+                    ? (cur.balance >= 0 ? `Saldo de ${fmtCompact(cur.balance)}` : 'Gastos acima da receita')
+                    : 'Sem receitas no mês'}
               </span>
             </div>
           </div>
@@ -215,16 +217,16 @@ export default function Home() {
                 <Icon name="sliders" size={15} />
               </span>
             </div>
-            <strong className={`num ${limitStatus === 'over' ? 'neg' : limitStatus === 'warn' ? 'warn-txt' : ''}`}>
-              {limitPct != null ? `${limitPct}%` : '—'}
+            <strong className={`num ${!hideValues && limitStatus === 'over' ? 'neg' : !hideValues && limitStatus === 'warn' ? 'warn-txt' : ''}`}>
+              {limitPct != null ? (hideValues ? '••%' : `${limitPct}%`) : '—'}
             </strong>
             <div className="km-foot-bar">
               <div className={`bar ${limitStatus}`}>
-                <span style={{ width: `${Math.min(100, limitPct || 0)}%` }} />
+                <span style={{ width: `${hideValues ? 0 : Math.min(100, limitPct || 0)}%` }} />
               </div>
               <span className="ellipsis">
                 {limitPct != null
-                  ? `${fmtCompact(totalLimitSpent)} de ${fmtCompact(totalLimit)}`
+                  ? (hideValues ? 'Valores ocultos' : `${fmtCompact(totalLimitSpent)} de ${fmtCompact(totalLimit)}`)
                   : 'Definir limites'}
               </span>
             </div>
@@ -263,7 +265,14 @@ export default function Home() {
               <BarChart data={trend} barGap={3} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
                 <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="4 4" vertical={false} />
                 <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: 'var(--chart-axis)', fontSize: 12 }} />
-                <YAxis width={44} tickLine={false} axisLine={false} tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} tickFormatter={(v) => fmtCompact(v)} />
+                <YAxis
+                  hide={hideValues}
+                  width={44}
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: 'var(--chart-axis)', fontSize: 11 }}
+                  tickFormatter={(v) => (hideValues ? '' : fmtCompact(v))}
+                />
                 <Tooltip cursor={{ fill: 'var(--chart-cursor)' }} content={<ChartTooltip fmt={fmt} labelFormatter={(l, p) => `${l} ${p?.[0]?.payload?.year ?? ''}`} />} />
                 <Bar dataKey="income" name="Receitas" fill="var(--green-strong)" radius={[6, 6, 0, 0]} maxBarSize={18} />
                 <Bar dataKey="expense" name="Despesas" fill="var(--red-strong)" radius={[6, 6, 0, 0]} maxBarSize={18} />
@@ -280,7 +289,7 @@ export default function Home() {
             <Link to="/transacoes" className="text-link">Ver todas <Icon name="right" size={15} /></Link>
           </div>
           {recent.length === 0 ? (
-            <p className="empty">Clique em &ldquo;Lançar transação&rdquo; para começar.</p>
+            <p className="empty">Clique em &ldquo;Nova transação&rdquo; para começar.</p>
           ) : (
             recent.map((t) => (
               <div className="tx-item" key={t.id}>
@@ -306,7 +315,7 @@ export default function Home() {
                     <b>{l.category}</b>
                     <span className="num muted tiny">{fmt(l.spent)} / {fmt(l.limit)}</span>
                   </div>
-                  <div className={`bar ${l.status}`}><span style={{ width: `${Math.min(100, l.percent)}%` }} /></div>
+                  <div className={`bar ${l.status}`}><span style={{ width: `${hideValues ? 0 : Math.min(100, l.percent)}%` }} /></div>
                 </div>
               ))}
               {goals.slice(0, 2).map((g) => {
@@ -315,9 +324,9 @@ export default function Home() {
                   <div key={g.id} className="progress-item">
                     <div className="progress-top">
                       <b style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Icon name="target" size={15} /> {g.name}</b>
-                      <span className="badge neutral num">{p.percent.toFixed(0)}%</span>
+                      <span className="badge neutral num">{hideValues ? '••%' : `${p.percent.toFixed(0)}%`}</span>
                     </div>
-                    <div className={`bar ${p.done ? 'ok' : ''}`}><span style={{ width: `${p.percent}%` }} /></div>
+                    <div className={`bar ${p.done ? 'ok' : ''}`}><span style={{ width: `${hideValues ? 0 : p.percent}%` }} /></div>
                   </div>
                 );
               })}

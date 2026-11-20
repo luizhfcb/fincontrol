@@ -1,23 +1,29 @@
-import { useEffect } from 'react';
+import { useRef } from 'react';
 import { useApp } from '../context/AppContext.jsx';
 import { MONTHS } from '../core/constants.js';
 import { buildDescriptionHistory } from '../core/insights.js';
+import { useDialogA11y } from '../core/useDialogA11y.js';
 import Icon from './Icon.jsx';
 
 /** Histórico por descrição: agrupa lançamentos do mês com a mesma descrição. */
 export default function TxHistoryModal({ desc, onClose }) {
   const { monthlyTransactions, month, year, fmt } = useApp();
   const h = buildDescriptionHistory(monthlyTransactions, desc);
+  const sheetRef = useRef(null);
 
-  useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  useDialogA11y(true, onClose, sheetRef);
 
   return (
     <div className="overlay" onClick={onClose}>
-      <div className="sheet" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={`Histórico de ${desc}`}>
+      <div
+        ref={sheetRef}
+        className="sheet"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Histórico de ${desc}`}
+        tabIndex={-1}
+      >
         <div className="sheet-head">
           <div>
             <h2>{desc}</h2>

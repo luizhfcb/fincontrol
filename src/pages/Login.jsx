@@ -58,6 +58,7 @@ export default function Login() {
     <div className="login-page">
       <div className="login-topbar">
         <button
+          type="button"
           className="icon-btn"
           onClick={toggleTheme}
           aria-label={theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'}
@@ -127,6 +128,7 @@ export default function Login() {
           {err && <p className="neg tiny" role="alert" style={{ marginBottom: 12 }}>{err}</p>}
 
           <button
+            type="button"
             className="btn"
             onClick={handleLogin}
             disabled={busy}

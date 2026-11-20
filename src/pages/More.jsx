@@ -6,7 +6,7 @@ import { countStockAlerts } from '../core/stock-alerts.mjs';
 
 export default function More() {
   const {
-    modules, goals, group, theme, toggleTheme,
+    isFirebase, modules, goals, group, theme, toggleTheme,
     hideValues, toggleHideValues, resetDemo, fmt,
   } = useApp();
   const [resetMsg, setResetMsg] = useState(false);
@@ -14,6 +14,8 @@ export default function More() {
   const alerts = countStockAlerts(modules);
   const unpaid = modules.bills.filter((b) => !b.paid).length;
   const subsTotal = modules.subscriptions.reduce((s, x) => s + x.value, 0);
+  const memberCount = group?.members?.length || 0;
+  const walletCount = group?.wallets?.length || 0;
 
   const items = [
     {
@@ -28,7 +30,7 @@ export default function More() {
       icon: 'users',
       color: '#38BDF8',
       title: 'Carteiras e compartilhamento',
-      sub: `${group.members.length} pessoas · ${group.wallets.length} carteiras`,
+      sub: `${memberCount} pessoas · ${walletCount} carteiras`,
     },
     {
       to: '/mais/limites',
@@ -128,16 +130,18 @@ export default function More() {
           </button>
         </div>
 
-        <div className="row">
-          <span className="ico"><Icon name="refresh" /></span>
-          <div className="grow">
-            <b>Dados de demonstração</b>
-            <small className="muted">Restaurar transações, metas e carteiras originais</small>
+        {!isFirebase && (
+          <div className="row">
+            <span className="ico"><Icon name="refresh" /></span>
+            <div className="grow">
+              <b>Dados de demonstração</b>
+              <small className="muted">Restaurar transações, metas e carteiras originais</small>
+            </div>
+            <button type="button" className="btn ghost sm" onClick={onReset}>
+              {resetMsg ? 'Restaurado!' : 'Restaurar'}
+            </button>
           </div>
-          <button type="button" className="btn ghost sm" onClick={onReset}>
-            {resetMsg ? 'Restaurado!' : 'Restaurar'}
-          </button>
-        </div>
+        )}
       </section>
     </>
   );

@@ -25,12 +25,12 @@ function calculate(left, right, operator) {
   return { value: right };
 }
 
-export function createAmountState(value = 0) {
+export function createAmountState(value = 0, { replace = false } = {}) {
   return {
     current: toRaw(Math.max(0, Number(value) || 0)),
     stored: null,
     operator: null,
-    replace: false,
+    replace: Boolean(replace),
     error: '',
   };
 }

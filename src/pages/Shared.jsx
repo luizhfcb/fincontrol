@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import ConfirmDialog from '../components/ConfirmDialog.jsx';
 import Icon from '../components/Icon.jsx';
 import MonthBar from '../components/MonthBar.jsx';
 import { useApp } from '../context/AppContext.jsx';
@@ -10,24 +11,38 @@ export default function Shared() {
     isFirebase, user, group, visibleWallets, updateGroup, createInviteCode, joinByInviteCode,
     allTransactions, month, year, fmt,
   } = useApp();
-  const wallets = visibleWallets?.length ? visibleWallets : group.wallets;
-  const [invite, setInvite] = useState({ name: '', email: '', walletId: wallets.find((w) => w.shared)?.id || wallets[0].id });
-  const [codeWallet, setCodeWallet] = useState(wallets.find((w) => w.shared)?.id || wallets[0].id);
+  const allWallets = group?.wallets || [];
+  const wallets = visibleWallets?.length ? visibleWallets : allWallets;
+  const defaultWalletId = wallets.find((w) => w.shared)?.id || wallets[0]?.id || '';
+  const [invite, setInvite] = useState({ name: '', email: '', walletId: defaultWalletId });
+  const [codeWallet, setCodeWallet] = useState(defaultWalletId);
   const [generatedCode, setGeneratedCode] = useState('');
   const [copied, setCopied] = useState(false);
   const [joinCode, setJoinCode] = useState('');
   const [joinMsg, setJoinMsg] = useState({ type: '', text: '' });
   const [walletName, setWalletName] = useState('');
   const [err, setErr] = useState('');
+  const [confirmRemove, setConfirmRemove] = useState(null);
+
+  const selectedCodeWallet = allWallets.some((w) => w.id === codeWallet)
+    ? codeWallet
+    : (allWallets.find((w) => w.shared)?.id || allWallets[0]?.id || '');
+  const selectedInviteWallet = allWallets.some((w) => w.id === invite.walletId)
+    ? invite.walletId
+    : (allWallets.find((w) => w.shared)?.id || allWallets[0]?.id || '');
 
   const myUid = user?.uid || 'u1';
   const monthTxs = allTransactions.filter((t) => t.month === month && t.year === year);
-  const nameOf = (id) => group.members.find((m) => m.id === id)?.name || 'Membro';
+  const nameOf = (id) => (group?.members || []).find((m) => m.id === id)?.name || 'Membro';
 
   const handleGenerateCode = async () => {
     setErr('');
+    if (!selectedCodeWallet) {
+      setErr('Nenhuma carteira disponível para compartilhar.');
+      return;
+    }
     try {
-      const code = await createInviteCode(codeWallet);
+      const code = await createInviteCode(selectedCodeWallet);
       setGeneratedCode(code);
       setCopied(false);
     } catch (e) {
@@ -65,7 +80,7 @@ export default function Shared() {
     updateGroup({
       ...group,
       members: [...group.members, { id, name: invite.name.trim(), email: invite.email.trim() }],
-      wallets: group.wallets.map((w) => (w.id === invite.walletId ? { ...w, shared: true, memberIds: [...w.memberIds, id] } : w)),
+      wallets: allWallets.map((w) => (w.id === selectedInviteWallet ? { ...w, shared: true, memberIds: [...w.memberIds, id] } : w)),
     });
     setInvite({ ...invite, name: '', email: '' });
   };
@@ -168,9 +183,10 @@ export default function Shared() {
                         </div>
                         {w.memberIds.length > 1 && mid !== myUid && (
                           <button
+                            type="button"
                             className="icon-btn danger"
                             aria-label={`Remover ${nameOf(mid)} de ${w.name}`}
-                            onClick={() => removeFromWallet(w, mid)}
+                            onClick={() => setConfirmRemove({ wallet: w, memberId: mid, memberName: nameOf(mid) })}
                           >
                             <Icon name="close" size={16} />
                           </button>
@@ -193,8 +209,18 @@ export default function Shared() {
           </p>
           <div className="field">
             <label htmlFor="cw">Carteira para compartilhar</label>
-            <select id="cw" className="input" value={codeWallet} onChange={(e) => setCodeWallet(e.target.value)}>
-              {group.wallets.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
+            <select
+              id="cw"
+              className="input"
+              value={selectedCodeWallet}
+              onChange={(e) => setCodeWallet(e.target.value)}
+              disabled={allWallets.length === 0}
+            >
+              {allWallets.length === 0 ? (
+                <option value="">Nenhuma carteira disponível</option>
+              ) : (
+                allWallets.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)
+              )}
             </select>
           </div>
           <button type="button" className="btn" onClick={handleGenerateCode}>
@@ -263,16 +289,40 @@ export default function Shared() {
               </div>
               <div className="field">
                 <label htmlFor="iw">Carteira</label>
-                <select id="iw" className="input" value={invite.walletId} onChange={(e) => setInvite({ ...invite, walletId: e.target.value })}>
-                  {group.wallets.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
+                <select
+                  id="iw"
+                  className="input"
+                  value={selectedInviteWallet}
+                  onChange={(e) => setInvite({ ...invite, walletId: e.target.value })}
+                  disabled={allWallets.length === 0}
+                >
+                  {allWallets.length === 0 ? (
+                    <option value="">Nenhuma carteira disponível</option>
+                  ) : (
+                    allWallets.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)
+                  )}
                 </select>
               </div>
               {err && <p className="neg tiny" role="alert" style={{ marginBottom: 10 }}>{err}</p>}
-              <button className="btn ghost" type="submit">Adicionar ao grupo demo</button>
+              <button className="btn ghost" type="submit" disabled={allWallets.length === 0}>Adicionar ao grupo demo</button>
             </form>
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={Boolean(confirmRemove)}
+        title="Remover participante"
+        message={confirmRemove ? `Deseja remover ${confirmRemove.memberName} da carteira "${confirmRemove.wallet.name}"?` : ''}
+        confirmLabel="Remover"
+        cancelLabel="Cancelar"
+        danger
+        onConfirm={() => {
+          if (confirmRemove) removeFromWallet(confirmRemove.wallet, confirmRemove.memberId);
+          setConfirmRemove(null);
+        }}
+        onCancel={() => setConfirmRemove(null)}
+      />
     </>
   );
 }
