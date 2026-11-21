@@ -5,15 +5,16 @@ import Icon from '../components/Icon.jsx';
 import MonthBar from '../components/MonthBar.jsx';
 import { useApp } from '../context/AppContext.jsx';
 import { totals } from '../core/analytics.js';
+import { PERSONAL_WALLET_ID, deleteWallet, renameWallet } from '../core/family.js';
 
 export default function Shared() {
   const {
     isFirebase, user, group, visibleWallets, updateGroup, createInviteCode, joinByInviteCode,
-    allTransactions, month, year, fmt,
+    allTransactions, month, year, fmt, walletId, setWalletId,
   } = useApp();
   const allWallets = group?.wallets || [];
   const wallets = visibleWallets?.length ? visibleWallets : allWallets;
-  const shareableWallets = wallets.filter((w) => w.id !== 'w-pessoal');
+  const shareableWallets = wallets.filter((w) => w.id !== PERSONAL_WALLET_ID);
   const defaultWalletId = shareableWallets.find((w) => w.shared)?.id || shareableWallets[0]?.id || '';
   const [invite, setInvite] = useState({ name: '', email: '', walletId: defaultWalletId });
   const [codeWallet, setCodeWallet] = useState(defaultWalletId);
@@ -25,6 +26,10 @@ export default function Shared() {
   const [err, setErr] = useState('');
   const [codeErr, setCodeErr] = useState('');
   const [confirmRemove, setConfirmRemove] = useState(null);
+  const [editingWalletId, setEditingWalletId] = useState(null);
+  const [editingName, setEditingName] = useState('');
+  const [editErr, setEditErr] = useState('');
+  const [confirmDeleteWallet, setConfirmDeleteWallet] = useState(null);
 
   const selectedCodeWallet = shareableWallets.some((w) => w.id === codeWallet)
     ? codeWallet
@@ -105,6 +110,37 @@ export default function Shared() {
     });
   };
 
+  const startEditWallet = (w) => {
+    setEditingWalletId(w.id);
+    setEditingName(w.name);
+    setEditErr('');
+  };
+
+  const cancelEditWallet = () => {
+    setEditingWalletId(null);
+    setEditingName('');
+    setEditErr('');
+  };
+
+  const saveEditWallet = async (e, wId) => {
+    e.preventDefault();
+    const res = renameWallet(group, wId, editingName);
+    if (!res.ok) {
+      setEditErr(res.error);
+      return;
+    }
+    await updateGroup(res.group);
+    cancelEditWallet();
+  };
+
+  const handleDeleteWallet = async (w) => {
+    const res = deleteWallet(group, w.id);
+    if (!res.ok) return;
+    await updateGroup(res.group);
+    if (walletId === w.id) setWalletId('all');
+    if (editingWalletId === w.id) cancelEditWallet();
+  };
+
   return (
     <>
       <div className="page-toolbar">
@@ -135,22 +171,67 @@ export default function Shared() {
         {wallets.map((w) => {
           const txs = monthTxs.filter((t) => t.walletId === w.id);
           const t = totals(txs);
+          const isCustom = w.id !== PERSONAL_WALLET_ID;
+          const isEditing = editingWalletId === w.id;
           return (
             <section className="card" key={w.id}>
               <div className="card-head">
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
                   <span className="ico" style={{ width: 38, height: 38 }}>
                     <Icon name={w.shared ? 'users' : 'wallet'} size={18} />
                   </span>
-                  <div>
-                    <h3 style={{ marginBottom: 0 }}>{w.name}</h3>
+                  <div style={{ minWidth: 0 }}>
+                    <h3 className="ellipsis" style={{ marginBottom: 0 }}>{w.name}</h3>
                     <small className="muted tiny">{w.memberIds.length} {w.memberIds.length === 1 ? 'membro' : 'membros'}</small>
                   </div>
                 </div>
-                <span className={`badge ${w.shared ? 'good' : 'neutral'}`}>
-                  {w.shared ? 'Compartilhada' : 'Individual'}
-                </span>
+                <div className="wallet-card-actions">
+                  <span className={`badge ${w.shared ? 'good' : 'neutral'}`}>
+                    {w.shared ? 'Compartilhada' : 'Individual'}
+                  </span>
+                  {isCustom && (
+                    <>
+                      <button
+                        type="button"
+                        className="icon-btn sm-btn"
+                        aria-label={`Renomear carteira ${w.name}`}
+                        title="Renomear carteira"
+                        onClick={() => (isEditing ? cancelEditWallet() : startEditWallet(w))}
+                      >
+                        <Icon name="edit" size={15} />
+                      </button>
+                      <button
+                        type="button"
+                        className="icon-btn sm-btn danger"
+                        aria-label={`Excluir carteira ${w.name}`}
+                        title="Excluir carteira"
+                        onClick={() => setConfirmDeleteWallet(w)}
+                      >
+                        <Icon name="trash" size={15} />
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
+
+              {isEditing && (
+                <form className="wallet-rename-form" onSubmit={(e) => saveEditWallet(e, w.id)}>
+                  <div className="wallet-rename-row">
+                    <input
+                      className="input"
+                      maxLength={40}
+                      aria-label={`Novo nome para ${w.name}`}
+                      value={editingName}
+                      onChange={(e) => { setEditingName(e.target.value); if (editErr) setEditErr(''); }}
+                      onKeyDown={(e) => { if (e.key === 'Escape') cancelEditWallet(); }}
+                      autoFocus
+                    />
+                    <button type="submit" className="btn sm">Salvar</button>
+                    <button type="button" className="btn ghost sm" onClick={cancelEditWallet}>Cancelar</button>
+                  </div>
+                  {editErr && <p className="neg tiny" role="alert" style={{ marginTop: 6 }}>{editErr}</p>}
+                </form>
+              )}
 
               <div className="grid2" style={{ marginTop: 10, marginBottom: w.shared ? 14 : 0 }}>
                 <div style={{ padding: '10px 12px', borderRadius: 12, background: 'var(--card2)' }}>
@@ -325,6 +406,22 @@ export default function Shared() {
           setConfirmRemove(null);
         }}
         onCancel={() => setConfirmRemove(null)}
+      />
+
+      <ConfirmDialog
+        open={Boolean(confirmDeleteWallet)}
+        title="Excluir carteira"
+        message={confirmDeleteWallet
+          ? `Deseja excluir a carteira "${confirmDeleteWallet.name}"? Os lançamentos já registrados continuam salvos em "Todas as carteiras".`
+          : ''}
+        confirmLabel="Excluir"
+        cancelLabel="Cancelar"
+        danger
+        onConfirm={() => {
+          if (confirmDeleteWallet) handleDeleteWallet(confirmDeleteWallet);
+          setConfirmDeleteWallet(null);
+        }}
+        onCancel={() => setConfirmDeleteWallet(null)}
       />
     </>
   );

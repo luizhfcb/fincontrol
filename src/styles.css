@@ -4031,3 +4031,38 @@ select.input option {
   padding: 0 14px;
   white-space: nowrap;
 }
+
+/* ---------- Wallet Card Rename & Delete Controls ---------- */
+.wallet-card-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+
+.icon-btn.sm-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+}
+
+.wallet-rename-form {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 14px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+}
+
+.wallet-rename-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wallet-rename-row .input {
+  flex: 1 1 150px;
+  padding: 8px 12px;
+  font-size: 13.5px;
+}
