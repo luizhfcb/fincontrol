@@ -4,13 +4,14 @@ import { useApp } from '../context/AppContext.jsx';
 import { useDialogA11y } from '../core/useDialogA11y.js';
 import Icon from './Icon.jsx';
 
+const FEATURE_ID = 'family_v1';
 const STORAGE_PREFIX = 'fc_whats_new_family_v1';
 
 function storageKey(uid) {
   return `${STORAGE_PREFIX}_${uid || 'default'}`;
 }
 
-function hasSeen(uid) {
+function hasLocalSeen(uid) {
   try {
     return localStorage.getItem(storageKey(uid)) === '1';
   } catch {
@@ -18,7 +19,7 @@ function hasSeen(uid) {
   }
 }
 
-function markSeen(uid) {
+function markLocalSeen(uid) {
   try {
     localStorage.setItem(storageKey(uid), '1');
   } catch { /* ignore private mode */ }
@@ -88,23 +89,46 @@ const SLIDES = [
 ];
 
 export default function WhatsNewModal() {
-  const { user } = useApp();
+  const { user, modules, markFeatureSeen } = useApp();
   const navigate = useNavigate();
-  const [open, setOpen] = useState(() => Boolean(user && !hasSeen(user.uid)));
+  const uid = user?.uid;
+  const seenRemote = Array.isArray(modules?.seenFeatures) && modules.seenFeatures.includes(FEATURE_ID);
+  const seenLocal = Boolean(uid && hasLocalSeen(uid));
+  const alreadySeen = seenRemote || seenLocal;
+
+  const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
+  const dismissedForUidRef = useRef(null);
   const cardRef = useRef(null);
 
   useEffect(() => {
-    if (user && !hasSeen(user.uid)) {
-      setOpen(true);
-      setStep(0);
+    if (!uid || !modules) return;
+
+    // Se já viu no localStorage antes dessa correção, sincroniza no Firestore para não voltar ao limpar cache
+    if (seenLocal && !seenRemote) {
+      markFeatureSeen(FEATURE_ID);
     }
-  }, [user]);
+
+    if (alreadySeen || dismissedForUidRef.current === uid) {
+      setOpen(false);
+      return;
+    }
+
+    setStep(0);
+    setOpen(true);
+  }, [uid, modules, seenLocal, seenRemote, alreadySeen, markFeatureSeen]);
+
+  const markPermanentSeen = useCallback(() => {
+    if (!uid) return;
+    dismissedForUidRef.current = uid;
+    markLocalSeen(uid);
+    markFeatureSeen(FEATURE_ID);
+  }, [uid, markFeatureSeen]);
 
   const dismiss = useCallback(() => {
-    markSeen(user?.uid);
+    markPermanentSeen();
     setOpen(false);
-  }, [user]);
+  }, [markPermanentSeen]);
 
   useDialogA11y(open, dismiss, cardRef);
 
@@ -124,7 +148,7 @@ export default function WhatsNewModal() {
   if (!open) return null;
 
   const goExplore = () => {
-    markSeen(user?.uid);
+    markPermanentSeen();
     setOpen(false);
     navigate('/mais/compartilhamento');
   };

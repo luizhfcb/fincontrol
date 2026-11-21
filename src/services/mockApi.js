@@ -123,6 +123,15 @@ export const mockApi = {
 
   async getModules() { return wait(load().modules); },
   async saveModules(modules) { load().modules = modules; persist(); return wait(modules); },
+  async markFeatureSeen(featureId) {
+    const d = load();
+    const cur = Array.isArray(d.modules.seenFeatures) ? d.modules.seenFeatures : [];
+    if (!cur.includes(featureId)) {
+      d.modules.seenFeatures = [...cur, featureId];
+      persist();
+    }
+    return wait(d.modules.seenFeatures);
+  },
 
   async listGoals() { return wait(load().goals); },
   async saveGoals(goals) { load().goals = goals; persist(); return wait(goals); },

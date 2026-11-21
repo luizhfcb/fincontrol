@@ -47,7 +47,7 @@ export default function TxModal() {
   const editing = txModal.tx;
   const wallets = visibleWallets?.length ? visibleWallets : (group?.wallets || []);
 
-  const [type, setType] = useState(editing?.type || 'expense');
+  const [type, setType] = useState(editing?.type || 'income');
   const [amountState, setAmountState] = useState(() =>
     createAmountState(editing?.val || 0, { replace: Boolean(editing) }),
   );
