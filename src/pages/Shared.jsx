@@ -13,7 +13,8 @@ export default function Shared() {
   } = useApp();
   const allWallets = group?.wallets || [];
   const wallets = visibleWallets?.length ? visibleWallets : allWallets;
-  const defaultWalletId = wallets.find((w) => w.shared)?.id || wallets[0]?.id || '';
+  const shareableWallets = wallets.filter((w) => w.id !== 'w-pessoal');
+  const defaultWalletId = shareableWallets.find((w) => w.shared)?.id || shareableWallets[0]?.id || '';
   const [invite, setInvite] = useState({ name: '', email: '', walletId: defaultWalletId });
   const [codeWallet, setCodeWallet] = useState(defaultWalletId);
   const [generatedCode, setGeneratedCode] = useState('');
@@ -22,23 +23,24 @@ export default function Shared() {
   const [joinMsg, setJoinMsg] = useState({ type: '', text: '' });
   const [walletName, setWalletName] = useState('');
   const [err, setErr] = useState('');
+  const [codeErr, setCodeErr] = useState('');
   const [confirmRemove, setConfirmRemove] = useState(null);
 
-  const selectedCodeWallet = allWallets.some((w) => w.id === codeWallet)
+  const selectedCodeWallet = shareableWallets.some((w) => w.id === codeWallet)
     ? codeWallet
-    : (allWallets.find((w) => w.shared)?.id || allWallets[0]?.id || '');
-  const selectedInviteWallet = allWallets.some((w) => w.id === invite.walletId)
+    : (shareableWallets.find((w) => w.shared)?.id || shareableWallets[0]?.id || '');
+  const selectedInviteWallet = shareableWallets.some((w) => w.id === invite.walletId)
     ? invite.walletId
-    : (allWallets.find((w) => w.shared)?.id || allWallets[0]?.id || '');
+    : (shareableWallets.find((w) => w.shared)?.id || shareableWallets[0]?.id || '');
 
   const myUid = user?.uid || 'u1';
   const monthTxs = allTransactions.filter((t) => t.month === month && t.year === year);
   const nameOf = (id) => (group?.members || []).find((m) => m.id === id)?.name || 'Membro';
 
   const handleGenerateCode = async () => {
-    setErr('');
+    setCodeErr('');
     if (!selectedCodeWallet) {
-      setErr('Nenhuma carteira disponível para compartilhar.');
+      setCodeErr('Crie uma carteira abaixo (ex.: Viagem ou Casa) para compartilhar.');
       return;
     }
     try {
@@ -46,7 +48,7 @@ export default function Shared() {
       setGeneratedCode(code);
       setCopied(false);
     } catch (e) {
-      setErr(e?.message || 'Erro ao gerar código.');
+      setCodeErr(e?.message || 'Erro ao gerar código.');
     }
   };
 
@@ -214,18 +216,19 @@ export default function Shared() {
               className="input"
               value={selectedCodeWallet}
               onChange={(e) => setCodeWallet(e.target.value)}
-              disabled={allWallets.length === 0}
+              disabled={shareableWallets.length === 0}
             >
-              {allWallets.length === 0 ? (
-                <option value="">Nenhuma carteira disponível</option>
+              {shareableWallets.length === 0 ? (
+                <option value="">Crie uma carteira (ex.: Viagem ou Casa) primeiro</option>
               ) : (
-                allWallets.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)
+                shareableWallets.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)
               )}
             </select>
           </div>
-          <button type="button" className="btn" onClick={handleGenerateCode}>
+          <button type="button" className="btn" onClick={handleGenerateCode} disabled={shareableWallets.length === 0}>
             <Icon name="users" size={17} /> Gerar código de convite
           </button>
+          {codeErr && <p className="neg tiny" role="alert" style={{ marginTop: 8 }}>{codeErr}</p>}
 
           {generatedCode && (
             <div className="invite-code-box">

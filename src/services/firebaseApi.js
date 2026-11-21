@@ -151,16 +151,17 @@ export const firebaseApi = {
         (err) => onError?.(err),
       );
 
-      // 2. Transações compartilhadas do grupo
+      // 2. Transações compartilhadas do grupo (sem índice composto: filtra janela de 12 meses em memória)
       const sharedQ = query(
         collection(db, 'transactions'),
         where('groupId', '==', groupId),
-        where('date', '>=', cutoff),
       );
       unsubShared = onSnapshot(
         sharedQ,
         (snap) => {
-          sharedTxs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          sharedTxs = snap.docs
+            .map((d) => ({ id: d.id, ...d.data() }))
+            .filter((t) => !t.date || t.date >= cutoff);
           emitTxs();
         },
         (err) => onError?.(err),
@@ -265,9 +266,23 @@ export const firebaseApi = {
     const { auth, db } = getFirebase();
     const uid = auth.currentUser?.uid;
     if (!uid || !currentGroupCache) throw new Error('Grupo não carregado.');
+    if (!walletId || walletId === PERSONAL_WALLET_ID) {
+      throw new Error('Crie uma carteira separada (ex.: Viagem ou Casa) para compartilhar.');
+    }
+
+    const gid = currentGroupCache.id || uid;
+    // Garante que a carteira já fique marcada como compartilhada para que novos lançamentos levem groupId
+    const wallets = currentGroupCache.wallets || [];
+    const target = wallets.find((w) => w.id === walletId);
+    if (target && !target.shared) {
+      const nextWallets = wallets.map((w) => (w.id === walletId ? { ...w, shared: true } : w));
+      await setDoc(doc(db, 'groups', gid), { wallets: nextWallets, updatedAt: serverTimestamp() }, { merge: true });
+      currentGroupCache = { ...currentGroupCache, wallets: nextWallets };
+    }
+
     const code = generateInviteCode();
     await setDoc(doc(db, 'invites', code), {
-      groupId: currentGroupCache.id || uid,
+      groupId: gid,
       walletId,
       createdBy: uid,
       createdAt: serverTimestamp(),
@@ -289,6 +304,14 @@ export const firebaseApi = {
 
     const { groupId, walletId } = invSnap.data();
     const groupRef = doc(db, 'groups', groupId);
+
+    // 1º passo: entra em memberUids antes de ler o documento do grupo
+    // (as regras do Firestore exigem uid em memberUids para permitir leitura de groups/{groupId})
+    await updateDoc(groupRef, {
+      memberUids: arrayUnion(fbUser.uid),
+    });
+
+    // 2º passo: agora como membro autenticado, lê e adiciona o perfil + acesso à carteira convidada
     const groupSnap = await getDoc(groupRef);
     if (!groupSnap.exists()) throw new Error('Grupo não encontrado.');
 
@@ -309,7 +332,6 @@ export const firebaseApi = {
     ));
 
     await updateDoc(groupRef, {
-      memberUids: arrayUnion(fbUser.uid),
       members: nextMembers,
       wallets: nextWallets,
     });
