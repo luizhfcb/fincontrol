@@ -161,6 +161,18 @@ export function AppProvider({ children }) {
     const saved = await api.saveGroup(next);
     if (saved) setGroup(saved);
   };
+  const markFeatureSeen = useCallback(async (featureId) => {
+    if (!featureId) return;
+    setModules((prev) => {
+      if (!prev) return prev;
+      const cur = Array.isArray(prev.seenFeatures) ? prev.seenFeatures : [];
+      if (cur.includes(featureId)) return prev;
+      return { ...prev, seenFeatures: [...cur, featureId] };
+    });
+    try {
+      await api.markFeatureSeen?.(featureId);
+    } catch { /* fallback localStorage já salvo */ }
+  }, []);
   const createInviteCode = async (targetWalletId) => api.createInviteCode(targetWalletId);
   const joinByInviteCode = async (code) => {
     const joined = await api.joinByInviteCode(code);
@@ -181,7 +193,7 @@ export function AppProvider({ children }) {
     walletId, setWalletId,
     txModal, openTxModal: (tx = null) => setTxModal({ tx }), closeTxModal: () => setTxModal(null),
     saveTransaction, deleteTransaction, updateModules, updateGoals, updateGroup,
-    createInviteCode, joinByInviteCode, resetDemo,
+    createInviteCode, joinByInviteCode, markFeatureSeen, resetDemo,
     theme, toggleTheme, hideValues, toggleHideValues, fmt, fmtCompact,
   };
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

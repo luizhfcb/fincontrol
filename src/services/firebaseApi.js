@@ -54,6 +54,7 @@ function normalizeModules(raw = {}) {
     subscriptions: Array.isArray(raw.subscriptions) ? raw.subscriptions : [],
     bills: Array.isArray(raw.bills) ? raw.bills : [],
     stockItems: Array.isArray(raw.stockItems) ? raw.stockItems : [],
+    seenFeatures: Array.isArray(raw.seenFeatures) ? raw.seenFeatures : [],
   };
 }
 
@@ -243,6 +244,17 @@ export const firebaseApi = {
     if (!uid) return goals;
     await setDoc(doc(db, 'modules', uid), { goals, updatedAt: serverTimestamp() }, { merge: true });
     return goals;
+  },
+
+  async markFeatureSeen(featureId) {
+    const { auth, db } = getFirebase();
+    const uid = auth.currentUser?.uid;
+    if (!uid || !featureId) return;
+    await setDoc(
+      doc(db, 'modules', uid),
+      { seenFeatures: arrayUnion(featureId), updatedAt: serverTimestamp() },
+      { merge: true },
+    );
   },
 
   async saveGroup(group) {

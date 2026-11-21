@@ -100,3 +100,49 @@ export function generateInviteCode(rand = Math.random) {
   }
   return `FAM-${suffix}`;
 }
+
+/**
+ * Renomeia uma carteira do grupo com validação de nome vazio ou duplicado.
+ */
+export function renameWallet(group, walletId, rawName) {
+  const name = String(rawName || '').trim();
+  if (!name) return { ok: false, error: 'Informe um nome para a carteira.' };
+  if (name.length > 40) return { ok: false, error: 'Use no máximo 40 caracteres.' };
+
+  const wallets = group?.wallets || [];
+  const exists = wallets.some(
+    (w) => w.id !== walletId && w.name.trim().toLowerCase() === name.toLowerCase(),
+  );
+  if (exists) return { ok: false, error: 'Já existe uma carteira com esse nome.' };
+
+  const found = wallets.some((w) => w.id === walletId);
+  if (!found) return { ok: false, error: 'Carteira não encontrada.' };
+
+  return {
+    ok: true,
+    group: {
+      ...group,
+      wallets: wallets.map((w) => (w.id === walletId ? { ...w, name } : w)),
+    },
+  };
+}
+
+/**
+ * Exclui uma carteira criada pelo usuário (protege a carteira Pessoal).
+ */
+export function deleteWallet(group, walletId) {
+  if (walletId === PERSONAL_WALLET_ID) {
+    return { ok: false, error: 'A carteira Pessoal não pode ser excluída.' };
+  }
+  const wallets = group?.wallets || [];
+  if (!wallets.some((w) => w.id === walletId)) {
+    return { ok: false, error: 'Carteira não encontrada.' };
+  }
+  return {
+    ok: true,
+    group: {
+      ...group,
+      wallets: wallets.filter((w) => w.id !== walletId),
+    },
+  };
+}

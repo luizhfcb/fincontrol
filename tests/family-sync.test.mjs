@@ -3,11 +3,13 @@ import test from 'node:test';
 import {
   PERSONAL_WALLET_ID,
   buildDefaultGroup,
+  deleteWallet,
   filterVisibleTransactions,
   generateInviteCode,
   mergeTransactions,
   normalizeInviteCode,
   normalizeTransaction,
+  renameWallet,
   visibleWalletsForUser,
 } from '../src/core/family.js';
 
@@ -56,4 +58,25 @@ test('visibleWalletsForUser e filterVisibleTransactions isolam carteiras não co
   ];
   const filhoTxs = filterVisibleTransactions(txs, 'filho', filhoWallets);
   assert.deepEqual(filhoTxs.map((t) => t.id), ['3', '4']);
+});
+
+test('renameWallet e deleteWallet validam nomes e protegem a carteira Pessoal', () => {
+  const base = {
+    id: 'u1',
+    wallets: [
+      { id: PERSONAL_WALLET_ID, name: 'Pessoal', shared: false, memberIds: ['u1'] },
+      { id: 'w-viagem', name: 'Viagem', shared: true, memberIds: ['u1', 'u2'] },
+    ],
+  };
+
+  assert.equal(renameWallet(base, 'w-viagem', '   ').ok, false);
+  assert.equal(renameWallet(base, 'w-viagem', 'pessoal').ok, false);
+  const renamed = renameWallet(base, 'w-viagem', 'Viagem Sul');
+  assert.equal(renamed.ok, true);
+  assert.equal(renamed.group.wallets[1].name, 'Viagem Sul');
+
+  assert.equal(deleteWallet(base, PERSONAL_WALLET_ID).ok, false);
+  const deleted = deleteWallet(base, 'w-viagem');
+  assert.equal(deleted.ok, true);
+  assert.deepEqual(deleted.group.wallets.map((w) => w.id), [PERSONAL_WALLET_ID]);
 });
