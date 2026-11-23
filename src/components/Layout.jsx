@@ -129,9 +129,11 @@ export default function Layout() {
   const meta = PAGE_META[pathname] || { title: 'FinControl', sub: 'Controle financeiro inteligente' };
   const unpaidBills = modules?.bills?.filter((b) => !b.paid).length || 0;
   const stockAlerts = modules ? countStockAlerts(modules) : 0;
+  const moreAlerts = unpaidBills + stockAlerts;
 
   useEffect(() => {
     setAvatarMenuOpen(false);
+    window.scrollTo(0, 0);
   }, [pathname]);
 
   useEffect(() => {
@@ -225,32 +227,35 @@ export default function Layout() {
         </div>
 
         <button type="button" className="sb-cta" onClick={() => openTxModal()}>
-          <Icon name="plus" /> Nova transação
+          <Icon name="plus" /> <span>Nova transação</span> <kbd className="kbd-hint">N</kbd>
         </button>
 
-        <div className="sb-section-label">Painel</div>
-        <nav className="sb-nav" aria-label="Principal desktop">
-          <NavLink to="/" end className={nav}><Icon name="home" /> Visão geral</NavLink>
-          <NavLink to="/transacoes" className={nav}><Icon name="list" /> Transações</NavLink>
-          <NavLink to="/analises" className={nav}><Icon name="chart" /> Análises</NavLink>
-        </nav>
+        <div className="sb-scroll">
+          <div className="sb-section-label">Painel</div>
+          <nav className="sb-nav" aria-label="Principal desktop">
+            <NavLink to="/" end className={nav}><Icon name="home" /> Visão geral</NavLink>
+            <NavLink to="/transacoes" className={nav}><Icon name="list" /> Transações</NavLink>
+            <NavLink to="/analises" className={nav}><Icon name="chart" /> Análises</NavLink>
+          </nav>
 
-        <div className="sb-section-label" style={{ marginTop: 12 }}>Planejamento</div>
-        <nav className="sb-nav" aria-label="Módulos desktop">
-          <NavLink to="/mais/metas" className={nav}><Icon name="target" /> Metas financeiras</NavLink>
-          <NavLink to="/mais/compartilhamento" className={nav}><Icon name="users" /> Carteiras &amp; Grupo</NavLink>
-          <NavLink to="/mais/limites" className={nav}><Icon name="sliders" /> Limites de gasto</NavLink>
-          <NavLink to="/mais/assinaturas" className={nav}><Icon name="creditCard" /> Assinaturas</NavLink>
-          <NavLink to="/mais/contas" className={nav}>
-            <Icon name="receipt" /> Contas fixas
-            {unpaidBills > 0 && <span className="sb-badge">{unpaidBills}</span>}
-          </NavLink>
-          <NavLink to="/mais/estoque" className={nav}>
-            <Icon name="box" /> Estoque
-            {stockAlerts > 0 && <span className="sb-badge">{stockAlerts}</span>}
-          </NavLink>
-          <NavLink to="/mais" end className={nav}><Icon name="more" /> Todos os módulos</NavLink>
-        </nav>
+          <div className="sb-section-label" style={{ marginTop: 12 }}>Planejamento</div>
+          <nav className="sb-nav" aria-label="Módulos desktop">
+            <NavLink to="/mais/metas" className={nav}><Icon name="target" /> Metas financeiras</NavLink>
+            <NavLink to="/mais/compartilhamento" className={nav}><Icon name="users" /> Carteiras &amp; Grupo</NavLink>
+            <NavLink to="/mais/limites" className={nav}><Icon name="sliders" /> Limites de gasto</NavLink>
+            <NavLink to="/mais/assinaturas" className={nav}><Icon name="creditCard" /> Assinaturas</NavLink>
+            <NavLink to="/mais/contas" className={nav}>
+              <Icon name="receipt" /> Contas fixas
+              {unpaidBills > 0 && <span className="sb-badge">{unpaidBills}</span>}
+            </NavLink>
+            <NavLink to="/mais/estoque" className={nav}>
+              <Icon name="box" /> Estoque
+              {stockAlerts > 0 && <span className="sb-badge">{stockAlerts}</span>}
+            </NavLink>
+            <NavLink to="/mais/categorias" className={nav}><Icon name="tag" /> Categorias</NavLink>
+            <NavLink to="/mais" end className={nav}><Icon name="more" /> Todos os módulos</NavLink>
+          </nav>
+        </div>
 
         <div className="sb-spacer" />
 
@@ -295,7 +300,7 @@ export default function Layout() {
                     setAvatarMenuOpen(false);
                   }}
                 >
-                  <Icon name={hideValues ? 'eye' : 'eyeOff'} size={16} />
+                  <Icon name={hideValues ? 'eyeOff' : 'eye'} size={16} />
                   <span>{hideValues ? 'Mostrar valores' : 'Ocultar valores'}</span>
                 </button>
                 <button
@@ -373,7 +378,13 @@ export default function Layout() {
             <Icon name="plus" />
           </button>
           <NavLink to="/analises" className={nav}><Icon name="chart" />Análises</NavLink>
-          <NavLink to="/mais" className={nav}><Icon name="more" />Mais</NavLink>
+          <NavLink to="/mais" className={nav}>
+            <span className="nav-ico-wrap">
+              <Icon name="more" />
+              {moreAlerts > 0 && <span className="nav-badge-dot" aria-label={`${moreAlerts} pendências`} />}
+            </span>
+            Mais
+          </NavLink>
         </nav>
       </div>
 

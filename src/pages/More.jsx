@@ -7,7 +7,7 @@ import { countStockAlerts } from '../core/stock-alerts.mjs';
 export default function More() {
   const {
     isFirebase, modules, goals, group, theme, toggleTheme,
-    hideValues, toggleHideValues, resetDemo, fmt,
+    hideValues, toggleHideValues, resetDemo, fmt, toast,
   } = useApp();
   const [resetMsg, setResetMsg] = useState(false);
 
@@ -21,35 +21,35 @@ export default function More() {
     {
       to: '/mais/metas',
       icon: 'target',
-      color: '#A78BFA',
+      tone: 'purple',
       title: 'Metas financeiras',
       sub: `${goals.length} ${goals.length === 1 ? 'meta ativa' : 'metas ativas'}`,
     },
     {
       to: '/mais/compartilhamento',
       icon: 'users',
-      color: '#38BDF8',
+      tone: 'accent',
       title: 'Carteiras e compartilhamento',
       sub: `${memberCount} pessoas · ${walletCount} carteiras`,
     },
     {
       to: '/mais/limites',
       icon: 'sliders',
-      color: '#34D399',
+      tone: 'green',
       title: 'Limites por categoria',
       sub: `${modules.limits.length} tetos mensais definidos`,
     },
     {
       to: '/mais/assinaturas',
       icon: 'creditCard',
-      color: '#06B6D4',
+      tone: 'cyan',
       title: 'Assinaturas recorrentes',
       sub: `${modules.subscriptions.length} ativas · ${fmt(subsTotal)}/mês`,
     },
     {
       to: '/mais/contas',
       icon: 'receipt',
-      color: '#FB7185',
+      tone: 'red',
       title: 'Contas fixas',
       sub: unpaid ? `${unpaid} pendente${unpaid > 1 ? 's' : ''} neste mês` : 'Todas em dia',
       warn: unpaid > 0,
@@ -57,7 +57,7 @@ export default function More() {
     {
       to: '/mais/estoque',
       icon: 'box',
-      color: '#FBBF24',
+      tone: 'amber',
       title: 'Estoque doméstico',
       sub: alerts ? `${alerts} ${alerts === 1 ? 'item para repor' : 'itens para repor'}` : 'Estoque abastecido',
       warn: alerts > 0,
@@ -65,7 +65,7 @@ export default function More() {
     {
       to: '/mais/categorias',
       icon: 'tag',
-      color: '#818CF8',
+      tone: 'indigo',
       title: 'Categorias personalizadas',
       sub: `${modules.categories.length} cadastradas`,
     },
@@ -74,6 +74,7 @@ export default function More() {
   const onReset = async () => {
     await resetDemo();
     setResetMsg(true);
+    toast('Dados de exemplo restaurados!', 'info');
     setTimeout(() => setResetMsg(false), 2500);
   };
 
@@ -84,14 +85,7 @@ export default function More() {
       <div className="cards-grid">
         {items.map((item) => (
           <Link key={item.to} to={item.to} className="link-card">
-            <span
-              className="ico"
-              style={{
-                background: `${item.color}1F`,
-                borderColor: `${item.color}45`,
-                color: item.color,
-              }}
-            >
+            <span className={`ico tone-${item.tone}`}>
               <Icon name={item.icon} />
             </span>
             <div className="grow" style={{ flex: 1, minWidth: 0 }}>
@@ -108,7 +102,7 @@ export default function More() {
 
       <div className="section-title">Preferências &amp; Ambiente</div>
       <section className="card">
-        <div className="row">
+        <div className="row pref-row">
           <span className="ico"><Icon name={theme === 'dark' ? 'moon' : 'sun'} /></span>
           <div className="grow">
             <b>Aparência da interface</b>
@@ -119,7 +113,7 @@ export default function More() {
           </button>
         </div>
 
-        <div className="row">
+        <div className="row pref-row">
           <span className="ico"><Icon name={hideValues ? 'eyeOff' : 'eye'} /></span>
           <div className="grow">
             <b>Modo privacidade</b>
@@ -131,7 +125,7 @@ export default function More() {
         </div>
 
         {!isFirebase && (
-          <div className="row">
+          <div className="row pref-row">
             <span className="ico"><Icon name="refresh" /></span>
             <div className="grow">
               <b>Dados de demonstração</b>

@@ -6,6 +6,7 @@ import {
 } from 'recharts';
 import ChartTooltip from '../components/ChartTooltip.jsx';
 import DonutChart from '../components/DonutChart.jsx';
+import EmptyState from '../components/EmptyState.jsx';
 import Icon from '../components/Icon.jsx';
 import MonthBar from '../components/MonthBar.jsx';
 import TxRow from '../components/TxRow.jsx';
@@ -58,7 +59,8 @@ export default function Home() {
   const recent = [...monthlyTransactions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
   const savingsRate = cur.income > 0 ? Math.round(((cur.income - cur.expense) / cur.income) * 100) : null;
   const savingsClamp = savingsRate != null ? Math.max(0, Math.min(100, savingsRate)) : 0;
-  const flowPct = cur.income + cur.expense > 0 ? (cur.income / (cur.income + cur.expense)) * 100 : 50;
+  const hasFlow = cur.income + cur.expense > 0;
+  const flowPct = hasFlow ? (cur.income / (cur.income + cur.expense)) * 100 : 0;
   const walletName = walletId === 'all'
     ? 'Todas as carteiras'
     : group?.wallets?.find((w) => w.id === walletId)?.name || 'Carteira';
@@ -121,8 +123,8 @@ export default function Home() {
                   <span className="hfm-out">{hideValues ? '••%' : `${100 - Math.round(flowPct)}%`} saídas</span>
                 </div>
               )}
-              <div className="hero-flow" aria-hidden="true">
-                <span style={{ width: `${hideValues ? 50 : flowPct}%` }} />
+              <div className={`hero-flow ${hasFlow ? '' : 'is-empty'}`.trim()} aria-hidden="true">
+                <span style={{ width: `${!hasFlow ? 0 : hideValues ? 50 : flowPct}%` }} />
               </div>
             </div>
 
@@ -173,18 +175,35 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="card kpi-mini">
-            <div className="km-head">
-              <span>Maior gasto</span>
-              <span className="km-ico red"><Icon name="arrowUp" size={15} /></span>
+          {stats.biggest ? (
+            <button
+              type="button"
+              className="card kpi-mini kpi-link kpi-btn"
+              onClick={() => openTxModal(stats.biggest)}
+            >
+              <div className="km-head">
+                <span className="km-link-label">Maior gasto <Icon name="right" size={12} className="km-link-arrow" /></span>
+                <span className="km-ico red"><Icon name="arrowUp" size={15} /></span>
+              </div>
+              <strong className="num neg">{fmt(stats.biggest.val)}</strong>
+              <div className="km-foot">
+                <span className="ellipsis">
+                  {`${stats.biggest.desc} · ${stats.biggest.cat}`}
+                </span>
+              </div>
+            </button>
+          ) : (
+            <div className="card kpi-mini">
+              <div className="km-head">
+                <span>Maior gasto</span>
+                <span className="km-ico red"><Icon name="arrowUp" size={15} /></span>
+              </div>
+              <strong className="num neg">—</strong>
+              <div className="km-foot">
+                <span className="ellipsis">Nenhuma saída no mês</span>
+              </div>
             </div>
-            <strong className="num neg">{stats.biggest ? fmt(stats.biggest.val) : '—'}</strong>
-            <div className="km-foot">
-              <span className="ellipsis">
-                {stats.biggest ? `${stats.biggest.desc} · ${stats.biggest.cat}` : 'Nenhuma saída no mês'}
-              </span>
-            </div>
-          </div>
+          )}
 
           <div className="card kpi-mini">
             <div className="km-head">
@@ -267,7 +286,7 @@ export default function Home() {
                 <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: 'var(--chart-axis)', fontSize: 12 }} />
                 <YAxis
                   hide={hideValues}
-                  width={44}
+                  width={48}
                   tickLine={false}
                   axisLine={false}
                   tick={{ fill: 'var(--chart-axis)', fontSize: 11 }}
@@ -289,7 +308,14 @@ export default function Home() {
             <Link to="/transacoes" className="text-link">Ver todas <Icon name="right" size={15} /></Link>
           </div>
           {recent.length === 0 ? (
-            <p className="empty">Clique em &ldquo;Nova transação&rdquo; para começar.</p>
+            <EmptyState
+              compact
+              icon="receipt"
+              title="Nenhuma movimentação no mês"
+              description="Registre um gasto ou receita para acompanhar seu fluxo."
+              actionLabel="Nova transação"
+              onAction={() => openTxModal(null, { defaultType: view === 'income' ? 'income' : 'expense' })}
+            />
           ) : (
             recent.map((t) => (
               <div className="tx-item" key={t.id}>
@@ -302,11 +328,24 @@ export default function Home() {
         <section className="card">
           <div className="card-head">
             <h3>Orçamento &amp; metas</h3>
-            <Link to="/mais/limites" className="text-link">Gerenciar <Icon name="right" size={15} /></Link>
+            <div className="card-head-links">
+              <Link to="/mais/limites" className="text-link">Limites</Link>
+              <span className="muted tiny" aria-hidden="true">·</span>
+              <Link to="/mais/metas" className="text-link">Metas</Link>
+            </div>
           </div>
 
           {limits.length === 0 && goals.length === 0 ? (
-            <p className="empty">Configure limites e metas para acompanhar aqui.</p>
+            <EmptyState
+              compact
+              icon="target"
+              title="Sem limites ou metas"
+              description="Defina tetos de gasto ou acompanhe suas reservas."
+              actionLabel="Definir limites"
+              actionTo="/mais/limites"
+              secondaryLabel="Criar meta"
+              secondaryTo="/mais/metas"
+            />
           ) : (
             <div className="progress-list">
               {limits.slice(0, 3).map((l) => (

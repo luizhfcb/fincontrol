@@ -2,9 +2,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   buildCategoryBreakdown, buildMonthlyTrend, buildWeekdaySpending, filterTransactions,
-  goalProgress, buildLimitProgress, selectPeriodTransactions, buildPeriod, totals,
+  goalProgress, buildLimitProgress, groupByCategory, selectPeriodTransactions, buildPeriod, totals,
 } from '../src/core/analytics.js';
 import { buildDashboardComparison } from '../src/core/dashboard-comparison.mjs';
+import { formatCompactCurrency } from '../src/core/format.js';
 
 const tx = (o) => ({ type: 'expense', cat: 'Outros', val: 10, desc: 'x', ...o });
 const at = (y, m, d) => ({ date: new Date(y, m, d, 12).toISOString(), month: m, year: y });
@@ -71,4 +72,36 @@ test('meta: progresso e valor mensal necessário', () => {
 test('comparação do dashboard (core original)', () => {
   assert.equal(buildDashboardComparison(120, 100, 'Out').percent, 20);
   assert.equal(buildDashboardComparison(10, 0, 'Out'), null);
+});
+
+test('formatCompactCurrency formata positivos, negativos e zeros corretamente', () => {
+  assert.equal(formatCompactCurrency(0), 'R$0');
+  assert.equal(formatCompactCurrency(-0.1), 'R$0');
+  assert.equal(formatCompactCurrency(250), 'R$250');
+  assert.equal(formatCompactCurrency(-250), '-R$250');
+  assert.equal(formatCompactCurrency(2500), 'R$2,5k');
+  assert.equal(formatCompactCurrency(-2500), '-R$2,5k');
+});
+
+test('filterTransactions aceita valores pt-BR com vírgula em min/max', () => {
+  const list = [
+    tx({ desc: 'Café', val: 25 }),
+    tx({ desc: 'Mercado', val: 100 }),
+    tx({ desc: 'Aluguel', val: 1200 }),
+  ];
+  assert.equal(filterTransactions(list, { min: '50,50', max: '150,00' }).length, 1);
+  assert.equal(filterTransactions(list, { min: '50,50', max: '150,00' })[0].desc, 'Mercado');
+});
+
+test('groupByCategory separa entradas, saídas e líquido na mesma categoria', () => {
+  const groups = groupByCategory([
+    tx({ cat: 'Trabalho', type: 'income', val: 500 }),
+    tx({ cat: 'Trabalho', type: 'expense', val: 120 }),
+    tx({ cat: 'Alimentação', type: 'expense', val: 80 }),
+  ]);
+  const trabalho = groups.find((g) => g.cat === 'Trabalho');
+  assert.equal(trabalho.income, 500);
+  assert.equal(trabalho.expense, 120);
+  assert.equal(trabalho.net, 380);
+  assert.equal(trabalho.total, 620);
 });

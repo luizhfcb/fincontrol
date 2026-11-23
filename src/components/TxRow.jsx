@@ -33,7 +33,7 @@ export default function TxRow({ tx, onClick, expanded }) {
     return (
       <button
         type="button"
-        className="row clickable"
+        className={`row clickable ${expanded ? 'is-expanded' : ''}`.trim()}
         onClick={onClick}
         aria-expanded={expanded}
       >

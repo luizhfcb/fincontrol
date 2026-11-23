@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext.jsx';
 import { assignDistinctDonutColors } from '../core/chart-colors.mjs';
 import { CATEGORY_COLORS } from '../core/constants.js';
 import { compactDonutCategories } from '../core/insights.js';
+import EmptyState from './EmptyState.jsx';
 
 const R = 46;
 const C = 2 * Math.PI * R;
@@ -51,7 +52,14 @@ export default function DonutChart({ rows, isIncome = false, limit = 6, showValu
   useEffect(() => { setActive(null); }, [key]);
 
   if (!slices.length || !total) {
-    return <p className="empty">{isIncome ? 'Sem receitas neste mês.' : 'Sem gastos neste mês.'}</p>;
+    return (
+      <EmptyState
+        compact
+        icon="chart"
+        title={isIncome ? 'Sem receitas neste mês' : 'Sem gastos neste mês'}
+        description="Os valores aparecerão aqui assim que houver lançamentos."
+      />
+    );
   }
 
   let offset = 0;

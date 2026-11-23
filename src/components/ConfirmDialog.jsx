@@ -40,7 +40,7 @@ export default function ConfirmDialog({
       >
         <div className="confirm-head">
           {danger && (
-            <span className="confirm-ico" aria-hidden="true">
+            <span className="confirm-ico danger" aria-hidden="true">
               <Icon name="trash" size={18} />
             </span>
           )}

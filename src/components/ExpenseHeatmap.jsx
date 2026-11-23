@@ -134,7 +134,7 @@ export default function ExpenseHeatmap({ transactions }) {
             <div className="hm-detail-date">
               <div className="hm-detail-title-row">
                 <h4>{detail.weekdayLabel}, {detail.day} de {monthName}</h4>
-                {detail.multiplier > 1 && (
+                {!hideValues && detail.multiplier > 1 && (
                   <span className="badge warn hm-mult-badge">
                     {detail.multiplier.toFixed(1)}x dia típico
                   </span>
