@@ -5,32 +5,32 @@ import { useApp } from '../context/AppContext.jsx';
 const FEATURES = [
   {
     icon: 'users',
-    color: '#38BDF8',
+    tone: 'accent',
     title: 'Carteiras Compartilhadas',
     desc: 'Separe gastos pessoais das despesas da casa ou da família com transparência.',
   },
   {
     icon: 'chart',
-    color: '#34D399',
+    tone: 'green',
     title: 'Análises em Tempo Real',
     desc: 'Entenda para onde vai seu dinheiro por categoria, mapa de calor e período.',
   },
   {
     icon: 'target',
-    color: '#A78BFA',
+    tone: 'purple',
     title: 'Metas & Limites',
     desc: 'Defina tetos de gastos mensais e acompanhe o progresso das suas reservas.',
   },
   {
     icon: 'receipt',
-    color: '#FBBF24',
+    tone: 'amber',
     title: 'Rotina Organizada',
     desc: 'Controle assinaturas recorrentes, contas fixas e alertas de reposição.',
   },
 ];
 
 export default function Login() {
-  const { isFirebase, login, resetDemo, theme, toggleTheme } = useApp();
+  const { isFirebase, login, resetDemo, theme, toggleTheme, toast } = useApp();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [resetDone, setResetDone] = useState(false);
@@ -51,6 +51,7 @@ export default function Login() {
   const handleReset = async () => {
     await resetDemo();
     setResetDone(true);
+    toast('Dados de exemplo restaurados!', 'info');
     setTimeout(() => setResetDone(false), 2500);
   };
 
@@ -83,17 +84,7 @@ export default function Login() {
           <div className="feature-grid">
             {FEATURES.map((f) => (
               <div className="feature-item" key={f.title}>
-                <span
-                  className="ico"
-                  style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: 12,
-                    background: `${f.color}1F`,
-                    borderColor: `${f.color}45`,
-                    color: f.color,
-                  }}
-                >
+                <span className={`ico ico-sm tone-${f.tone}`}>
                   <Icon name={f.icon} size={18} />
                 </span>
                 <div>

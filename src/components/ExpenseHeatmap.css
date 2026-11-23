@@ -199,29 +199,29 @@
 
 .heatmap .hm-cell.lv-1,
 .heatmap .hm-sw.lv-1 {
-  background: rgba(56, 189, 248, 0.17);
-  border-color: rgba(56, 189, 248, 0.28);
-  color: #BAE6FD;
+  background: rgba(251, 113, 133, 0.16);
+  border-color: rgba(251, 113, 133, 0.28);
+  color: #FECDD3;
 }
 
 .heatmap .hm-cell.lv-2,
 .heatmap .hm-sw.lv-2 {
-  background: rgba(14, 165, 233, 0.36);
-  border-color: rgba(56, 189, 248, 0.48);
-  color: #F0F9FF;
+  background: rgba(244, 63, 94, 0.34);
+  border-color: rgba(251, 113, 133, 0.45);
+  color: #FFE4E6;
 }
 
 .heatmap .hm-cell.lv-3,
 .heatmap .hm-sw.lv-3 {
-  background: rgba(37, 99, 235, 0.72);
-  border-color: rgba(96, 165, 250, 0.55);
+  background: rgba(225, 29, 72, 0.64);
+  border-color: rgba(251, 113, 133, 0.58);
   color: #FFFFFF;
 }
 
 .heatmap .hm-cell.lv-4,
 .heatmap .hm-sw.lv-4 {
-  background: linear-gradient(135deg, rgba(244, 63, 94, 0.88) 0%, rgba(225, 29, 72, 0.94) 100%);
-  border-color: rgba(251, 113, 133, 0.65);
+  background: linear-gradient(135deg, #F43F5E 0%, #BE123C 100%);
+  border-color: rgba(253, 164, 175, 0.72);
   color: #FFFFFF;
 }
 
@@ -235,29 +235,29 @@
 
 [data-theme="light"] .heatmap .hm-cell.lv-1,
 [data-theme="light"] .heatmap .hm-sw.lv-1 {
-  background: #E0F2FE;
-  border-color: #BAE6FD;
-  color: #0369A1;
+  background: #FFE4E6;
+  border-color: #FECDD3;
+  color: #9F1239;
 }
 
 [data-theme="light"] .heatmap .hm-cell.lv-2,
 [data-theme="light"] .heatmap .hm-sw.lv-2 {
-  background: #7DD3FC;
-  border-color: #38BDF8;
-  color: #0C4A6E;
+  background: #FDA4AF;
+  border-color: #FB7185;
+  color: #881337;
 }
 
 [data-theme="light"] .heatmap .hm-cell.lv-3,
 [data-theme="light"] .heatmap .hm-sw.lv-3 {
-  background: #2563EB;
-  border-color: #1D4ED8;
+  background: #F43F5E;
+  border-color: #E11D48;
   color: #FFFFFF;
 }
 
 [data-theme="light"] .heatmap .hm-cell.lv-4,
 [data-theme="light"] .heatmap .hm-sw.lv-4 {
-  background: linear-gradient(135deg, #F43F5E 0%, #E11D48 100%);
-  border-color: #BE123C;
+  background: linear-gradient(135deg, #E11D48 0%, #9F1239 100%);
+  border-color: #881337;
   color: #FFFFFF;
 }
 

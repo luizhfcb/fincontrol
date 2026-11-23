@@ -11,6 +11,7 @@ import { DEFAULT_CATEGORIES } from '../core/constants.js';
 import { toLocalDateInputValue } from '../core/local-date.mjs';
 import { useDialogA11y } from '../core/useDialogA11y.js';
 import CategoryBadge, { CATEGORY_ICON_CHOICES } from './CategoryIcon.jsx';
+import ConfirmDialog from './ConfirmDialog.jsx';
 import Icon from './Icon.jsx';
 
 const KEYPAD_ROWS = [
@@ -41,13 +42,13 @@ function renderAmountValue(state, showDetails) {
 
 export default function TxModal() {
   const {
-    txModal, closeTxModal, saveTransaction, modules, updateModules,
-    group, visibleWallets, walletId,
+    txModal, closeTxModal, saveTransaction, deleteTransaction, modules, updateModules,
+    group, visibleWallets, walletId, toast, fmt,
   } = useApp();
   const editing = txModal.tx;
   const wallets = visibleWallets?.length ? visibleWallets : (group?.wallets || []);
 
-  const [type, setType] = useState(editing?.type || 'income');
+  const [type, setType] = useState(editing?.type || txModal?.defaultType || 'expense');
   const [amountState, setAmountState] = useState(() =>
     createAmountState(editing?.val || 0, { replace: Boolean(editing) }),
   );
@@ -65,6 +66,7 @@ export default function TxModal() {
   );
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const sheetRef = useRef(null);
   const descRef = useRef(null);
@@ -95,11 +97,19 @@ export default function TxModal() {
   const rawCategories = modules?.categories?.length ? modules.categories : DEFAULT_CATEGORIES;
   const names = [...new Set([
     ...rawCategories.filter((c) => !c.type || c.type === type).map((c) => c.name),
-    ...rawCategories.map((c) => c.name),
     ...(type === 'income' ? ['Trabalho'] : []),
+    ...(editing?.cat && editing.type === type ? [editing.cat] : []),
     'Outros',
   ])];
   const catValue = names.includes(cat) ? cat : (names[0] || 'Outros');
+
+  const handleTypeChange = (nextType) => {
+    setType(nextType);
+    const currentMeta = rawCategories.find((c) => c.name === cat);
+    if (currentMeta?.type && currentMeta.type !== nextType) {
+      setCat('');
+    }
+  };
 
   const onPressKey = (key) => {
     setError('');
@@ -125,7 +135,7 @@ export default function TxModal() {
   // Suporte a teclado físico quando a calculadora de valor estiver aberta
   keyHandlerRef.current = (e) => {
     if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
-    if (showDetails) return;
+    if (showDetails || confirmDelete) return;
     const tag = e.target?.tagName;
     if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
 
@@ -296,14 +306,32 @@ export default function TxModal() {
     const name = newCatName.trim();
     if (!name) { newCatRef.current?.focus(); return; }
     const exists = rawCategories.some((c) => c.name.toLowerCase() === name.toLowerCase());
-    if (!exists) {
-      const nextCats = [...rawCategories, { id: String(Date.now()), name, type, ...(newCatIcon ? { icon: newCatIcon } : {}) }];
-      await updateModules({ ...modules, categories: nextCats });
+    try {
+      if (!exists) {
+        const nextCats = [...rawCategories, { id: String(Date.now()), name, type, ...(newCatIcon ? { icon: newCatIcon } : {}) }];
+        await updateModules({ ...modules, categories: nextCats });
+        toast('Categoria criada.');
+      }
+      setCat(name);
+      setNewCatName('');
+      setNewCatIcon('');
+      setAddingCat(false);
+    } catch (ex) {
+      toast(ex?.message || 'Erro ao criar categoria.', 'error');
     }
-    setCat(name);
-    setNewCatName('');
-    setNewCatIcon('');
-    setAddingCat(false);
+  };
+
+  const handleDelete = async () => {
+    if (!editing) return;
+    try {
+      await deleteTransaction(editing.id);
+      toast('Transação excluída.', 'info');
+      closeTxModal();
+    } catch (ex) {
+      toast(ex?.message || 'Erro ao excluir transação.', 'error');
+    } finally {
+      setConfirmDelete(false);
+    }
   };
 
   const submit = async (e) => {
@@ -335,6 +363,7 @@ export default function TxModal() {
         date,
         walletId: wallet,
       });
+      toast(editing ? 'Alterações salvas.' : (type === 'expense' ? 'Gasto adicionado.' : 'Entrada adicionada.'), 'success');
       closeTxModal();
     } catch (ex) {
       setError(ex?.message || 'Erro ao salvar lançamento.');
@@ -352,57 +381,71 @@ export default function TxModal() {
     : (isExpense ? 'Novo gasto' : 'Nova entrada');
 
   return (
-    <div className="overlay" onClick={closeTxModal}>
-      <form
-        ref={sheetRef}
-        className={`sheet tx-sheet ${showDetails ? 'shows-details' : ''}`}
-        data-tx-type={type}
-        onClick={(e) => e.stopPropagation()}
-        onSubmit={submit}
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        tabIndex={-1}
-      >
-        <div
-          className="sheet-handle"
-          aria-hidden="true"
-          onTouchStart={onHandleTouchStart}
-          onTouchMove={onHandleTouchMove}
-          onTouchEnd={onHandleTouchEnd}
-          onTouchCancel={onHandleTouchEnd}
-        />
+    <>
+      <div className="overlay" onClick={closeTxModal}>
+        <form
+          ref={sheetRef}
+          className={`sheet tx-sheet ${showDetails ? 'shows-details' : ''}`}
+          data-tx-type={type}
+          onClick={(e) => e.stopPropagation()}
+          onSubmit={submit}
+          role="dialog"
+          aria-modal="true"
+          aria-label={title}
+          tabIndex={-1}
+        >
+          <div
+            className="sheet-handle"
+            aria-hidden="true"
+            onTouchStart={onHandleTouchStart}
+            onTouchMove={onHandleTouchMove}
+            onTouchEnd={onHandleTouchEnd}
+            onTouchCancel={onHandleTouchEnd}
+          />
 
-        <div className="sheet-head">
-          <div>
-            <span className="eyebrow-sm">Nova movimentação</span>
-            <h2>{title}</h2>
+          <div className="sheet-head">
+            <div>
+              <span className="eyebrow-sm">{editing ? 'Editar movimentação' : 'Nova movimentação'}</span>
+              <h2>{title}</h2>
+            </div>
+            <div className="sheet-head-actions">
+              {editing && (
+                <button
+                  type="button"
+                  className="icon-btn danger"
+                  onClick={() => setConfirmDelete(true)}
+                  aria-label="Excluir lançamento"
+                  title="Excluir lançamento"
+                >
+                  <Icon name="trash" size={17} />
+                </button>
+              )}
+              <button type="button" className="icon-btn" onClick={closeTxModal} aria-label="Fechar">
+                <Icon name="close" />
+              </button>
+            </div>
           </div>
-          <button type="button" className="icon-btn" onClick={closeTxModal} aria-label="Fechar">
-            <Icon name="close" />
-          </button>
-        </div>
 
-        <div className="tx-type-switch" role="radiogroup" aria-label="Tipo da transação">
-          <button
-            type="button"
-            role="radio"
-            aria-checked={!isExpense}
-            className={`tx-type-btn income ${!isExpense ? 'active' : ''}`}
-            onClick={() => setType('income')}
-          >
-            <Icon name="arrowDown" size={15} /> Entrada
-          </button>
-          <button
-            type="button"
-            role="radio"
-            aria-checked={isExpense}
-            className={`tx-type-btn expense ${isExpense ? 'active' : ''}`}
-            onClick={() => setType('expense')}
-          >
-            <Icon name="arrowUp" size={15} /> Gasto
-          </button>
-        </div>
+          <div className="tx-type-switch" role="radiogroup" aria-label="Tipo da transação">
+            <button
+              type="button"
+              role="radio"
+              aria-checked={!isExpense}
+              className={`tx-type-btn income ${!isExpense ? 'active' : ''}`}
+              onClick={() => handleTypeChange('income')}
+            >
+              <Icon name="arrowDown" size={15} /> Entrada
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={isExpense}
+              className={`tx-type-btn expense ${isExpense ? 'active' : ''}`}
+              onClick={() => handleTypeChange('expense')}
+            >
+              <Icon name="arrowUp" size={15} /> Gasto
+            </button>
+          </div>
 
         <button
           type="button"
@@ -628,5 +671,17 @@ export default function TxModal() {
         )}
       </form>
     </div>
+
+    <ConfirmDialog
+      open={confirmDelete}
+      title="Excluir transação?"
+      message={editing ? `Deseja excluir "${editing.desc}" (${fmt(editing.val)})? Esta ação não pode ser desfeita.` : ''}
+      confirmLabel="Excluir"
+      cancelLabel="Cancelar"
+      danger
+      onConfirm={handleDelete}
+      onCancel={() => setConfirmDelete(false)}
+    />
+  </>
   );
 }

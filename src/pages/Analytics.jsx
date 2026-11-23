@@ -5,6 +5,7 @@ import {
 } from 'recharts';
 import CategoryBadge from '../components/CategoryIcon.jsx';
 import ChartTooltip from '../components/ChartTooltip.jsx';
+import EmptyState from '../components/EmptyState.jsx';
 import ExpenseHeatmap from '../components/ExpenseHeatmap.jsx';
 import Icon from '../components/Icon.jsx';
 import MonthBar from '../components/MonthBar.jsx';
@@ -101,8 +102,16 @@ export default function Analytics() {
   }, [transactions, monthlyTransactions, modules.limits, period, month, year]);
 
   const visible = showAll ? d.rows : d.rows.slice(0, 5);
-  const flowPct = d.cur.income + d.cur.expense > 0 ? (d.cur.income / (d.cur.income + d.cur.expense)) * 100 : 50;
+  const hasFlow = d.cur.income + d.cur.expense > 0;
+  const flowPct = hasFlow ? (d.cur.income / (d.cur.income + d.cur.expense)) * 100 : 0;
   const balance = d.cur.income - d.cur.expense;
+  const netValues = d.trend.map((t) => t.net);
+  const maxVal = netValues.length ? Math.max(...netValues) : 0;
+  const minVal = netValues.length ? Math.min(...netValues) : 0;
+  const allPos = minVal >= 0;
+  const allNeg = maxVal <= 0;
+  const zeroOffset = allPos ? 1 : allNeg ? 0 : maxVal / (maxVal - minVal);
+  const hasSeriesData = d.series.data.length > 0 && (d.seriesPeak > 0 || d.series.hasPrev);
   const trendNote = {
     below: <>Você gastou <b>menos</b> que a média neste mês</>,
     above: <>Você gastou <b>mais</b> que a média neste mês</>,
@@ -130,7 +139,9 @@ export default function Analytics() {
             <strong className="summary-val num neg">{fmt(d.cur.expense)}</strong>
             <Delta current={d.cur.expense} previous={d.prev.expense} label={d.def.previousLabel} hideValues={hideValues} />
           </div>
-          <div className="flow-bar" aria-hidden="true"><span style={{ width: `${hideValues ? 50 : flowPct}%` }} /></div>
+          <div className={`flow-bar ${hasFlow ? '' : 'is-empty'}`.trim()} aria-hidden="true">
+            <span style={{ width: `${!hasFlow ? 0 : hideValues ? 50 : flowPct}%` }} />
+          </div>
         </div>
         <div className="summary-side">
           <div>
@@ -158,37 +169,54 @@ export default function Analytics() {
               {!d.series.hasPrev && d.seriesAvg > 0 && <span><i className="legend-dash" /> Média</span>}
             </div>
           </div>
-          <div className="chart-box tall">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={d.series.data} barGap={3} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
-                <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="4 4" vertical={false} />
-                <XAxis dataKey="label" tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={6} tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} />
-                <YAxis
-                  hide={hideValues}
-                  width={44}
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fill: 'var(--chart-axis)', fontSize: 11 }}
-                  tickFormatter={(v) => (hideValues ? '' : fmtCompact(v))}
-                />
-                <Tooltip cursor={{ fill: 'var(--chart-cursor)' }} content={<ChartTooltip fmt={fmt} labelFormatter={(l, p) => p?.[0]?.payload?.full || l} />} />
-                {!d.series.hasPrev && d.seriesAvg > 0 && (
-                  <ReferenceLine y={d.seriesAvg} stroke="var(--amber)" strokeDasharray="5 4" strokeWidth={1.5} />
-                )}
-                {d.series.hasPrev && <Bar dataKey="prev" name="Anterior" fill="var(--chart-muted)" radius={[5, 5, 0, 0]} maxBarSize={20} />}
-                <Bar dataKey="value" name="Atual" radius={[5, 5, 0, 0]} maxBarSize={20}>
-                  {d.series.data.map((x) => (
-                    <Cell key={x.full} fill={x.value === d.seriesPeak && x.value > 0 ? 'var(--red-strong)' : 'var(--accent)'} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <p className="chart-note">
-            {d.seriesPeak > 0
-              ? <>Pico de <b className="num">{fmt(d.seriesPeak)}</b> · média de <b className="num">{fmt(d.seriesAvg)}</b> nos dias com gasto</>
-              : 'Sem despesas no período.'}
-          </p>
+          {!hasSeriesData ? (
+            <EmptyState
+              compact
+              icon="chart"
+              title="Sem dados no período"
+              description="Adicione despesas para visualizar a evolução."
+            />
+          ) : (
+            <>
+              <div className="chart-box tall">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={d.series.data} barGap={3} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
+                    <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="4 4" vertical={false} />
+                    <XAxis dataKey="label" tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={6} tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} />
+                    <YAxis
+                      hide={hideValues}
+                      width={48}
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fill: 'var(--chart-axis)', fontSize: 11 }}
+                      tickFormatter={(v) => (hideValues ? '' : fmtCompact(v))}
+                    />
+                    <Tooltip cursor={{ fill: 'var(--chart-cursor)' }} content={<ChartTooltip fmt={fmt} labelFormatter={(l, p) => p?.[0]?.payload?.full || l} />} />
+                    {!d.series.hasPrev && d.seriesAvg > 0 && (
+                      <ReferenceLine y={d.seriesAvg} stroke="var(--amber)" strokeDasharray="5 4" strokeWidth={1.5} />
+                    )}
+                    {d.series.hasPrev && <Bar dataKey="prev" name="Anterior" fill="var(--chart-muted)" radius={[5, 5, 0, 0]} maxBarSize={20} />}
+                    <Bar dataKey="value" name="Atual" radius={[5, 5, 0, 0]} maxBarSize={20}>
+                      {d.series.data.map((x) => (
+                        <Cell key={x.full} fill={x.value === d.seriesPeak && x.value > 0 ? 'var(--red-strong)' : 'var(--accent)'} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="chart-note">
+                {d.seriesPeak > 0
+                  ? (
+                    <>
+                      Pico de <b className="num">{fmt(d.seriesPeak)}</b> · média de{' '}
+                      <b className="num">{fmt(d.seriesAvg)}</b>{' '}
+                      {period === 'year' || period === 'all' ? 'nos meses com gasto' : 'nos dias com gasto'}
+                    </>
+                  )
+                  : 'Sem despesas no período.'}
+              </p>
+            </>
+          )}
         </section>
 
         <section className="card">
@@ -200,7 +228,12 @@ export default function Analytics() {
             <span className="muted tiny">{d.rows.length} categorias</span>
           </div>
           {d.rows.length === 0 ? (
-            <p className="empty">Sem despesas registradas neste período.</p>
+            <EmptyState
+              compact
+              icon="tag"
+              title="Sem despesas neste período"
+              description="Os gastos agrupados por categoria aparecerão aqui."
+            />
           ) : (
             <>
               {visible.map((r) => (
@@ -334,16 +367,38 @@ export default function Analytics() {
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={d.trend} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <defs>
+                  {!allPos && !allNeg && (
+                    <linearGradient id="netStroke" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset={zeroOffset} stopColor="var(--green-strong)" />
+                      <stop offset={zeroOffset} stopColor="var(--red-strong)" />
+                    </linearGradient>
+                  )}
                   <linearGradient id="netFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--green-strong)" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="var(--green-strong)" stopOpacity={0} />
+                    {allPos ? (
+                      <>
+                        <stop offset="0%" stopColor="var(--green-strong)" stopOpacity={0.32} />
+                        <stop offset="100%" stopColor="var(--green-strong)" stopOpacity={0.04} />
+                      </>
+                    ) : allNeg ? (
+                      <>
+                        <stop offset="0%" stopColor="var(--red-strong)" stopOpacity={0.04} />
+                        <stop offset="100%" stopColor="var(--red-strong)" stopOpacity={0.28} />
+                      </>
+                    ) : (
+                      <>
+                        <stop offset="0%" stopColor="var(--green-strong)" stopOpacity={0.32} />
+                        <stop offset={zeroOffset} stopColor="var(--green-strong)" stopOpacity={0.04} />
+                        <stop offset={zeroOffset} stopColor="var(--red-strong)" stopOpacity={0.04} />
+                        <stop offset="100%" stopColor="var(--red-strong)" stopOpacity={0.28} />
+                      </>
+                    )}
                   </linearGradient>
                 </defs>
                 <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="4 4" vertical={false} />
                 <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: 'var(--chart-axis)', fontSize: 12 }} />
                 <YAxis
                   hide={hideValues}
-                  width={44}
+                  width={54}
                   tickLine={false}
                   axisLine={false}
                   tick={{ fill: 'var(--chart-axis)', fontSize: 11 }}
@@ -351,7 +406,29 @@ export default function Analytics() {
                 />
                 <Tooltip content={<ChartTooltip fmt={fmt} labelFormatter={(l, p) => `${l} ${p?.[0]?.payload?.year ?? ''}`} />} />
                 <ReferenceLine y={0} stroke="var(--border-strong)" />
-                <Area type="monotone" dataKey="net" name="Saldo" stroke="var(--green-strong)" strokeWidth={2.5} fill="url(#netFill)" dot={{ r: 3.5, fill: 'var(--green-strong)', strokeWidth: 0 }} activeDot={{ r: 5 }} />
+                <Area
+                  baseValue={0}
+                  type="monotone"
+                  dataKey="net"
+                  name="Saldo"
+                  stroke={allPos ? 'var(--green-strong)' : allNeg ? 'var(--red-strong)' : 'url(#netStroke)'}
+                  strokeWidth={2.5}
+                  fill="url(#netFill)"
+                  dot={(props) => {
+                    if (props.cx == null || props.cy == null) return null;
+                    const pos = (props.payload?.net ?? 0) >= 0;
+                    return (
+                      <circle
+                        key={`net-dot-${props.index}`}
+                        cx={props.cx}
+                        cy={props.cy}
+                        r={3.5}
+                        fill={pos ? 'var(--green-strong)' : 'var(--red-strong)'}
+                      />
+                    );
+                  }}
+                  activeDot={{ r: 5 }}
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -366,7 +443,14 @@ export default function Analytics() {
             <Link to="/mais/limites" className="text-link">Gerenciar <Icon name="right" size={15} /></Link>
           </div>
           {d.limits.length === 0 ? (
-            <p className="empty">Nenhum limite definido.</p>
+            <EmptyState
+              compact
+              icon="sliders"
+              title="Nenhum limite definido"
+              description="Defina tetos mensais por categoria para acompanhar seus gastos."
+              actionLabel="Definir limites"
+              actionTo="/mais/limites"
+            />
           ) : (
             <div className="progress-list">
               {d.limits.map((l) => (

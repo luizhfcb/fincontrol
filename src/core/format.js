@@ -7,9 +7,12 @@ export function formatCurrency(value) {
 
 export function formatCompactCurrency(value) {
   const amount = Number(value || 0);
-  if (amount >= 1000) {
-    const compact = (Math.round(amount / 100) / 10).toLocaleString('pt-BR');
-    return `R$${compact}k`;
+  const abs = Math.abs(amount);
+  if (abs >= 1000) {
+    const compact = (Math.round(abs / 100) / 10).toLocaleString('pt-BR');
+    return `${amount < 0 ? '-' : ''}R$${compact}k`;
   }
-  return `R$${Math.round(amount)}`;
+  const rounded = Math.round(abs);
+  if (rounded === 0) return 'R$0';
+  return `${amount < 0 ? '-' : ''}R$${rounded}`;
 }

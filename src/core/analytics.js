@@ -1,5 +1,6 @@
 import { MONTHS } from './constants.js';
 import { toLocalDateInputValue } from './local-date.mjs';
+import { parsePtBrNumber } from './parse-number.mjs';
 
 export const PERIODS = ['week', 'month', 'year', 'all'];
 export const PERIOD_LABELS = { week: 'Semana', month: 'Mês', year: 'Ano', all: 'Tudo' };
@@ -146,8 +147,8 @@ export function niceCeil(value) {
 export function filterTransactions(transactions, filters = {}) {
   const { query = '', type = 'all', cat = '', min, max, from, to } = filters;
   const q = query.trim().toLocaleLowerCase('pt-BR');
-  const lo = min === '' || min == null ? null : Number(min);
-  const hi = max === '' || max == null ? null : Number(max);
+  const lo = min === '' || min == null ? null : parsePtBrNumber(min);
+  const hi = max === '' || max == null ? null : parsePtBrNumber(max);
 
   return transactions.filter((t) => {
     if (type !== 'all' && t.type !== type) return false;
@@ -172,7 +173,10 @@ export function groupByCategory(transactions) {
     groups.get(cat).push(t);
   }
   return [...groups.entries()]
-    .map(([cat, items]) => ({ cat, items, total: items.reduce((s, t) => s + num(t.val), 0) }))
+    .map(([cat, items]) => {
+      const t = totals(items);
+      return { cat, items, income: t.income, expense: t.expense, net: t.balance, total: t.income + t.expense };
+    })
     .sort((a, b) => b.total - a.total);
 }
 

@@ -10,14 +10,14 @@ import { PERSONAL_WALLET_ID, deleteWallet, renameWallet } from '../core/family.j
 export default function Shared() {
   const {
     isFirebase, user, group, visibleWallets, updateGroup, createInviteCode, joinByInviteCode,
-    allTransactions, month, year, fmt, walletId, setWalletId,
+    allTransactions, month, year, fmt, walletId, setWalletId, hideValues, toast,
   } = useApp();
   const allWallets = group?.wallets || [];
   const wallets = visibleWallets?.length ? visibleWallets : allWallets;
   const shareableWallets = wallets.filter((w) => w.id !== PERSONAL_WALLET_ID);
   const defaultWalletId = shareableWallets.find((w) => w.shared)?.id || shareableWallets[0]?.id || '';
 
-  const [walletsOpen, setWalletsOpen] = useState(false);
+  const [walletsOpen, setWalletsOpen] = useState(true);
   const [invite, setInvite] = useState({ name: '', email: '', walletId: defaultWalletId });
   const [codeWallet, setCodeWallet] = useState(defaultWalletId);
   const [generatedCode, setGeneratedCode] = useState('');
@@ -54,6 +54,7 @@ export default function Shared() {
       const code = await createInviteCode(selectedCodeWallet);
       setGeneratedCode(code);
       setCopied(false);
+      toast('Código de convite gerado!');
     } catch (e) {
       setCodeErr(e?.message || 'Erro ao gerar código.');
     }
@@ -64,8 +65,11 @@ export default function Shared() {
     try {
       await navigator.clipboard.writeText(generatedCode);
       setCopied(true);
+      toast('Código copiado!', 'info');
       setTimeout(() => setCopied(false), 2000);
-    } catch { /* ignore */ }
+    } catch {
+      toast('Não foi possível copiar o código.', 'error');
+    }
   };
 
   const handleJoin = async (e) => {
@@ -75,46 +79,63 @@ export default function Shared() {
       await joinByInviteCode(joinCode);
       setJoinCode('');
       setWalletsOpen(true);
-      setJoinMsg({ type: 'ok', text: isFirebase ? 'Você entrou no grupo familiar!' : 'Código validado (modo demonstração).' });
+      const text = isFirebase ? 'Você entrou no grupo familiar!' : 'Código validado (modo demonstração).';
+      setJoinMsg({ type: 'ok', text });
+      toast(text);
     } catch (ex) {
       setJoinMsg({ type: 'err', text: ex?.message || 'Não foi possível entrar no grupo.' });
     }
   };
 
-  const addMember = (e) => {
+  const addMember = async (e) => {
     e.preventDefault();
     if (!invite.name.trim() || !/^\S+@\S+\.\S+$/.test(invite.email)) return setErr('Informe nome e um e-mail válido.');
     if (group.members.some((m) => m.email.toLowerCase() === invite.email.toLowerCase())) return setErr('Essa pessoa já está no grupo.');
     setErr('');
     const id = `u${Date.now()}`;
-    updateGroup({
-      ...group,
-      members: [...group.members, { id, name: invite.name.trim(), email: invite.email.trim() }],
-      wallets: allWallets.map((w) => (w.id === selectedInviteWallet ? { ...w, shared: true, memberIds: [...w.memberIds, id] } : w)),
-    });
-    setInvite({ ...invite, name: '', email: '' });
-    setWalletsOpen(true);
+    try {
+      await updateGroup({
+        ...group,
+        members: [...group.members, { id, name: invite.name.trim(), email: invite.email.trim() }],
+        wallets: allWallets.map((w) => (w.id === selectedInviteWallet ? { ...w, shared: true, memberIds: [...w.memberIds, id] } : w)),
+      });
+      setInvite({ ...invite, name: '', email: '' });
+      setWalletsOpen(true);
+      toast('Participante adicionado.');
+    } catch (ex) {
+      toast(ex?.message || 'Erro ao adicionar participante.', 'error');
+    }
   };
 
-  const addWallet = (e) => {
+  const addWallet = async (e) => {
     e.preventDefault();
     if (!walletName.trim()) return;
     const newId = `w${Date.now()}`;
-    updateGroup({
-      ...group,
-      wallets: [...allWallets, { id: newId, name: walletName.trim(), shared: false, memberIds: [myUid] }],
-    });
-    setCodeWallet(newId);
-    setWalletName('');
-    setWalletsOpen(true);
+    try {
+      await updateGroup({
+        ...group,
+        wallets: [...allWallets, { id: newId, name: walletName.trim(), shared: false, memberIds: [myUid] }],
+      });
+      setCodeWallet(newId);
+      setWalletName('');
+      setWalletsOpen(true);
+      toast('Carteira criada.');
+    } catch (ex) {
+      toast(ex?.message || 'Erro ao criar carteira.', 'error');
+    }
   };
 
-  const removeFromWallet = (wallet, memberId) => {
+  const removeFromWallet = async (wallet, memberId) => {
     if (wallet.memberIds.length <= 1) return;
-    updateGroup({
-      ...group,
-      wallets: allWallets.map((w) => (w.id === wallet.id ? { ...w, memberIds: w.memberIds.filter((m) => m !== memberId) } : w)),
-    });
+    try {
+      await updateGroup({
+        ...group,
+        wallets: allWallets.map((w) => (w.id === wallet.id ? { ...w, memberIds: w.memberIds.filter((m) => m !== memberId) } : w)),
+      });
+      toast('Participante removido.', 'info');
+    } catch (ex) {
+      toast(ex?.message || 'Erro ao remover participante.', 'error');
+    }
   };
 
   const startEditWallet = (w) => {
@@ -136,137 +157,36 @@ export default function Shared() {
       setEditErr(res.error);
       return;
     }
-    await updateGroup(res.group);
-    cancelEditWallet();
+    try {
+      await updateGroup(res.group);
+      cancelEditWallet();
+      toast('Carteira renomeada.');
+    } catch (ex) {
+      setEditErr(ex?.message || 'Erro ao renomear carteira.');
+    }
   };
 
   const handleDeleteWallet = async (w) => {
     const res = deleteWallet(group, w.id);
     if (!res.ok) return;
-    await updateGroup(res.group);
-    if (walletId === w.id) setWalletId('all');
-    if (editingWalletId === w.id) cancelEditWallet();
+    try {
+      await updateGroup(res.group);
+      if (walletId === w.id) setWalletId('all');
+      if (editingWalletId === w.id) cancelEditWallet();
+      toast('Carteira excluída.', 'info');
+    } catch (ex) {
+      toast(ex?.message || 'Erro ao excluir carteira.', 'error');
+    }
   };
 
   return (
     <>
       <div className="page-toolbar">
-        <Link to="/mais" className="back" style={{ margin: 0 }}><Icon name="left" size={16} /> Voltar aos módulos</Link>
+        <Link to="/mais" className="back back-mobile" style={{ margin: 0 }}><Icon name="left" size={16} /> Voltar aos módulos</Link>
         <MonthBar />
       </div>
 
-      {/* 1º bloco: Criar carteira + Convite por código */}
-      <div className="grid-2">
-        <div className="stack">
-          <form className="card" onSubmit={addWallet}>
-            <h3>Nova carteira</h3>
-            <p className="muted tiny" style={{ marginBottom: 12 }}>
-              Crie carteiras separadas para viagens, projetos, empresa ou despesas da casa.
-            </p>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <input
-                className="input"
-                placeholder="Ex.: Viagem, Casa, Reserva..."
-                aria-label="Nome da carteira"
-                value={walletName}
-                onChange={(e) => setWalletName(e.target.value)}
-              />
-              <button className="btn sm" type="submit">Criar</button>
-            </div>
-          </form>
-
-          {!isFirebase && (
-            <form className="card" onSubmit={addMember}>
-              <h3>Simular participante (Demo)</h3>
-              <div className="filters">
-                <div className="field">
-                  <label htmlFor="in">Nome</label>
-                  <input id="in" className="input" placeholder="Ex.: Maria" value={invite.name} onChange={(e) => setInvite({ ...invite, name: e.target.value })} />
-                </div>
-                <div className="field">
-                  <label htmlFor="ie">E-mail</label>
-                  <input id="ie" type="email" className="input" placeholder="maria@exemplo.com" value={invite.email} onChange={(e) => setInvite({ ...invite, email: e.target.value })} />
-                </div>
-              </div>
-              <div className="field">
-                <label htmlFor="iw">Carteira</label>
-                <select
-                  id="iw"
-                  className="input"
-                  value={selectedInviteWallet}
-                  onChange={(e) => setInvite({ ...invite, walletId: e.target.value })}
-                  disabled={shareableWallets.length === 0}
-                >
-                  {shareableWallets.length === 0 ? (
-                    <option value="">Crie uma carteira primeiro</option>
-                  ) : (
-                    shareableWallets.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)
-                  )}
-                </select>
-              </div>
-              {err && <p className="neg tiny" role="alert" style={{ marginBottom: 10 }}>{err}</p>}
-              <button className="btn ghost" type="submit" disabled={shareableWallets.length === 0}>Adicionar ao grupo demo</button>
-            </form>
-          )}
-        </div>
-
-        <section className="card">
-          <h3>Convite por código (Modo Família)</h3>
-          <p className="muted tiny" style={{ marginBottom: 14 }}>
-            Gere um código curto e envie pelo WhatsApp para outra pessoa entrar na carteira com a conta Google dela.
-          </p>
-          <div className="field">
-            <label htmlFor="cw">Carteira para compartilhar</label>
-            <select
-              id="cw"
-              className="input"
-              value={selectedCodeWallet}
-              onChange={(e) => setCodeWallet(e.target.value)}
-              disabled={shareableWallets.length === 0}
-            >
-              {shareableWallets.length === 0 ? (
-                <option value="">Crie uma carteira (ex.: Viagem ou Casa) primeiro</option>
-              ) : (
-                shareableWallets.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)
-              )}
-            </select>
-          </div>
-          <button type="button" className="btn" onClick={handleGenerateCode} disabled={shareableWallets.length === 0}>
-            <Icon name="users" size={17} /> Gerar código de convite
-          </button>
-          {codeErr && <p className="neg tiny" role="alert" style={{ marginTop: 8 }}>{codeErr}</p>}
-
-          {generatedCode && (
-            <div className="invite-code-box">
-              <strong className="num">{generatedCode}</strong>
-              <button type="button" className="btn ghost sm" onClick={copyCode}>
-                {copied ? 'Copiado!' : 'Copiar'}
-              </button>
-            </div>
-          )}
-
-          <form onSubmit={handleJoin} style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
-            <div className="field">
-              <label htmlFor="jc">Recebeu um código? Entrar em um grupo</label>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <input
-                  id="jc"
-                  className="input"
-                  placeholder="Ex.: FAM-7K3M"
-                  value={joinCode}
-                  onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                />
-                <button type="submit" className="btn sm">Entrar</button>
-              </div>
-            </div>
-            {joinMsg.text && (
-              <p className={`tiny ${joinMsg.type === 'err' ? 'neg' : 'pos'}`} role="alert">{joinMsg.text}</p>
-            )}
-          </form>
-        </section>
-      </div>
-
-      {/* 2º bloco: Menu dropdown "Minhas carteiras" */}
+      {/* 1º bloco: Menu dropdown "Minhas carteiras" (responde ao mês acima) */}
       <section className={`card wallets-accordion ${walletsOpen ? 'open' : ''}`}>
         <button
           type="button"
@@ -396,7 +316,7 @@ export default function Shared() {
                                   <span className="amt num">{fmt(spent)}</span>
                                 </div>
                                 <div className="wm-sub">
-                                  <span className="muted tiny num">{pct.toFixed(0)}% das saídas</span>
+                                  <span className="muted tiny num">{hideValues ? '••%' : `${pct.toFixed(0)}%`} das saídas</span>
                                   {canRemove && (
                                     <>
                                       <span className="muted tiny" aria-hidden="true">·</span>
@@ -412,7 +332,7 @@ export default function Shared() {
                                   )}
                                 </div>
                                 <div className="bar" style={{ height: 6, marginTop: 6 }}>
-                                  <span style={{ width: `${pct}%` }} />
+                                  <span style={{ width: `${hideValues ? 0 : pct}%` }} />
                                 </div>
                               </div>
                             </div>
@@ -427,6 +347,117 @@ export default function Shared() {
           </div>
         )}
       </section>
+
+      {/* 2º bloco: Criar carteira + Convite por código */}
+      <div className="grid-2">
+        <div className="stack">
+          <form className="card" onSubmit={addWallet}>
+            <h3>Nova carteira</h3>
+            <p className="muted tiny" style={{ marginBottom: 12 }}>
+              Crie carteiras separadas para viagens, projetos, empresa ou despesas da casa.
+            </p>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                className="input"
+                placeholder="Ex.: Viagem, Casa, Reserva..."
+                aria-label="Nome da carteira"
+                value={walletName}
+                onChange={(e) => setWalletName(e.target.value)}
+              />
+              <button className="btn sm" type="submit">Criar</button>
+            </div>
+          </form>
+
+          {!isFirebase && (
+            <form className="card" onSubmit={addMember}>
+              <h3>Simular participante (Demo)</h3>
+              <div className="filters">
+                <div className="field">
+                  <label htmlFor="in">Nome</label>
+                  <input id="in" className="input" placeholder="Ex.: Maria" value={invite.name} onChange={(e) => setInvite({ ...invite, name: e.target.value })} />
+                </div>
+                <div className="field">
+                  <label htmlFor="ie">E-mail</label>
+                  <input id="ie" type="email" className="input" placeholder="maria@exemplo.com" value={invite.email} onChange={(e) => setInvite({ ...invite, email: e.target.value })} />
+                </div>
+              </div>
+              <div className="field">
+                <label htmlFor="iw">Carteira</label>
+                <select
+                  id="iw"
+                  className="input"
+                  value={selectedInviteWallet}
+                  onChange={(e) => setInvite({ ...invite, walletId: e.target.value })}
+                  disabled={shareableWallets.length === 0}
+                >
+                  {shareableWallets.length === 0 ? (
+                    <option value="">Crie uma carteira primeiro</option>
+                  ) : (
+                    shareableWallets.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)
+                  )}
+                </select>
+              </div>
+              {err && <p className="neg tiny" role="alert" style={{ marginBottom: 10 }}>{err}</p>}
+              <button className="btn ghost" type="submit" disabled={shareableWallets.length === 0}>Adicionar ao grupo demo</button>
+            </form>
+          )}
+        </div>
+
+        <section className="card">
+          <h3>Convite por código (Modo Família)</h3>
+          <p className="muted tiny" style={{ marginBottom: 14 }}>
+            Gere um código curto e envie pelo WhatsApp para outra pessoa entrar na carteira com a conta Google dela.
+          </p>
+          <div className="field">
+            <label htmlFor="cw">Carteira para compartilhar</label>
+            <select
+              id="cw"
+              className="input"
+              value={selectedCodeWallet}
+              onChange={(e) => setCodeWallet(e.target.value)}
+              disabled={shareableWallets.length === 0}
+            >
+              {shareableWallets.length === 0 ? (
+                <option value="">Crie uma carteira (ex.: Viagem ou Casa) primeiro</option>
+              ) : (
+                shareableWallets.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)
+              )}
+            </select>
+          </div>
+          <button type="button" className="btn" onClick={handleGenerateCode} disabled={shareableWallets.length === 0}>
+            <Icon name="users" size={17} /> Gerar código de convite
+          </button>
+          {codeErr && <p className="neg tiny" role="alert" style={{ marginTop: 8 }}>{codeErr}</p>}
+
+          {generatedCode && (
+            <div className="invite-code-box">
+              <strong className="num">{generatedCode}</strong>
+              <button type="button" className="btn ghost sm" onClick={copyCode}>
+                {copied ? 'Copiado!' : 'Copiar'}
+              </button>
+            </div>
+          )}
+
+          <form onSubmit={handleJoin} style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+            <div className="field">
+              <label htmlFor="jc">Recebeu um código? Entrar em um grupo</label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  id="jc"
+                  className="input"
+                  placeholder="Ex.: FAM-7K3M"
+                  value={joinCode}
+                  onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                />
+                <button type="submit" className="btn sm">Entrar</button>
+              </div>
+            </div>
+            {joinMsg.text && (
+              <p className={`tiny ${joinMsg.type === 'err' ? 'neg' : 'pos'}`} role="alert">{joinMsg.text}</p>
+            )}
+          </form>
+        </section>
+      </div>
 
       <ConfirmDialog
         open={Boolean(confirmRemove)}

@@ -1,4 +1,5 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import ToastViewport from '../components/Toast.jsx';
 import { visibleWalletsForUser } from '../core/family.js';
 import { formatCompactCurrency, formatCurrency } from '../core/format.js';
 import { USE_FIREBASE, api } from '../services/index.js';
@@ -27,9 +28,52 @@ export function AppProvider({ children }) {
   const [month, setMonth] = useState(now.getMonth());
   const [year, setYear] = useState(now.getFullYear());
   const [walletId, setWalletId] = useState('all');
-  const [txModal, setTxModal] = useState(null); // null | { tx? }
+  const [txModal, setTxModal] = useState(null); // null | { tx?, defaultType? }
   const [theme, setTheme] = useState(() => readPref('fc_theme', 'dark'));
   const [hideValues, setHideValues] = useState(() => readPref('fc_hide_values', '0') === '1');
+  const [toasts, setToasts] = useState([]);
+  const toastTimersRef = useRef(new Map());
+
+  const dismissToast = useCallback((id) => {
+    const timer = toastTimersRef.current.get(id);
+    if (timer) {
+      clearTimeout(timer);
+      toastTimersRef.current.delete(id);
+    }
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  const toast = useCallback((message, tone = 'success') => {
+    if (!message) return;
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    setToasts((prev) => {
+      const next = [...prev, { id, message, tone }];
+      if (next.length > 3) {
+        const dropped = next.shift();
+        if (dropped) {
+          const t = toastTimersRef.current.get(dropped.id);
+          if (t) {
+            clearTimeout(t);
+            toastTimersRef.current.delete(dropped.id);
+          }
+        }
+      }
+      return next;
+    });
+    const delay = tone === 'error' ? 5000 : 3500;
+    const timer = setTimeout(() => {
+      toastTimersRef.current.delete(id);
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, delay);
+    toastTimersRef.current.set(id, timer);
+  }, []);
+
+  useEffect(() => () => {
+    for (const timer of toastTimersRef.current.values()) {
+      clearTimeout(timer);
+    }
+    toastTimersRef.current.clear();
+  }, []);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -191,10 +235,18 @@ export function AppProvider({ children }) {
     modules, goals, group: safeGroup, visibleWallets,
     month, year, shiftMonth, goToCurrentMonth,
     walletId, setWalletId,
-    txModal, openTxModal: (tx = null) => setTxModal({ tx }), closeTxModal: () => setTxModal(null),
+    txModal,
+    openTxModal: (tx = null, opts = {}) => setTxModal({ tx, defaultType: opts?.defaultType || 'expense' }),
+    closeTxModal: () => setTxModal(null),
     saveTransaction, deleteTransaction, updateModules, updateGoals, updateGroup,
     createInviteCode, joinByInviteCode, markFeatureSeen, resetDemo,
     theme, toggleTheme, hideValues, toggleHideValues, fmt, fmtCompact,
+    toasts, toast, dismissToast,
   };
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={value}>
+      {children}
+      <ToastViewport toasts={toasts} onDismiss={dismissToast} />
+    </AppContext.Provider>
+  );
 }
